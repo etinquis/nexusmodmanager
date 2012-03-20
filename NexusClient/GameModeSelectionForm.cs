@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using Nexus.Client.Games;
 using Nexus.Client.Settings;
-using Nexus.Client.Util;
+using Nexus.Client.UI.Controls;
 using Nexus.Client.Util.Collections;
 
 namespace Nexus.Client
@@ -23,7 +23,7 @@ namespace Nexus.Client
 		{
 			get
 			{
-				return (string)cbxGameMode.SelectedValue;
+				return glvGameMode.SelectedGameMode.ModeId;
 			}
 		}
 
@@ -47,13 +47,17 @@ namespace Nexus.Client
 			Settings = p_setSettings;
 			InitializeComponent();
 			Icon = Properties.Resources.DefaultIcon;
-			cbxGameMode.DataSource = p_lstGameModes;
-			cbxGameMode.DisplayMember = ObjectHelper.GetPropertyName<IGameModeDescriptor>(x => x.Name);
-			cbxGameMode.ValueMember = ObjectHelper.GetPropertyName<IGameModeDescriptor>(x => x.ModeId);
-
+			List<IGameModeDescriptor> lstSortedModes = new List<IGameModeDescriptor>(p_lstGameModes);
+			lstSortedModes.Sort((x, y) => x.Name.CompareTo(y.Name));
+			foreach (IGameModeDescriptor gmdInfo in lstSortedModes)
+			{
+				GameModeListViewItem gliGameModeItem = new GameModeListViewItem(gmdInfo);
+				glvGameMode.Controls.Add(gliGameModeItem);
+			}
+			
 			IGameModeDescriptor gmdDefault = p_lstGameModes.Find(x => x.ModeId.Equals(p_setSettings.RememberedGameMode));
 			if (gmdDefault != null)
-				cbxGameMode.SelectedValue = gmdDefault.ModeId;
+				glvGameMode.SelectedGameMode = gmdDefault;
 			cbxRemember.Checked = Settings.RememberGameMode;
 		}
 
@@ -76,17 +80,17 @@ namespace Nexus.Client
 		}
 
 		/// <summary>
-		/// /// Hanldes the <see cref="ComboBox.SelectedIndexChanged"/> event of the game mode
+		/// Handles the <see cref="GameModeListView.SelectedItemChanged"/> event of the game mode
 		/// selection box.
 		/// </summary>
 		/// <remarks>
 		/// This changes the icon to refect the currently selected game mode.
 		/// </remarks>
 		/// <param name="sender">The object that raised the event.</param>
-		/// <param name="e">An <see cref="EventArgs"/> describing the event arguments.</param>
-		private void cbxGameMode_SelectedIndexChanged(object sender, EventArgs e)
+		/// <param name="e">An <see cref="SelectedItemEventArgs"/> describing the event arguments.</param>
+		private void glvGameMode_SelectedItemChanged(object sender, SelectedItemEventArgs e)
 		{
-			Icon = ((IGameModeDescriptor)cbxGameMode.SelectedItem).ModeTheme.Icon;
+			Icon = glvGameMode.SelectedGameMode.ModeTheme.Icon;
 		}
 	}
 }
