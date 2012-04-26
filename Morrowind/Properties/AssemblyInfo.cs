@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle(Nexus.Client.ProgrammeMetadata.ModManagerName + " XML Script")]
-[assembly: AssemblyDescription("The XML Script language for the official Mod Manager the Nexus network of game mod websites.")]
+[assembly: AssemblyTitle(Nexus.Client.ProgrammeMetadata.ModManagerName + " - Morrowind Module")]
+[assembly: AssemblyDescription("The Morrowind Module for the official Mod Manager the Nexus network of game mod websites.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Black Tree Gaming")]
-[assembly: AssemblyProduct("XmlScript")]
+[assembly: AssemblyProduct("Morrowind")]
 [assembly: AssemblyCopyright("Copyright © Black Tree Gaming 2011")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("8dbdab98-c63d-4e04-87f5-8f80b3e80ec3")]
+[assembly: Guid("a7c1681d-b7d4-48e5-af28-aa8005a43dc1")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -33,6 +33,6 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.1")]
-// AssemblyFileVersionFormat("1.1.*")]
-[assembly: AssemblyFileVersion("1.1.4499.28465")]
+// AssemblyFileVersionFormat("1.1.*")
+[assembly: AssemblyFileVersion("1.1.4499.29921")]
 [assembly: AssemblyInformationalVersion(Nexus.Client.ProgrammeMetadata.VersionString)]

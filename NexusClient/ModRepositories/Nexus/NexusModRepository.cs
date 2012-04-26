@@ -103,9 +103,13 @@ namespace Nexus.Client.ModRepositories.Nexus
 					m_strWebsite = "newvegas.nexusmods.com";
 					m_strEndpoint = "FONVNexusREST";
 					break;
+                case "Morrowind":
+                    m_strWebsite = "morrowind.nexusmods.com";
+                    m_strEndpoint = "MWNexusREST";
+                    break;
 				case "Oblivion":
-					m_strWebsite = "tes.nexusmods.com";
-					m_strEndpoint = "TESNexusREST";
+					m_strWebsite = "oblivion.nexusmods.com";
+                    m_strEndpoint = "OBNexusREST";
 					break;
 				case "Skyrim":
 					m_strWebsite = "skyrim.nexusmods.com";

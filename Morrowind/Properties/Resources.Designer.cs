@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Nexus.Client.Games.Oblivion.Properties {
+namespace Nexus.Client.Games.Morrowind.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Nexus.Client.Games.Oblivion.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Nexus.Client.Games.Oblivion.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Nexus.Client.Games.Morrowind.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -60,9 +60,9 @@ namespace Nexus.Client.Games.Oblivion.Properties {
             }
         }
         
-        internal static System.Drawing.Icon oblivion_logo {
+        internal static System.Drawing.Icon morrowind_logo {
             get {
-                object obj = ResourceManager.GetObject("oblivion_logo", resourceCulture);
+                object obj = ResourceManager.GetObject("morrowind_logo", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }
