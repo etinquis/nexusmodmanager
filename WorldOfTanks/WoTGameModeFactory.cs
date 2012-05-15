@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
@@ -7,14 +7,16 @@ using Nexus.Client.Settings;
 using Nexus.Client.UI;
 using Nexus.Client.Util;
 
-namespace Nexus.Client.Games.Gamebryo
+namespace Nexus.Client.Games.WorldOfTanks
 {
 	/// <summary>
 	/// The base game mode factory that provides the commond functionality for
-	/// factories that build game modes for Gamebryo based games.
+    /// factories that build game modes for WorldOfTanks based games.
 	/// </summary>
-	public abstract class GamebryoGameModeFactory : IGameModeFactory
+	public class WoTGameModeFactory : IGameModeFactory
 	{
+        private readonly IGameModeDescriptor m_gmdGameModeDescriptor = null;
+
 		#region Properties
 
 		/// <summary>
@@ -23,11 +25,17 @@ namespace Nexus.Client.Games.Gamebryo
 		/// <value>The application's environement info.</value>
 		protected IEnvironmentInfo EnvironmentInfo { get; private set; }
 
-		/// <summary>
-		/// Gets the descriptor of the game mode that this factory builds.
-		/// </summary>
-		/// <value>The descriptor of the game mode that this factory builds.</value>
-		public abstract IGameModeDescriptor GameModeDescriptor { get; }
+        /// <summary>
+        /// Gets the descriptor of the game mode that this factory builds.
+        /// </summary>
+        /// <value>The descriptor of the game mode that this factory builds.</value>
+        public IGameModeDescriptor GameModeDescriptor
+        {
+            get
+            {
+                return m_gmdGameModeDescriptor;
+            }
+        }
 
 		#endregion
 
@@ -37,9 +45,10 @@ namespace Nexus.Client.Games.Gamebryo
 		/// A simple consturctor that initializes the object with the given values.
 		/// </summary>
 		/// <param name="p_eifEnvironmentInfo">The application's environement info.</param>
-		public GamebryoGameModeFactory(IEnvironmentInfo p_eifEnvironmentInfo)
+		public WoTGameModeFactory(IEnvironmentInfo p_eifEnvironmentInfo)
 		{
-			EnvironmentInfo = p_eifEnvironmentInfo;
+            EnvironmentInfo = p_eifEnvironmentInfo;
+            m_gmdGameModeDescriptor = new WoTGameModeDescriptor(p_eifEnvironmentInfo);
 		}
 
 		#endregion
@@ -51,25 +60,7 @@ namespace Nexus.Client.Games.Gamebryo
 		/// <c>null</c> if the path could not be determined.</returns>
 		public string GetInstallationPath()
 		{
-			string strRegistryKey = null;
-			if (EnvironmentInfo.Is64BitProcess)
-				strRegistryKey = @"HKEY_LOCAL_MACHINE\Software\Wow6432Node\Bethesda Softworks\{0}";
-			else
-				strRegistryKey = @"HKEY_LOCAL_MACHINE\Software\Bethesda Softworks\{0}";
-			Trace.TraceInformation(@"Checking: {0}\Installed Path", String.Format(strRegistryKey, GameModeDescriptor.ModeId));
-			Trace.Indent();
-			string strValue = null;
-			try
-			{
-				strValue = Registry.GetValue(String.Format(strRegistryKey, GameModeDescriptor.ModeId), "Installed Path", null) as string;
-			}
-			catch
-			{
-				//if we can't read the registry, just return null
-			}
-			Trace.TraceInformation(String.Format("Found {0}", strValue));
-			Trace.Unindent();
-			return strValue;
+			return null;
 		}
 
 		/// <summary>
@@ -90,27 +81,21 @@ namespace Nexus.Client.Games.Gamebryo
 				EnvironmentInfo.Settings.Save();
 			}
 
-			/*if (File.Exists("FO3Edit.exe"))
-				m_lstTools.Add(new Command<MainForm>("FO3Edit", "Launches FO3Edit, if it is installed.", LaunchFO3Edit));
-			m_lstTools.Add(new CheckedCommand<MainForm>("Archive Invalidation", "Toggles Archive Invalidation.", Fallout3.Tools.ArchiveInvalidation.IsActive(), ToggleArchiveInvalidation));
-			*/
-
-			GamebryoGameModeBase gmdGameMode = InstantiateGameMode(p_futFileUtility);
-			
-			if (!File.Exists(((GamebryoGameModeBase)gmdGameMode).SettingsFiles.IniPath))
-				p_imsWarning = new ViewMessage(String.Format("You have no {0} INI file. Please run {0} to initialize the file before installing any mods or turning on Archive Invalidation.", gmdGameMode.Name), null, "Missing INI", MessageBoxIcon.Warning);
-			else
-				p_imsWarning = null;
+            WoTGameMode gmdGameMode = InstantiateGameMode(p_futFileUtility);
+            p_imsWarning = null;
 
 			return gmdGameMode;
 		}
 
-		/// <summary>
-		/// Instantiates the game mode.
-		/// </summary>
-		/// <param name="p_futFileUtility">The file utility class to be used by the game mode.</param>
-		/// <returns>The game mode for which this is a factory.</returns>
-		protected abstract GamebryoGameModeBase InstantiateGameMode(FileUtil p_futFileUtility);
+        /// <summary>
+        /// Instantiates the game mode.
+        /// </summary>
+        /// <param name="p_futFileUtility">The file utility class to be used by the game mode.</param>
+        /// <returns>The game mode for which this is a factory.</returns>
+        protected WoTGameMode InstantiateGameMode(FileUtil p_futFileUtility)
+        {
+            return new WoTGameMode(EnvironmentInfo, p_futFileUtility);
+        }
 
 		/// <summary>
 		/// Performs the initial setup for the game mode being created.
@@ -124,20 +109,23 @@ namespace Nexus.Client.Games.Gamebryo
 			if (EnvironmentInfo.Settings.CustomGameModeSettings[GameModeDescriptor.ModeId] == null)
 				EnvironmentInfo.Settings.CustomGameModeSettings[GameModeDescriptor.ModeId] = new PerGameModeSettings<object>();
 
-			GamebryoSetupVM vmlSetup = new GamebryoSetupVM(EnvironmentInfo, GameModeDescriptor);
+            WoTSetupVM vmlSetup = new WoTSetupVM(EnvironmentInfo, GameModeDescriptor);
 			SetupForm frmSetup = new SetupForm(vmlSetup);
 			if (((DialogResult)p_dlgShowView(frmSetup, true)) == DialogResult.Cancel)
 				return false;
 			return vmlSetup.Save();
 		}
 
-		/// <summary>
-		/// Performs the initializtion for the game mode being created.
-		/// </summary>
-		/// <param name="p_dlgShowView">The delegate to use to display a view.</param>
-		/// <param name="p_dlgShowMessage">The delegate to use to display a message.</param>
-		/// <returns><c>true</c> if the setup completed successfully;
-		/// <c>false</c> otherwise.</returns>
-		public abstract bool PerformInitialization(ShowViewDelegate p_dlgShowView, ShowMessageDelegate p_dlgShowMessage);
+        /// <summary>
+        /// Performs the initializtion for the game mode being created.
+        /// </summary>
+        /// <param name="p_dlgShowView">The delegate to use to display a view.</param>
+        /// <param name="p_dlgShowMessage">The delegate to use to display a message.</param>
+        /// <returns><c>true</c> if the setup completed successfully;
+        /// <c>false</c> otherwise.</returns>
+        public bool PerformInitialization(ShowViewDelegate p_dlgShowView, ShowMessageDelegate p_dlgShowMessage)
+        {
+            return true;
+        }
 	}
 }

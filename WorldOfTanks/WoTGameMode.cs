@@ -1,15 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using ChinhDo.Transactions;
-using Nexus.Client.Games.Gamebryo.ModManagement;
-using Nexus.Client.Games.Gamebryo.PluginManagement;
-using Nexus.Client.Games.Gamebryo.PluginManagement.Boss;
-using Nexus.Client.Games.Gamebryo.PluginManagement.InstallationLog;
-using Nexus.Client.Games.Gamebryo.PluginManagement.OrderLog;
-using Nexus.Client.Games.Gamebryo.Settings;
-using Nexus.Client.Games.Gamebryo.Settings.UI;
-using Nexus.Client.Games.Gamebryo.Updating;
+using Nexus.Client.Games.WorldOfTanks.Tools;
 using Nexus.Client.ModManagement;
 using Nexus.Client.ModManagement.InstallationLog;
 using Nexus.Client.Mods;
@@ -17,29 +10,23 @@ using Nexus.Client.PluginManagement;
 using Nexus.Client.PluginManagement.InstallationLog;
 using Nexus.Client.PluginManagement.OrderLog;
 using Nexus.Client.Settings.UI;
+using Nexus.Client.Games.Tools;
 using Nexus.Client.Updating;
 using Nexus.Client.Util;
+using System.Diagnostics;
 
-namespace Nexus.Client.Games.Gamebryo
+namespace Nexus.Client.Games.WorldOfTanks
 {
 	/// <summary>
-	/// Provides information required for the programme to manage Gamebryo based game plugins and mods.
+	/// Provides information required for the program to manage World of Tanks game's plugins and mods.
 	/// </summary>
-	public abstract class GamebryoGameModeBase : GameModeBase
+	public class WoTGameMode : GameModeBase
 	{
-		private GamebryoPluginFactory m_pgfPluginFactory = null;
-		private GamebryoActivePluginLogSerializer m_apsActivePluginLogSerializer = null;
-		private GamebryoPluginDiscoverer m_pdvPluginDiscoverer = null;
-		private GamebryoPluginOrderLogSerializer m_posPluginOrderSerializer = null;
-		private GamebryoPluginOrderValidator m_povPluginOrderValidator = null;
+		private WoTGameModeDescriptor m_gmdGameModeInfo = null;
+		private WoTLauncher m_glnGameLauncher = null;
+		private WoTToolLauncher m_gtlToolLauncher = null;
 
 		#region Properties
-
-		/// <summary>
-		/// Gets the list of possible script extender executable files for the game.
-		/// </summary>
-		/// <value>The list of possible script extender executable files for the game.</value>
-		protected abstract string[] ScriptExtenderExecutables { get; }
 
 		/// <summary>
 		/// Gets the version of the installed game.
@@ -54,7 +41,13 @@ namespace Nexus.Client.Games.Gamebryo
 				{
 					strFullPath = Path.Combine(GameModeEnvironmentInfo.InstallationPath, strExecutable);
 					if (File.Exists(strFullPath))
-						return new Version(System.Diagnostics.FileVersionInfo.GetVersionInfo(strFullPath).FileVersion.Replace(", ", "."));
+					{
+						FileVersionInfo fviVersion = FileVersionInfo.GetVersionInfo(strFullPath);
+						string strVersion = (fviVersion.FileVersion ?? "0.0.0.0").Replace(", ", ".");
+						if ((strVersion.Split('.').Length - 1) > 2)
+							strVersion = strVersion.Substring(0, strVersion.LastIndexOf("."));
+						return new Version(strVersion);
+					}
 				}
 				return null;
 			}
@@ -68,10 +61,79 @@ namespace Nexus.Client.Games.Gamebryo
 		{
 			get
 			{
-				foreach (string strPlugin in Directory.GetFiles(PluginDirectory, "*.es?", SearchOption.TopDirectoryOnly))
+				foreach (string strPlugin in Directory.GetFiles(PluginDirectory, "*.*", SearchOption.TopDirectoryOnly))
 					yield return strPlugin;
-				foreach (string strPath in SettingsFiles)
-					yield return strPath;
+			}
+		}
+
+		/// <summary>
+		/// Gets the installed version of the script extender.
+		/// </summary>
+		/// <remarks>
+		/// <c>null</c> is returned if the script extender is not installed.
+		/// </remarks>
+		/// <value>The installed version of the script extender.</value>
+		public virtual Version ScriptExtenderVersion
+		{
+			get
+			{
+				return null;
+			}
+		}
+
+		/// <summary>
+		/// Gets the path to the per user Morrowind data.
+		/// </summary>
+		/// <value>The path to the per user Morrowind data.</value>
+		public string UserGameDataPath
+		{
+			get
+			{
+				return GameModeEnvironmentInfo.InstallationPath;
+			}
+		}
+
+		/// <summary>
+		/// Gets the directory where World of Tanks plugins are installed.
+		/// </summary>
+		/// <value>The directory where World of Tanks plugins are installed.</value>
+		public virtual string PluginDirectory
+		{
+			get
+			{
+				string strPath = Path.Combine(GameModeEnvironmentInfo.InstallationPath, "res_mods");
+				strPath = Path.Combine(strPath, GameVersion.ToString());
+				if (!Directory.Exists(strPath))
+					Directory.CreateDirectory(strPath);
+				return strPath;
+			}
+		}
+
+		/// <summary>
+		/// Gets the game launcher for the game mode.
+		/// </summary>
+		/// <value>The game launcher for the game mode.</value>
+		public override IGameLauncher GameLauncher
+		{
+			get
+			{
+				if (m_glnGameLauncher == null)
+					m_glnGameLauncher = new WoTLauncher(this, EnvironmentInfo);
+				return m_glnGameLauncher;
+			}
+		}
+
+		/// <summary>
+		/// Gets the tool launcher for the game mode.
+		/// </summary>
+		/// <value>The tool launcher for the game mode.</value>
+		public override IToolLauncher GameToolLauncher
+		{
+			get
+			{
+				if (m_gtlToolLauncher == null)
+					m_gtlToolLauncher = new WoTToolLauncher(this, EnvironmentInfo);
+				return m_gtlToolLauncher;
 			}
 		}
 
@@ -97,64 +159,9 @@ namespace Nexus.Client.Games.Gamebryo
 		{
 			get
 			{
-				return true;
+				return false;
 			}
 		}
-
-		/// <summary>
-		/// Gets the installed version of the script extender.
-		/// </summary>
-		/// <remarks>
-		/// <c>null</c> is returned if the script extender is not installed.
-		/// </remarks>
-		/// <value>The installed version of the script extender.</value>
-		public virtual Version ScriptExtenderVersion
-		{
-			get
-			{
-				string strFullPath = null;
-				foreach (string strExecutable in ScriptExtenderExecutables)
-				{
-					strFullPath = Path.Combine(GameModeEnvironmentInfo.InstallationPath, strExecutable);
-					if (File.Exists(strFullPath))
-						return new Version(System.Diagnostics.FileVersionInfo.GetVersionInfo(strFullPath).FileVersion.Replace(", ", "."));
-				}
-				return null;
-			}
-		}
-
-		/// <summary>
-		/// Gets the path to the per user game data.
-		/// </summary>
-		/// <value>The path to the per user game data.</value>
-		public abstract string UserGameDataPath { get; }
-
-		/// <summary>
-		/// Gets the directory where Fallout 3 plugins are installed.
-		/// </summary>
-		/// <value>The directory where Fallout 3 plugins are installed.</value>
-		public virtual string PluginDirectory
-		{
-			get
-			{
-				string strPath = Path.Combine(GameModeEnvironmentInfo.InstallationPath, "Data");
-				if (!Directory.Exists(strPath))
-					Directory.CreateDirectory(strPath);
-				return strPath;
-			}
-		}
-
-		/// <summary>
-		/// Gets the paths of the INI files that can be edited while managing the game.
-		/// </summary>
-		/// <value>The paths of the INI files that can be edited while managing the game.</value>
-		public GamebryoSettingsFiles SettingsFiles { get; private set; }
-
-		/// <summary>
-		/// Gets the BOSS plugin sorter.
-		/// </summary>
-		/// <value>The BOSS plugin sorter.</value>
-		protected BossSorter BossSorter { get; private set; }
 
 		#endregion
 
@@ -165,45 +172,14 @@ namespace Nexus.Client.Games.Gamebryo
 		/// </summary>
 		/// <param name="p_eifEnvironmentInfo">The application's environment info.</param>
 		/// <param name="p_futFileUtility">The file utility class to be used by the game mode.</param>
-		public GamebryoGameModeBase(IEnvironmentInfo p_eifEnvironmentInfo, FileUtil p_futFileUtility)
+		public WoTGameMode(IEnvironmentInfo p_eifEnvironmentInfo, FileUtil p_futFileUtility)
 			: base(p_eifEnvironmentInfo)
 		{
-			SettingsFiles = CreateSettingsFileContainer();
-			SetupSettingsFiles();
-			SettingsGroupViews = new List<ISettingsGroupView>();
-			GeneralSettingsGroup gsgGeneralSettings = new GeneralSettingsGroup(p_eifEnvironmentInfo, this);
-			((List<ISettingsGroupView>)SettingsGroupViews).Add(new GeneralSettingsPage(gsgGeneralSettings));
-
-			string strPath = p_eifEnvironmentInfo.ApplicationPersonalDataFolderPath;
-			strPath = Path.Combine(Path.Combine(strPath, "boss"), "masterlist.txt");
-			BossSorter = new BossSorter(p_eifEnvironmentInfo, this, p_futFileUtility, strPath);
 		}
 
 		#endregion
 
 		#region Initialization
-
-		/// <summary>
-		/// Instantiates the container to use to store the list of settings files.
-		/// </summary>
-		/// <returns>The container to use to store the list of settings files.</returns>
-		protected abstract GamebryoSettingsFiles CreateSettingsFileContainer();
-
-		/// <summary>
-		/// Adds the settings files to the game mode's list.
-		/// </summary>
-		protected virtual void SetupSettingsFiles()
-		{
-			SettingsFiles.RendererFilePath = Path.Combine(UserGameDataPath, "RendererInfo.txt");
-			SettingsFiles.PluginsFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), String.Format("{0}/plugins.txt", ModeId));
-			if (!File.Exists(SettingsFiles.PluginsFilePath))
-			{
-				string strDirectory = Path.GetDirectoryName(SettingsFiles.PluginsFilePath);
-				if (!Directory.Exists(strDirectory))
-					Directory.CreateDirectory(strDirectory);
-				File.Create(SettingsFiles.PluginsFilePath).Close();
-			}
-		}
 
 		#endregion
 
@@ -215,9 +191,7 @@ namespace Nexus.Client.Games.Gamebryo
 		/// <returns>The factory that builds plugins for this game mode.</returns>
 		public override IPluginFactory GetPluginFactory()
 		{
-			if (m_pgfPluginFactory == null)
-				m_pgfPluginFactory = new GamebryoPluginFactory(PluginDirectory, BossSorter);
-			return m_pgfPluginFactory;
+			return null;
 		}
 
 		/// <summary>
@@ -229,9 +203,7 @@ namespace Nexus.Client.Games.Gamebryo
 		/// for this game mode.</returns>
 		public override IActivePluginLogSerializer GetActivePluginLogSerializer(IPluginOrderLog p_polPluginOrderLog)
 		{
-			if (m_apsActivePluginLogSerializer == null)
-				m_apsActivePluginLogSerializer = new GamebryoActivePluginLogSerializer(this, p_polPluginOrderLog, BossSorter);
-			return m_apsActivePluginLogSerializer;
+			return null;
 		}
 
 		/// <summary>
@@ -240,9 +212,7 @@ namespace Nexus.Client.Games.Gamebryo
 		/// <returns>The discoverer to use to find the plugins managed by this game mode.</returns>
 		public override IPluginDiscoverer GetPluginDiscoverer()
 		{
-			if (m_pdvPluginDiscoverer == null)
-				m_pdvPluginDiscoverer = new GamebryoPluginDiscoverer(PluginDirectory);
-			return m_pdvPluginDiscoverer;
+			return null;
 		}
 
 		/// <summary>
@@ -253,9 +223,7 @@ namespace Nexus.Client.Games.Gamebryo
 		/// for this game mode.</returns>
 		public override IPluginOrderLogSerializer GetPluginOrderLogSerializer()
 		{
-			if (m_posPluginOrderSerializer == null)
-				m_posPluginOrderSerializer = new GamebryoPluginOrderLogSerializer(BossSorter);
-			return m_posPluginOrderSerializer;
+			return null;
 		}
 
 		/// <summary>
@@ -264,9 +232,7 @@ namespace Nexus.Client.Games.Gamebryo
 		/// <returns>The object that validates plugin order for this game mode.</returns>
 		public override IPluginOrderValidator GetPluginOrderValidator()
 		{
-			if (m_povPluginOrderValidator == null)
-				m_povPluginOrderValidator = new GamebryoPluginOrderValidator(OrderedCriticalPluginNames);
-			return m_povPluginOrderValidator;
+			return null;
 		}
 
 		#endregion
@@ -285,7 +251,7 @@ namespace Nexus.Client.Games.Gamebryo
 		/// <param name="p_dlgOverwriteConfirmationDelegate">The method to call in order to confirm an overwrite.</param>
 		public override IGameSpecificValueInstaller GetGameSpecificValueInstaller(IMod p_modMod, IInstallLog p_ilgInstallLog, TxFileManager p_tfmFileManager, FileUtil p_futFileUtility, ConfirmItemOverwriteDelegate p_dlgOverwriteConfirmationDelegate)
 		{
-			return new GamebryoGameSpecificValueInstaller(p_modMod, GameModeEnvironmentInfo, p_ilgInstallLog, p_tfmFileManager, p_futFileUtility, p_dlgOverwriteConfirmationDelegate);
+			return null;
 		}
 
 		/// <summary>
@@ -300,7 +266,7 @@ namespace Nexus.Client.Games.Gamebryo
 		/// <param name="p_dlgOverwriteConfirmationDelegate">The method to call in order to confirm an overwrite.</param>
 		public override IGameSpecificValueInstaller GetGameSpecificValueUpgradeInstaller(IMod p_modMod, IInstallLog p_ilgInstallLog, TxFileManager p_tfmFileManager, FileUtil p_futFileUtility, ConfirmItemOverwriteDelegate p_dlgOverwriteConfirmationDelegate)
 		{
-			return new GamebryoGameSpecificValueInstaller(p_modMod, GameModeEnvironmentInfo, p_ilgInstallLog, p_tfmFileManager, p_futFileUtility, p_dlgOverwriteConfirmationDelegate);
+			return null;
 		}
 
 		#endregion
@@ -311,8 +277,18 @@ namespace Nexus.Client.Games.Gamebryo
 		/// <returns>The updaters used by the game mode.</returns>
 		public override IEnumerable<IUpdater> GetUpdaters()
 		{
-			BossUpdater bupUpdater = new BossUpdater(EnvironmentInfo, BossSorter);
-			yield return bupUpdater;
+			return null;
+		}
+
+		/// <summary>
+		/// Creates a game mode descriptor for the current game mode.
+		/// </summary>
+		/// <returns>A game mode descriptor for the current game mode.</returns>
+		protected override IGameModeDescriptor CreateGameModeDescriptor()
+		{
+			if (m_gmdGameModeInfo == null)
+				m_gmdGameModeInfo = new WoTGameModeDescriptor(EnvironmentInfo);
+			return m_gmdGameModeInfo;
 		}
 
 		/// <summary>
@@ -331,7 +307,10 @@ namespace Nexus.Client.Games.Gamebryo
 		public override string GetModFormatAdjustedPath(IModFormat p_mftModFormat, string p_strPath)
 		{
 			if (p_mftModFormat.Id.Equals("FOMod") || p_mftModFormat.Id.Equals("OMod"))
-				return Path.Combine("Data", p_strPath ?? "");
+			{
+				string modpath = Path.Combine("res_mods", GameVersion.ToString());
+				return Path.Combine(modpath, p_strPath ?? "");
+			}
 			return p_strPath;
 		}
 
@@ -341,8 +320,6 @@ namespace Nexus.Client.Games.Gamebryo
 		/// <param name="p_booDisposing">Whether the method is being called from the <see cref="IDisposable.Dispose()"/> method.</param>
 		protected override void Dispose(bool p_booDisposing)
 		{
-			if (BossSorter != null)
-				BossSorter.Dispose();
 		}
 	}
 }
