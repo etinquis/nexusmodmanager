@@ -119,10 +119,6 @@ namespace Nexus.Client.ModRepositories.Nexus
                     m_strWebsite = "worldoftanks.nexusmods.com";
                     m_strEndpoint = "WOTNexusREST";
                     break;
-				case "Grimrock":
-					m_strWebsite = "grimrock.nexusmods.com";
-					m_strEndpoint = "LOGNexusREST";
-					break;
 				default:
 					throw new Exception("Unsupported game mode: " + p_gmdGameMode.ModeId);
 			}
@@ -134,7 +130,17 @@ namespace Nexus.Client.ModRepositories.Nexus
 		/// <returns>A factory that is used to create proxies to the repository.</returns>
 		protected ChannelFactory<INexusModRepositoryApi> GetProxyFactory()
 		{
-			ChannelFactory<INexusModRepositoryApi> cftProxyFactory = new ChannelFactory<INexusModRepositoryApi>(m_strEndpoint);
+			return GetProxyFactory(false);
+		}
+
+		/// <summary>
+		/// Returns a factory that is used to create proxies to the repository.
+		/// </summary>
+		/// <param name="p_booIsGatekeeper">Whether or not we are communicating with the gatekeeper.</param>
+		/// <returns>A factory that is used to create proxies to the repository.</returns>
+		protected ChannelFactory<INexusModRepositoryApi> GetProxyFactory(bool p_booIsGatekeeper)
+		{
+			ChannelFactory<INexusModRepositoryApi> cftProxyFactory = new ChannelFactory<INexusModRepositoryApi>(p_booIsGatekeeper ? "GatekeeperNexusREST" : m_strEndpoint);
 			cftProxyFactory.Endpoint.Behaviors.Add(new HttpUserAgentEndpointBehaviour(UserAgent));
 			cftProxyFactory.Endpoint.Behaviors.Add(new CookieEndpointBehaviour(m_dicAuthenticationTokens));
 			return cftProxyFactory;
@@ -218,46 +224,30 @@ namespace Nexus.Client.ModRepositories.Nexus
 		/// <exception cref="RepositoryUnavailableException">Thrown if the repository is not available.</exception>
 		public bool Login(string p_strUsername, string p_strPassword, out Dictionary<string, string> p_dicTokens)
 		{
-			string strSite = m_strWebsite;
-			string strLoginUrl = String.Format("http://{0}/modules/login/do_login.php", strSite);
-			HttpWebRequest hwrLogin = (HttpWebRequest)WebRequest.Create(strLoginUrl);
-			CookieContainer ckcCookies = new CookieContainer();
-			hwrLogin.CookieContainer = ckcCookies;
-			hwrLogin.Method = WebRequestMethods.Http.Post;
-			hwrLogin.ContentType = "application/x-www-form-urlencoded";
-			hwrLogin.UserAgent = UserAgent;
-			hwrLogin.ServicePoint.Expect100Continue = false;
-
-			string strFields = String.Format("user={0}&pass={1}", p_strUsername, p_strPassword);
-			byte[] bteFields = System.Text.Encoding.UTF8.GetBytes(strFields);
-			hwrLogin.ContentLength = bteFields.Length;
-
+			string strCookie = null;
 			try
 			{
-				hwrLogin.GetRequestStream().Write(bteFields, 0, bteFields.Length);
-				string strLoginResultPage = null;
-				using (WebResponse wrpLoginResultPage = hwrLogin.GetResponse())
+				using (IDisposable dspProxy = (IDisposable)GetProxyFactory(true).CreateChannel())
 				{
-					if (((HttpWebResponse)wrpLoginResultPage).StatusCode != HttpStatusCode.OK)
-						throw new Exception("Request to the login page failed with HTTP error: " + ((HttpWebResponse)wrpLoginResultPage).StatusCode);
-
-					Stream stmLoginResultPage = wrpLoginResultPage.GetResponseStream();
-					using (StreamReader srdLoginResultPage = new StreamReader(stmLoginResultPage))
-					{
-						strLoginResultPage = srdLoginResultPage.ReadToEnd();
-						srdLoginResultPage.Close();
-					}
-					wrpLoginResultPage.Close();
+					INexusModRepositoryApi nmrApi = (INexusModRepositoryApi)dspProxy;
+					strCookie = nmrApi.Login(p_strUsername, p_strPassword);
 				}
 			}
-			catch (WebException e)
+			catch (TimeoutException e)
 			{
-				throw new RepositoryUnavailableException(String.Format("Cannot reach the {0} login server: {1}", Name, strLoginUrl), e);
+				throw new RepositoryUnavailableException(String.Format("Cannot reach the {0} login server.", Name), e);
+			}
+			catch (CommunicationException e)
+			{
+				throw new RepositoryUnavailableException(String.Format("Cannot reach the {0} login server.", Name), e);
+			}
+			catch (SerializationException e)
+			{
+				throw new RepositoryUnavailableException(String.Format("Cannot reach the {0} login server.", Name), e);
 			}
 			m_dicAuthenticationTokens = new Dictionary<string, string>();
-			foreach (Cookie ckeToken in ckcCookies.GetCookies(new Uri("http://" + strSite)))
-				if (ckeToken.Name.EndsWith("_Member") || ckeToken.Name.EndsWith("_Premium"))
-					m_dicAuthenticationTokens[ckeToken.Name] = ckeToken.Value;
+			if (!String.IsNullOrEmpty(strCookie))
+				m_dicAuthenticationTokens["sid"] = strCookie;
 			p_dicTokens = m_dicAuthenticationTokens;
 			return m_dicAuthenticationTokens.Count > 0;
 		}
@@ -270,18 +260,31 @@ namespace Nexus.Client.ModRepositories.Nexus
 		/// <c>fales</c> otherwise.</returns>
 		public bool Login(Dictionary<string, string> p_dicTokens)
 		{
-			//TODO validate tokens
-			m_dicAuthenticationTokens = new Dictionary<string, string>();
-			foreach (KeyValuePair<string, string> kvpToken in p_dicTokens)
+			m_dicAuthenticationTokens = p_dicTokens;
+			string strCookie = null;
+			try
 			{
-				if (!kvpToken.Key.StartsWith("Nexus"))
+				using (IDisposable dspProxy = (IDisposable)GetProxyFactory(true).CreateChannel())
 				{
-					m_dicAuthenticationTokens.Clear();
-					return false;
+					INexusModRepositoryApi nmrApi = (INexusModRepositoryApi)dspProxy;
+					strCookie = nmrApi.ValidateTokens();
 				}
-				m_dicAuthenticationTokens[kvpToken.Key] = kvpToken.Value;
 			}
-			return true;
+			catch (TimeoutException e)
+			{
+				throw new RepositoryUnavailableException(String.Format("Cannot reach the {0} login server.", Name), e);
+			}
+			catch (CommunicationException e)
+			{
+				throw new RepositoryUnavailableException(String.Format("Cannot reach the {0} login server.", Name), e);
+			}
+			catch (SerializationException e)
+			{
+				throw new RepositoryUnavailableException(String.Format("Cannot reach the {0} login server.", Name), e);
+			}
+			if (String.IsNullOrEmpty(strCookie))
+				m_dicAuthenticationTokens = null;
+			return !String.IsNullOrEmpty(strCookie);
 		}
 
 		/// <summary>
@@ -544,7 +547,7 @@ namespace Nexus.Client.ModRepositories.Nexus
 				using (IDisposable dspProxy = (IDisposable)GetProxyFactory().CreateChannel())
 				{
 					INexusModRepositoryApi nmrApi = (INexusModRepositoryApi)dspProxy;
-					foreach (string strUrl in nmrApi.GetModFileDownloadUrls(p_strModId, p_strFileId))
+					foreach (string strUrl in nmrApi.GetModFileDownloadUrls(p_strFileId))
 						lstDownloadUrls.Add(new Uri(strUrl));
 				}
 			}
@@ -578,7 +581,7 @@ namespace Nexus.Client.ModRepositories.Nexus
 				using (IDisposable dspProxy = (IDisposable)GetProxyFactory().CreateChannel())
 				{
 					INexusModRepositoryApi nmrApi = (INexusModRepositoryApi)dspProxy;
-					return nmrApi.GetModFile(p_strModId, p_strFileId);
+					return nmrApi.GetModFile(p_strFileId);
 				}
 			}
 			catch (TimeoutException e)

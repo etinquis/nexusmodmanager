@@ -15,6 +15,30 @@ namespace Nexus.Client.ModRepositories.Nexus
 	public interface INexusModRepositoryApi
 	{
 		/// <summary>
+		/// Logs a user into the repository.
+		/// </summary>
+		/// <param name="p_strUsername">The username to authenticate.</param>
+		/// <param name="p_strPassword">The password to authenticate.</param>
+		/// <returns>An authentication token if the credentials are valid; <c>null</c> otherwise.</returns>
+		[OperationContract]
+		[WebGet(
+			BodyStyle = WebMessageBodyStyle.Bare,
+			UriTemplate = "Sessions/?Login&username={p_strUsername}&password={p_strPassword}",
+			ResponseFormat = WebMessageFormat.Json)]
+		string Login(string p_strUsername, string p_strPassword);
+
+		/// <summary>
+		/// Validates the current security tokens.
+		/// </summary>
+		/// <returns>An authentication token if the tokens are valid; <c>null</c> otherwise.</returns>
+		[OperationContract]
+		[WebInvoke(
+			BodyStyle = WebMessageBodyStyle.Bare,
+			UriTemplate = "Sessions/?Validate",
+			ResponseFormat = WebMessageFormat.Json)]
+		string ValidateTokens();
+
+		/// <summary>
 		/// Gets the info about the specified mod from the repository.
 		/// </summary>
 		/// <param name="p_strModId">The id of the mod for which to retrieved the metadata.</param>
@@ -34,7 +58,7 @@ namespace Nexus.Client.ModRepositories.Nexus
 		[OperationContract]
 		[WebGet(
 			BodyStyle = WebMessageBodyStyle.Bare,
-			UriTemplate = "Mods/{p_strModId}/Files/",
+			UriTemplate = "Files/indexfrommod/{p_strModId}",
 			ResponseFormat = WebMessageFormat.Json)]
 		List<NexusModFileInfo> GetModFiles(string p_strModId);
 
@@ -47,9 +71,9 @@ namespace Nexus.Client.ModRepositories.Nexus
 		[OperationContract]
 		[WebGet(
 			BodyStyle = WebMessageBodyStyle.Bare,
-			UriTemplate = "Mods/{p_strModId}/Files/{p_strFileId}/",
+			UriTemplate = "Files/{p_strFileId}/",
 			ResponseFormat = WebMessageFormat.Json)]
-		NexusModFileInfo GetModFile(string p_strModId, string p_strFileId);
+		NexusModFileInfo GetModFile(string p_strFileId);
 
 		/// <summary>
 		/// Gets the download URLs of all the parts associated with the specified file.
@@ -60,9 +84,9 @@ namespace Nexus.Client.ModRepositories.Nexus
 		[OperationContract]
 		[WebGet(
 			BodyStyle = WebMessageBodyStyle.Bare,
-			UriTemplate = "Mods/{p_strModId}/Files/{p_strFileId}/DownloadMulti/",
+			UriTemplate = "Files/download/{p_strFileId}",
 			ResponseFormat = WebMessageFormat.Json)]
-		string[] GetModFileDownloadUrls(string p_strModId, string p_strFileId);
+		string[] GetModFileDownloadUrls(string p_strFileId);
 
 		/// <summary>
 		/// Finds the mods containing the given search terms.
