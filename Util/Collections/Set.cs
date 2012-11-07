@@ -342,7 +342,7 @@ namespace Nexus.Client.Util.Collections
 		int IList.Add(object value)
 		{
 			if (!(value is T))
-				throw new InvalidOperationException("Can only add items of type " + typeof(T) + " to the Set.");
+				ThrowCannotAddException();
 			Add((T)value);
 			return ((IList)this).IndexOf(value);
 		}
@@ -384,7 +384,7 @@ namespace Nexus.Client.Util.Collections
 		void IList.Insert(int index, object value)
 		{
 			if (!(value is T))
-				throw new InvalidOperationException("Can only add items of type " + typeof(T) + " to the Set.");
+				ThrowCannotAddException();
 			Insert(index, (T)value);
 		}
 
@@ -423,11 +423,18 @@ namespace Nexus.Client.Util.Collections
 		{
 			get
 			{
-				return m_lstList[index];
+				return this[index];
 			}
 			set
 			{
-				throw new NotImplementedException();
+				if (value is T)
+				{
+					this[index] = (T)value;
+				}
+				else
+				{
+					ThrowCannotAddException();
+				}
 			}
 		}
 
@@ -442,7 +449,7 @@ namespace Nexus.Client.Util.Collections
 		/// <param name="index">The index in the array at which to start copying the items.</param>
 		void ICollection.CopyTo(Array array, int index)
 		{
-			Array.Copy(ToArray(), array, index);
+			ToArray().CopyTo(array, index);
 		}
 
 		/// <summary>
@@ -478,6 +485,11 @@ namespace Nexus.Client.Util.Collections
 		public override string ToString()
 		{
 			return String.Format("Count = {0}", Count);
+		}
+
+		private void ThrowCannotAddException()
+		{
+			throw new InvalidOperationException(string.Format("Can only add items of type {0} to this set.", typeof(T)));
 		}
 	}
 }

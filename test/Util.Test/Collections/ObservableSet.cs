@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using Nexus.Client.Util.Collections;
+using Util.Test.Collections.Generic_Interfaces;
 
 namespace Util.Test.Collections
 {
@@ -65,147 +66,124 @@ namespace Util.Test.Collections
 		public void AddCollectionChangedEventRaisedTest()
 		{
 			var setUnderTest = new ObservableSet<string>();
-			setUnderTest.CollectionChanged +=
-				delegate(object sender, NotifyCollectionChangedEventArgs args)
-					{
-						if (args.Action == NotifyCollectionChangedAction.Add && args.NewItems.Count == 1)
-						{
-							Assert.Pass();
-						}
-					};
-			setUnderTest.Add(ExistingMatch);
+			var collectionChangedTester = new INotifyCollectionChangedTester<ObservableSet<string>>(setUnderTest);
 
-			Assert.Fail();
+			Assert.IsTrue(collectionChangedTester.DoesActionRaiseEventSynchronous(set => set.Add(ExistingMatch), new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, ExistingMatch)));
+		}
+		[Test]
+		public void AddExistingCollectionChangedEventIgnoredTest()
+		{
+			var setUnderTest = new ObservableSet<string>();
+			var collectionChangedTester = new INotifyCollectionChangedTester<ObservableSet<string>>(setUnderTest);
+
+			setUnderTest.Add(ExistingMatch);
+			Assert.IsFalse(collectionChangedTester.DoesActionRaiseEventSynchronous(set => set.Add(ExistingMatch)));
 		}
 		[Test]
 		public void RemoveCollectionChangedEventRaisedTest()
 		{
 			var setUnderTest = new ObservableSet<string>();
-			setUnderTest.Add(ExistingMatch);
+			var collectionChangedTester = new INotifyCollectionChangedTester<ObservableSet<string>>(setUnderTest);
 
-			setUnderTest.CollectionChanged +=
-				delegate(object sender, NotifyCollectionChangedEventArgs args)
-				{
-					if (args.Action == NotifyCollectionChangedAction.Remove && args.OldItems.Count == 1)
-					{
-						Assert.Pass();
-					}
-				};
-			setUnderTest.Remove(ExistingMatch);
-			Assert.Fail();
+			setUnderTest.Add(ExistingMatch);
+			Assert.IsTrue(collectionChangedTester.DoesActionRaiseEventSynchronous(set => set.Remove(ExistingMatch), new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, ExistingMatch)));
+		}
+		[Test]
+		public void RemoveNonExistantCollectionChangedEventIgnoredTest()
+		{
+			var setUnderTest = new ObservableSet<string>();
+			var collectionChangedTester = new INotifyCollectionChangedTester<ObservableSet<string>>(setUnderTest);
+
+			Assert.IsFalse(collectionChangedTester.DoesActionRaiseEventSynchronous(set => set.Remove(ExistingMatch)));
 		}
 		[Test]
 		public void RemoveAtCollectionChangedEventRaisedTest()
 		{
 			var setUnderTest = new ObservableSet<string>();
-			setUnderTest.Add(ExistingMatch);
+			var collectionChangedTester = new INotifyCollectionChangedTester<ObservableSet<string>>(setUnderTest);
 
-			setUnderTest.CollectionChanged +=
-				delegate(object sender, NotifyCollectionChangedEventArgs args)
-				{
-					if (args.Action == NotifyCollectionChangedAction.Remove && args.OldItems.Count == 1)
-					{
-						Assert.Pass();
-					}
-				};
-			setUnderTest.RemoveAt(0);
-			Assert.Fail();
+			setUnderTest.Add(ExistingMatch);
+			Assert.IsTrue(collectionChangedTester.DoesActionRaiseEventSynchronous(set => set.RemoveAt(0), new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, ExistingMatch)));
 		}
 		[Test]
 		public void ClearCollectionChangedEventRaisedTest()
 		{
 			var setUnderTest = new ObservableSet<string>();
-			setUnderTest.Add(ExistingMatch);
-			setUnderTest.Add(NonexistantMatch);
+			var collectionChangedTester = new INotifyCollectionChangedTester<ObservableSet<string>>(setUnderTest);
 
-			setUnderTest.CollectionChanged +=
-				delegate(object sender, NotifyCollectionChangedEventArgs args)
-				{
-					if (args.Action == NotifyCollectionChangedAction.Reset)
-					{
-						Assert.Pass();
-					}
-				};
-			setUnderTest.Clear();
-			Assert.Fail();
+			setUnderTest.Add(ExistingMatch);
+			Assert.IsTrue(collectionChangedTester.DoesActionRaiseEventSynchronous(set => set.Clear(), new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset)));
+		}
+		[Test]
+		public void ClearEmptyCollectionChangedEventIgnoredTest()
+		{
+			var setUnderTest = new ObservableSet<string>();
+			var collectionChangedTester = new INotifyCollectionChangedTester<ObservableSet<string>>(setUnderTest);
+
+			Assert.IsTrue(setUnderTest.Count == 0);
+			Assert.IsFalse(collectionChangedTester.DoesActionRaiseEventSynchronous(set => set.Clear()));
 		}
 		
 		[Test]
 		public void AddCountPropertyChangedEventRaisedTest()
 		{
 			var setUnderTest = new ObservableSet<string>();
-			(setUnderTest as INotifyPropertyChanged).PropertyChanged +=
-				delegate(object sender, PropertyChangedEventArgs args)
-				{
-					if (args.PropertyName == "Count")
-					{
-						Assert.Pass();
-					}
-				};
+			var collectionChangedTester = new INotifyCollectionChangedTester<ObservableSet<string>>(setUnderTest);
+
+			Assert.IsTrue(collectionChangedTester.DoesActionRaiseEventSynchronous(set => set.Add(ExistingMatch)));
+		}
+		[Test]
+		public void AddExistingCountPropertyChangedEventIgnoredTest()
+		{
+			var setUnderTest = new ObservableSet<string>();
+			var collectionChangedTester = new INotifyCollectionChangedTester<ObservableSet<string>>(setUnderTest);
+
 			setUnderTest.Add(ExistingMatch);
-			Assert.Fail();
+			Assert.IsFalse(collectionChangedTester.DoesActionRaiseEventSynchronous(set => set.Add(ExistingMatch)));
 		}
 		[Test]
 		public void RemoveCountPropertyChangedEventRaisedTest()
 		{
 			var setUnderTest = new ObservableSet<string>();
+			var collectionChangedTester = new INotifyCollectionChangedTester<ObservableSet<string>>(setUnderTest);
+
 			setUnderTest.Add(ExistingMatch);
-			(setUnderTest as INotifyPropertyChanged).PropertyChanged +=
-				delegate(object sender, PropertyChangedEventArgs args)
-				{
-					if (args.PropertyName == "Count")
-					{
-						Assert.Pass();
-					}
-				};
-			setUnderTest.Remove(ExistingMatch);
-			Assert.Fail();
+			Assert.IsTrue(collectionChangedTester.DoesActionRaiseEventSynchronous(set => set.Remove(ExistingMatch)));
+		}
+		[Test]
+		public void RemoveNonExistantCountPropertyChangedEventIgnoredTest()
+		{
+			var setUnderTest = new ObservableSet<string>();
+			var collectionChangedTester = new INotifyCollectionChangedTester<ObservableSet<string>>(setUnderTest);
+
+			setUnderTest.Add(ExistingMatch);
+			Assert.IsFalse(collectionChangedTester.DoesActionRaiseEventSynchronous(set=>set.Remove(NonexistantMatch)));
 		}
 		public void RemoveAtCountPropertyChangedEventRaisedTest()
 		{
 			var setUnderTest = new ObservableSet<string>();
+			var collectionChangedTester = new INotifyCollectionChangedTester<ObservableSet<string>>(setUnderTest);
+
 			setUnderTest.Add(ExistingMatch);
-			(setUnderTest as INotifyPropertyChanged).PropertyChanged +=
-				delegate(object sender, PropertyChangedEventArgs args)
-				{
-					if (args.PropertyName == "Count")
-					{
-						Assert.Pass();
-					}
-				};
-			setUnderTest.RemoveAt(0);
-			Assert.Fail();
+			Assert.IsTrue(collectionChangedTester.DoesActionRaiseEventSynchronous(set => set.RemoveAt(0)));
 		}
 		[Test]
 		public void ClearCountPropertyChangedEventRaisedTest()
 		{
 			var setUnderTest = new ObservableSet<string>();
+			var collectionChangedTester = new INotifyCollectionChangedTester<ObservableSet<string>>(setUnderTest);
+
 			setUnderTest.Add(ExistingMatch);
-			(setUnderTest as INotifyPropertyChanged).PropertyChanged +=
-				delegate(object sender, PropertyChangedEventArgs args)
-				{
-					if (args.PropertyName == "Count")
-					{
-						Assert.Pass();
-					}
-				};
-			setUnderTest.Clear();
-			Assert.Fail();
+			Assert.IsTrue(collectionChangedTester.DoesActionRaiseEventSynchronous(set => set.Clear()));
 		}
 		[Test]
-		public void PropertyChangedRemoveHandlerTest()
+		public void ClearEmptySetCountPropertyChangedEventIgnoredTest()
 		{
 			var setUnderTest = new ObservableSet<string>();
-			PropertyChangedEventHandler failHandler = 
-				delegate(object sender, PropertyChangedEventArgs args)
-				{
-					Assert.Fail();
-				};
+			var collectionChangedTester = new INotifyCollectionChangedTester<ObservableSet<string>>(setUnderTest);
 
-			(setUnderTest as INotifyPropertyChanged).PropertyChanged += failHandler;
-			(setUnderTest as INotifyPropertyChanged).PropertyChanged -= failHandler;
-
-			setUnderTest.Add(ExistingMatch);
+			Assert.IsTrue(setUnderTest.Count == 0);
+			Assert.IsFalse(collectionChangedTester.DoesActionRaiseEventSynchronous(set => set.Clear()));
 		}
 
 		protected override Set<string> CreateTestSet()

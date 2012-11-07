@@ -119,7 +119,7 @@ namespace Nexus.Client.Util.Collections
 			{
 				base.Add(p_tItem);
 				OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, p_tItem));
-				PropertyChanged(this, new PropertyChangedEventArgs(ObjectHelper.GetPropertyName(() => Count)));
+				OnPropertyChanged(new PropertyChangedEventArgs(ObjectHelper.GetPropertyName(() => Count)));
 			}
 		}
 
@@ -132,7 +132,7 @@ namespace Nexus.Client.Util.Collections
 			{
 				base.Clear();
 				OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-				PropertyChanged(this, new PropertyChangedEventArgs(ObjectHelper.GetPropertyName(() => Count)));
+				OnPropertyChanged(new PropertyChangedEventArgs(ObjectHelper.GetPropertyName(() => Count)));
 			}
 		}
 
@@ -145,7 +145,7 @@ namespace Nexus.Client.Util.Collections
 			T tItem = this[index];
 			base.RemoveAt(index);
 			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, tItem, index));
-			PropertyChanged(this, new PropertyChangedEventArgs(ObjectHelper.GetPropertyName(() => Count)));
+			OnPropertyChanged(new PropertyChangedEventArgs(ObjectHelper.GetPropertyName(() => Count)));
 		}
 	}
 }

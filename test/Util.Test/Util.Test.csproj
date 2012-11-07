@@ -54,11 +54,15 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collections\Generic Interfaces\INotifyCollectionChangedTester.cs" />
+    <Compile Include="Collections\Generic Interfaces\INotifyPropertyChangedTester.cs" />
     <Compile Include="Collections\IListExtensions.cs" />
     <Compile Include="Collections\ListTestBase.cs" />
     <Compile Include="Collections\ObservableSet.cs" />
+    <Compile Include="Collections\ReorderableStack.cs" />
     <Compile Include="Collections\Set.cs" />
     <Compile Include="Collections\SortedList.cs" />
+    <Compile Include="Collections\SortedThreadSafeObservableCollection.cs" />
     <Compile Include="Collections\ThreadSafeObservableList.cs" />
     <Compile Include="MoqExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
