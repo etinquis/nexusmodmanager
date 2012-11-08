@@ -11,31 +11,31 @@ namespace Util.Test.Collections
 	class ReorderableStackTests : ListTestBase
 	{
 		[Test]
-		public void DefaultConstructorTest()
+		public virtual void DefaultConstructorTest()
 		{
 			const int expectedCount = 0;
 
-			var setUnderTest = new ReorderableStack<string>();
-			Assert.AreEqual(expectedCount, setUnderTest.Count);
-			Assert.AreEqual(default(string), setUnderTest.ElementAtOrDefault(0));
+			var stackUnderTest = new ReorderableStack<string>();
+			Assert.AreEqual(expectedCount, stackUnderTest.Count);
+			Assert.AreEqual(default(string), stackUnderTest.ElementAtOrDefault(0));
 		}
 
 		[Test]
-		public void EnumerableConstructorTest()
+		public virtual void EnumerableConstructorTest()
 		{
 			const int expectedCount = 3;
-			var setUnderTest = new ReorderableStack<string>(Numbers);
-			Assert.AreEqual(expectedCount, setUnderTest.Count);
+			var stackUnderTest = new ReorderableStack<string>(Numbers);
+			Assert.AreEqual(expectedCount, stackUnderTest.Count);
 
 			for (int i = 0; i < Numbers.Count(); i++)
 			{
-				Assert.AreEqual(Numbers[i], setUnderTest[i]);
+				Assert.AreEqual(Numbers[i], stackUnderTest[i]);
 			}
-			Assert.AreEqual(default(string), setUnderTest.ElementAtOrDefault(3));
+			Assert.AreEqual(default(string), stackUnderTest.ElementAtOrDefault(3));
 		}
 
 		[Test]
-		public void CopySetConstructorTest()
+		public virtual void CopySetConstructorTest()
 		{
 			ReorderableStack<string> expected = CreateTestStack();
 			ReorderableStack<string> copiedSet = new ReorderableStack<string>(expected);
@@ -47,78 +47,78 @@ namespace Util.Test.Collections
 		}
 
 		[Test]
-		public void ComparerConstructorTest()
+		public virtual void ComparerConstructorTest()
 		{
-			var setUnderTest = new ReorderableStack<string>(StringComparer.OrdinalIgnoreCase);
-			setUnderTest.Push(ExistingMatch);
-			Assert.IsTrue(setUnderTest.Contains(DifferentCase));
+			var stackUnderTest = new ReorderableStack<string>(StringComparer.OrdinalIgnoreCase);
+			stackUnderTest.Push(ExistingMatch);
+			Assert.IsTrue(stackUnderTest.Contains(DifferentCase));
 		}
 
 		[Test]
-		public void FindPredicateTest()
+		public virtual void FindPredicateTest()
 		{
-			var setUnderTest = CreateTestStack();
-			var actual = setUnderTest.Find(str => str.Equals(ExistingMatch));
+			var stackUnderTest = CreateTestStack();
+			var actual = stackUnderTest.Find(str => str.Equals(ExistingMatch));
 
 			Assert.AreEqual(ExistingMatch, actual);
 		}
 
 		[Test]
-		public void ToArrayTest()
+		public virtual void ToArrayTest()
 		{
-			var setUnderTest = new ReorderableStack<string>(Numbers);
+			var stackUnderTest = new ReorderableStack<string>(Numbers);
 
-			Assert.AreEqual(Numbers, setUnderTest.ToArray());
+			Assert.AreEqual(Numbers, stackUnderTest.ToArray());
 		}
 
 		[Test]
-		public void PushTest()
+		public virtual void PushTest()
 		{
-			var setUnderTest = CreateTestStack();
-			setUnderTest.Push(NonexistantMatch);
-			Assert.IsTrue(setUnderTest.Contains(NonexistantMatch));
+			var stackUnderTest = CreateTestStack();
+			stackUnderTest.Push(NonexistantMatch);
+			Assert.IsTrue(stackUnderTest.Contains(NonexistantMatch));
 		}
 		[Test]
-		public void PushNullTest()
+		public virtual void PushNullTest()
 		{
-			var setUnderTest = CreateTestStack();
-			setUnderTest.Push(null);
-			Assert.IsTrue(setUnderTest.Contains(null));
+			var stackUnderTest = CreateTestStack();
+			stackUnderTest.Push(null);
+			Assert.IsTrue(stackUnderTest.Contains(null));
 		}
 		
 		[Test]
-		public void IndexOfExistingTest()
+		public virtual void IndexOfExistingTest()
 		{
-			var setUnderTest = CreateTestStack();
-			Assert.AreEqual(ExistingMatchIndex, setUnderTest.IndexOf(ExistingMatch));
+			var stackUnderTest = CreateTestStack();
+			Assert.AreEqual(ExistingMatchIndex, stackUnderTest.IndexOf(ExistingMatch));
 		}
 
 		[Test]
-		public void IndexOfExistingWithIndexTest()
+		public virtual void IndexOfExistingWithIndexTest()
 		{
-			var setUnderTest = CreateTestStack();
-			Assert.AreEqual(NonexistantMatchExpectedIndex, setUnderTest.IndexOf(NonexistantMatch));
+			var stackUnderTest = CreateTestStack();
+			Assert.AreEqual(NonexistantMatchExpectedIndex, stackUnderTest.IndexOf(NonexistantMatch));
 		}
 		
 		[Test]
-		public void IndexOfNullTest()
+		public virtual void IndexOfNullTest()
 		{
-			var setUnderTest = CreateTestStack();
-			Assert.AreEqual(NonexistantMatchExpectedIndex, setUnderTest.IndexOf(null));
+			var stackUnderTest = CreateTestStack();
+			Assert.AreEqual(NonexistantMatchExpectedIndex, stackUnderTest.IndexOf(null));
 		}
 
 		[Test]
-		public void IndexOfNonexistantTest()
+		public virtual void IndexOfNonexistantTest()
 		{
-			var setUnderTest = CreateTestStack();
-			Assert.AreEqual(NonexistantMatchExpectedIndex, setUnderTest.IndexOf(NonexistantMatch));
+			var stackUnderTest = CreateTestStack();
+			Assert.AreEqual(NonexistantMatchExpectedIndex, stackUnderTest.IndexOf(NonexistantMatch));
 		}
 
 		[Test]
-		public void IndexOfComparerTest()
+		public virtual void IndexOfComparerTest()
 		{
-			var setUnderTest = new Nexus.Client.Util.Collections.ReorderableStack<string>(TestItems, StringComparer.OrdinalIgnoreCase);
-			var actual = setUnderTest.IndexOf(DifferentCase);
+			var stackUnderTest = new Nexus.Client.Util.Collections.ReorderableStack<string>(TestItems, StringComparer.OrdinalIgnoreCase);
+			var actual = stackUnderTest.IndexOf(DifferentCase);
 
 			Assert.AreEqual(ExistingMatchIndex, actual);
 		}
@@ -126,117 +126,168 @@ namespace Util.Test.Collections
 		[Test]
 		public void IndexOfComparerNonexistantTest()
 		{
-			var setUnderTest = new Nexus.Client.Util.Collections.ReorderableStack<string>(TestItems, StringComparer.OrdinalIgnoreCase);
-			var actual = setUnderTest.IndexOf(NonexistantMatch);
+			var stackUnderTest = new Nexus.Client.Util.Collections.ReorderableStack<string>(TestItems, StringComparer.OrdinalIgnoreCase);
+			var actual = stackUnderTest.IndexOf(NonexistantMatch);
 
 			Assert.AreEqual(NonexistantMatchExpectedIndex, actual);
 		}
 
 		[Test]
-		public void CopyToTest()
+		public virtual void CopyToTest()
 		{
-			var setUnderTest = CreateTestStack();
-			string[] actual = new string[setUnderTest.Count];
-			setUnderTest.CopyTo(actual, 0);
-			Assert.IsTrue(ListsAreEqual(actual, setUnderTest));
+			var stackUnderTest = CreateTestStack();
+			string[] actual = new string[stackUnderTest.Count];
+			stackUnderTest.CopyTo(actual, 0);
+			Assert.IsTrue(ListsAreEqual(actual, stackUnderTest));
 		}
 		[Test]
-		public void CopyToIndexTest()
+		public virtual void CopyToIndexTest()
 		{
-			var setUnderTest = CreateTestStack();
-			string[] actual = new string[setUnderTest.Count + 1];
-			setUnderTest.CopyTo(actual, 1);
+			var stackUnderTest = CreateTestStack();
+			string[] actual = new string[stackUnderTest.Count + 1];
+			stackUnderTest.CopyTo(actual, 1);
 			Assert.IsTrue(ListsAreEqual(TestItems, actual.Skip(1).ToList()));
 		}
 
 		[Test]
 		public void RemoveAtTest()
 		{
-			var setUnderTest = CreateTestStack();
-			setUnderTest.RemoveAt(ExistingMatchIndex);
+			var stackUnderTest = CreateTestStack();
+			stackUnderTest.RemoveAt(ExistingMatchIndex);
 
-			Assert.AreNotEqual(ExistingMatch, setUnderTest[ExistingMatchIndex]);
+			Assert.AreNotEqual(ExistingMatch, stackUnderTest[ExistingMatchIndex]);
 		}
 		[Test]
 		public void RemoveAtTestInvalidIndexHighTest()
 		{
-			var setUnderTest = CreateTestStack();
-			Assert.Throws<ArgumentOutOfRangeException>(() => setUnderTest.RemoveAt(InvalidIndexHigh));
+			var stackUnderTest = CreateTestStack();
+			Assert.Throws<ArgumentOutOfRangeException>(() => stackUnderTest.RemoveAt(InvalidIndexHigh));
 		}
 		[Test]
 		public void RemoveAtTestInvalidIndexLowTest()
 		{
-			var setUnderTest = CreateTestStack();
-			Assert.Throws<ArgumentOutOfRangeException>(() => setUnderTest.RemoveAt(InvalidIndexLow));
+			var stackUnderTest = CreateTestStack();
+			Assert.Throws<ArgumentOutOfRangeException>(() => stackUnderTest.RemoveAt(InvalidIndexLow));
 		}
 
 		[Test]
-		public void RemoveExistingTest()
+		public virtual void RemoveExistingTest()
 		{
-			var setUnderTest = CreateTestStack();
-			Assert.IsTrue(setUnderTest.Remove(ExistingMatch));
-			Assert.AreNotEqual(ExistingMatch, setUnderTest[ExistingMatchIndex]);
+			var stackUnderTest = CreateTestStack();
+			Assert.IsTrue(stackUnderTest.Remove(ExistingMatch));
+			Assert.AreNotEqual(ExistingMatch, stackUnderTest[ExistingMatchIndex]);
 		}
 		[Test]
-		public void RemoveNonExistantTest()
+		public virtual void RemoveNonExistantTest()
 		{
-			var setUnderTest = CreateTestStack();
-			Assert.IsFalse(setUnderTest.Remove(NonexistantMatch));
-			Assert.AreEqual(ExistingMatch, setUnderTest[ExistingMatchIndex]);
+			var stackUnderTest = CreateTestStack();
+			Assert.IsFalse(stackUnderTest.Remove(NonexistantMatch));
+			Assert.AreEqual(ExistingMatch, stackUnderTest[ExistingMatchIndex]);
 		}
 		[Test]
-		public void RemoveNullTest()
+		public virtual void RemoveNullTest()
 		{
-			var setUnderTest = CreateTestStack();
-			Assert.IsFalse(setUnderTest.Remove(null));
+			var stackUnderTest = CreateTestStack();
+			Assert.IsFalse(stackUnderTest.Remove(null));
 		}
 
 		[Test]
-		public void ThisGetterTest()
+		public virtual void ThisGetterTest()
 		{
-			var setUnderTest = CreateTestStack();
-			Assert.AreEqual(ExistingMatch, setUnderTest[ExistingMatchIndex]);
+			var stackUnderTest = CreateTestStack();
+			Assert.AreEqual(ExistingMatch, stackUnderTest[ExistingMatchIndex]);
 		}
 		[Test]
 		public void ThisGetterInvalidIndexHighTest()
 		{
-			var setUnderTest = CreateTestStack();
+			var stackUnderTest = CreateTestStack();
 			string x;
-			Assert.Throws<ArgumentOutOfRangeException>(() => x = setUnderTest[InvalidIndexHigh]);
+			Assert.Throws<ArgumentOutOfRangeException>(() => x = stackUnderTest[InvalidIndexHigh]);
 		}
 		[Test]
-		public void ThisGetterInvalidIndexLowTest()
+		public virtual void ThisGetterInvalidIndexLowTest()
 		{
-			var setUnderTest = CreateTestStack();
+			var stackUnderTest = CreateTestStack();
 			string x;
-			Assert.Throws<ArgumentOutOfRangeException>(() => x = setUnderTest[InvalidIndexLow]);
+			Assert.Throws<ArgumentOutOfRangeException>(() => x = stackUnderTest[InvalidIndexLow]);
 		}
 
 		[Test]
 		public void ThisSetterTest()
 		{
-			var setUnderTest = CreateTestStack();
-			setUnderTest[ExistingMatchIndex] = NonexistantMatch;
-			Assert.AreEqual(NonexistantMatch, setUnderTest[ExistingMatchIndex]);
+			var stackUnderTest = CreateTestStack();
+			stackUnderTest[ExistingMatchIndex] = NonexistantMatch;
+			Assert.AreEqual(NonexistantMatch, stackUnderTest[ExistingMatchIndex]);
 		}
 
 		[Test]
-		public void ClearTest()
+		public virtual void ClearTest()
 		{
-			var setUnderTest = CreateTestStack();
-			setUnderTest.Clear();
+			var stackUnderTest = CreateTestStack();
+			stackUnderTest.Clear();
 
-			Assert.AreEqual(0, setUnderTest.Count);
+			Assert.AreEqual(0, stackUnderTest.Count);
 		}
 
 		[Test]
-		public void ReadOnlyTest()
+		public virtual void ReadOnlyTest()
 		{
-			var setUnderTest = CreateTestStack();
-			Assert.AreEqual(false, setUnderTest.IsReadOnly);
+			var stackUnderTest = CreateTestStack();
+			Assert.AreEqual(false, stackUnderTest.IsReadOnly);
 		}
 
-		protected virtual Nexus.Client.Util.Collections.ReorderableStack<string> CreateTestStack()
+		[Test]
+		public virtual void PeekTest()
+		{
+			var stackUnderTest = CreateTestStack();
+			foreach (var testItem in TestItems.Reverse())
+			{
+				Assert.AreEqual(testItem, stackUnderTest.Peek());
+				stackUnderTest.Pop();
+			}
+		}
+
+		[Test]
+		public virtual void PopTest()
+		{
+			var stackUnderTest = CreateTestStack();
+			for(int i = 0; i < stackUnderTest.Count; i++)
+			{
+				var item = stackUnderTest.Pop();
+				Assert.AreEqual(TestItems.Reverse().ElementAt(i), item);
+			}
+		}
+
+		[Test]
+		public virtual void PushRangeTest()
+		{
+			var stackUnderTest = new ReorderableStack<string>();
+			stackUnderTest.PushRange(TestItems);
+			Assert.AreEqual(TestItems.Last(), stackUnderTest.Peek());
+			Assert.AreEqual(TestItems.Length, stackUnderTest.Count);
+		}
+
+		[Test]
+		public virtual void IndexOfWithComparisonTest()
+		{
+			Comparison<string> comparison = (s, s1) => s.Length == s1.Length && !s.Equals(s1) ? 0 : String.Compare(s.ToUpper(), s1, System.StringComparison.Ordinal);
+			var stackUnderTest = new ReorderableStack<string>(comparison);
+			stackUnderTest.Push(ExistingMatch);
+			int index = stackUnderTest.IndexOf(ExistingMatch);
+
+			Assert.AreNotEqual(ExistingMatchIndex, index);
+		}
+
+		[Test]
+		public virtual void IListTInsertTest()
+		{
+			var stackUnderTest = CreateTestStack();
+			((IList<string>)stackUnderTest).Insert(stackUnderTest.Count - 1, NonexistantMatch);
+			stackUnderTest.Pop();
+			Assert.AreEqual(NonexistantMatch, stackUnderTest.Peek());
+		}
+
+		protected virtual ReorderableStack<string> CreateTestStack()
 		{
 			return new Nexus.Client.Util.Collections.ReorderableStack<string>(TestItems);
 		}

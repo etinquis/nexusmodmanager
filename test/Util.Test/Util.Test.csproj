@@ -59,6 +59,7 @@
     <Compile Include="Collections\IListExtensions.cs" />
     <Compile Include="Collections\ListTestBase.cs" />
     <Compile Include="Collections\ObservableSet.cs" />
+    <Compile Include="Collections\ReadOnlyObservableList.cs" />
     <Compile Include="Collections\ReorderableStack.cs" />
     <Compile Include="Collections\Set.cs" />
     <Compile Include="Collections\SortedList.cs" />
