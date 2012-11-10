@@ -44,6 +44,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
@@ -54,6 +55,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BindingHelper.cs" />
     <Compile Include="Collections\Generic Interfaces\INotifyCollectionChangedTester.cs" />
     <Compile Include="Collections\Generic Interfaces\INotifyPropertyChangedTester.cs" />
     <Compile Include="Collections\IListExtensions.cs" />
@@ -65,9 +67,15 @@
     <Compile Include="Collections\SortedList.cs" />
     <Compile Include="Collections\SortedThreadSafeObservableCollection.cs" />
     <Compile Include="Collections\ThreadSafeObservableList.cs" />
+    <Compile Include="Crc32.cs" />
     <Compile Include="MoqExtensions.cs" />
+    <Compile Include="ObjectHelper.cs" />
+    <Compile Include="ObservableObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestFixtureBase.cs" />
+    <Compile Include="TextUtil.cs" />
+    <Compile Include="TraceUtil.cs" />
+    <Compile Include="UriUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Util\Util.csproj">
