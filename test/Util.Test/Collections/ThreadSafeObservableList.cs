@@ -310,9 +310,9 @@ namespace Util.Test.Collections
 
 		[Test]
 		public virtual void RemoveAtThreadedTest(
-			[Random(0,int.MaxValue, 5)] int randomSeed, 
-			[Random(100, 5000, 5)] int listLength,
-			[Random(2, 50, 5)] int numThreads)
+			[Random(0,int.MaxValue, 1)] int randomSeed, 
+			[Random(100, 5000, 1)] int listLength,
+			[Random(2, 50, 1)] int numThreads)
 		{
 			Random random = new Random(randomSeed);
 

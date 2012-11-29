@@ -209,7 +209,7 @@ namespace Util.Test.Collections
 			Assert.IsFalse(fullList.IsNullOrEmpty());
 		}
 		
-		private bool ListsAreEqual(IList<string> expected, IList<string> actual)
+		protected override bool ListsAreEqual(IList<string> expected, IList<string> actual)
 		{
 			bool result = true;
 

@@ -13,77 +13,38 @@ namespace Util.Test
 	[TestFixture]
 	class BindingHelperTests
 	{
-		private IEnumerable<Control> ControlValueSource
+		private class TestObjectSource : ObservableObject
 		{
-			get
+			private string _testString;
+			public string TestStringProperty
 			{
-				Castle.DynamicProxy.Generators.AttributesToAvoidReplicating.Add(
-					typeof (System.Security.Permissions.UIPermissionAttribute));
+				get { return _testString; }
+				set { SetPropertyIfChanged(ref _testString, value, () => TestStringProperty); }
+			}
 
-				Mock<Control> mockControl = new Mock<Control>();
-				mockControl.Setup(ctrl => ctrl.Text).Returns("TestName");
-
-				yield return mockControl.Object;
+			private bool _testBool;
+			public bool TestBoolProperty
+			{
+				get { return _testBool; }
+				set { SetPropertyIfChanged(ref _testBool, value, () => TestBoolProperty); }
 			}
 		}
 
-		private IEnumerable<Expression<Func<string>>> ControlPropertyValueSource
+		[Test, Ignore]
+		public void CreateFullBindingTest()
 		{
-			get
-			{
-				Control control = null;
-				yield return () => control.Text;
-			}
-		}
+			CheckBox checkbox = new CheckBox();
+			TestObjectSource source = new TestObjectSource();
+			Form frm = new Form();
+			frm.Controls.Add(checkbox);
 
-		private IEnumerable<object> ObjectValueSource
-		{
-			get
-			{
-				yield return new {Name = string.Empty};
-			}
-		}
+			Binding result = BindingHelper.CreateFullBinding<CheckBox, TestObjectSource>(checkbox, x => x.Checked, source, x => x.TestBoolProperty);
 
-		private IEnumerable<Expression<Func<string>>> ObjectPropertyValueSource
-		{
-			get
-			{
-				var y = new {Name = string.Empty};
-				yield return () => y.Name;
-			}
-		}
+			checkbox.CausesValidation = true;
+			source.TestBoolProperty = true;
+			frm.ValidateChildren();
 
-		[Test]
-		public void CreateManualBindingControlExpObjectExpTest()
-		{
-			Castle.DynamicProxy.Generators.AttributesToAvoidReplicating.Add(
-					typeof(System.Security.Permissions.UIPermissionAttribute));
-
-			Mock<Control> mockControl = new Mock<Control>();
-			mockControl.SetupProperty(ctrl => ctrl.Text);
-
-			Control control = mockControl.Object;
-
-			TextBox textBox = new TextBox();
-			var objectSource = new TestObjectSource();
-
-			Binding manualBinding = BindingHelper.CreateFullBinding(textBox, () => textBox.Text, objectSource,
-			                                                          () => objectSource.StringProperty);
-
-			manualBinding.ReadValue();
-			Assert.AreEqual(objectSource.StringProperty, control.Text);
-		}
-
-		private class TestObjectSource
-		{
-			public string StringProperty
-			{
-				get { return "Foo"; }
-				set
-				{
-					
-				}
-			}
+			Assert.AreEqual(source.TestBoolProperty, checkbox.Checked);
 		}
 	}
 }

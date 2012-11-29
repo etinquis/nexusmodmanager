@@ -10,3 +10,5 @@ _Resharper*
 #sln upgrade
 _UpgradeReport*
 UpgradeLog*.XML
+
+AssemblyInfo.cs

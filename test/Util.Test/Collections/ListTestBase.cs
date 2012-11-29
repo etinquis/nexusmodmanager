@@ -24,7 +24,7 @@ namespace Util.Test.Collections
 		protected string[] CaseInsignificantSortable = { "def", "abc", "xyz" };
 		protected string[] CaseInsignificantExpectedSorted = { "abc", "def", "xyz" };
 
-		protected bool ListsAreEqual(IList<string> expected, IList<string> actual)
+		protected virtual bool ListsAreEqual(IList<string> expected, IList<string> actual)
 		{
 			bool result = true;
 
