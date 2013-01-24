@@ -32,6 +32,7 @@ namespace Nexus.Client.ModManagement.UI
 		private Timer m_tmrColumnSizer = new Timer();
 		private ListViewItem.ListViewSubItem m_lsiLastSelectedWebVersion = null;
 		private bool m_booControlIsLoaded = false;
+		private bool m_booDisableSummary = true;
 
 		#region Properties
 
@@ -49,6 +50,8 @@ namespace Nexus.Client.ModManagement.UI
 			set
 			{
 				m_vmlViewModel = value;
+				m_vmlViewModel.UpdatingCategory += new EventHandler<EventArgs<IBackgroundTask>>(ViewModel_UpdatingCategory);
+				m_vmlViewModel.UpdatingMods += new EventHandler<EventArgs<IBackgroundTask>>(ViewModel_UpdatingMods);
 				m_vmlViewModel.AddingMod += new EventHandler<EventArgs<IBackgroundTask>>(ViewModel_AddingMod);
 				m_vmlViewModel.DeletingMod += new EventHandler<EventArgs<IBackgroundTaskSet>>(ViewModel_DeletingMod);
 				m_vmlViewModel.ChangingModActivation += new EventHandler<EventArgs<IBackgroundTaskSet>>(ViewModel_ChangingModActivation);
@@ -107,8 +110,10 @@ namespace Nexus.Client.ModManagement.UI
 			clwCategoryView.CategorySwitch += new EventHandler(CategoryListView_CategorySwitch);
 			clwCategoryView.CategoryRemoved += new EventHandler(CategoryListView_CategoryRemoved);
 			clwCategoryView.CellEditFinishing += new BrightIdeasSoftware.CellEditEventHandler(CategoryListView_CellEditFinishing);
+			clwCategoryView.CellToolTipShowing += new EventHandler<BrightIdeasSoftware.ToolTipShowingEventArgs>(CategoryListView_CellToolTipShowing);
 
 			clmModName.Name = "ModName";
+			clmCategory.Name = "Category";
 			clmInstallDate.Name = "InstallDate";
 			clmVersion.Name = "HumanReadableVersion";
 			clmWebVersion.Name = "WebVersion";
@@ -119,6 +124,8 @@ namespace Nexus.Client.ModManagement.UI
 			tsbAddMod.Text = tsbAddMod.DefaultItem.Text;
 			tsbAddMod.Image = tsbAddMod.DefaultItem.Image;
 			tsbAddMod.DropDownItemClicked += new ToolStripItemClickedEventHandler(tsbAddMod_DropDownItemClicked);
+
+			tsbResetCategories.DefaultItem = tsbResetCategories.DropDownItems[0];
 
 			m_tmrColumnSizer.Interval = 100;
 			m_tmrColumnSizer.Tick += new EventHandler(ColumnSizer_Tick);
@@ -144,6 +151,14 @@ namespace Nexus.Client.ModManagement.UI
 				m_booControlIsLoaded = true;
 				LoadMetrics();
 				LoadCategoryView();
+				if (!ViewModel.IsCategoryInitialized)
+				{
+					ViewModel.CheckCategoryManager();
+					clwCategoryView.LoadData();
+					clwCategoryView.SetupContextMenu();
+					clwCategoryView.RebuildAll(true);
+				}
+				m_booDisableSummary = false;
 			}
 		}
 
@@ -159,6 +174,7 @@ namespace Nexus.Client.ModManagement.UI
 
 				FindForm().FormClosing += new FormClosingEventHandler(PluginManagerControl_FormClosing);
 				SizeColumnsToFit();
+				SizeColumnsToFitClw();
 			}
 		}
 
@@ -181,8 +197,16 @@ namespace Nexus.Client.ModManagement.UI
 
 		private void CheckModVersions()
 		{
-			string strMessage = ViewModel.CheckForUpdates(false);
-			MessageBox.Show(this, strMessage, "Update check", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			try
+			{
+				ViewModel.CheckForUpdates(false);
+			}
+			catch (Exception e)
+			{
+				string strMessage = "Couldn't perform the update check, retry later.";
+				strMessage += Environment.NewLine + Environment.NewLine + e.Message;
+				MessageBox.Show(this, strMessage, "Update check", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			}
 		}
 
 		private void  ToggleEndorsement()
@@ -202,41 +226,6 @@ namespace Nexus.Client.ModManagement.UI
 			}
 
 			SetCommandExecutableStatus();
-		}
-
-		private void LoadCategoryView()
-		{
-			if (clwCategoryView.Tag == null)
-			{
-				clwCategoryView.Setup(lvwMods, ViewModel.CategoryManager);
-
-				this.clwCategoryView.SelectedIndexChanged += delegate(object sender, EventArgs e)
-				{
-					SetCommandExecutableStatus();
-				};
-
-				this.clwCategoryView.CellClick += delegate(object sender, BrightIdeasSoftware.CellClickEventArgs e)
-				{
-					if ((e.ClickCount == 2) && (e.Item != null))
-					{
-						try
-						{
-							IMod modMod = (IMod)((ListViewItem)e.Item.RowObject).Tag;
-							if (modMod != null)
-							{
-								if (e.Item.Checked)
-									ViewModel.DeactivateModCommand.Execute(modMod);
-								else
-									ViewModel.ActivateModCommand.Execute(modMod);
-							}
-						}
-						catch
-						{
-						}
-					}
-				};
-			}
-			clwCategoryView.LoadData();
 		}
 
 		#region Binding
@@ -406,6 +395,46 @@ namespace Nexus.Client.ModManagement.UI
 			ProgressDialog.ShowDialog(this, e.Argument);
 		}
 
+		/// <summary>
+		/// Handles the <see cref="MainFormVM.Updating"/> event of the view model.
+		/// </summary>
+		/// <remarks>
+		/// This displays the progress dialog.
+		/// </remarks>
+		/// <param name="sender">The object that raised the event.</param>
+		/// <param name="e">An <see cref="EventArgs{IBackgroundTask}"/> describing the event arguments.</param>
+		private void ViewModel_UpdatingCategory(object sender, EventArgs<IBackgroundTask> e)
+		{
+			if (InvokeRequired)
+			{
+				Invoke((Action<object, EventArgs<IBackgroundTask>>)ViewModel_UpdatingCategory, sender, e);
+				return;
+			}
+			m_booDisableSummary = true;
+			ProgressDialog.ShowDialog(this, e.Argument);
+			m_booDisableSummary = false;
+		}
+
+		/// <summary>
+		/// Handles the <see cref="MainFormVM.Updating"/> event of the view model.
+		/// </summary>
+		/// <remarks>
+		/// This displays the progress dialog.
+		/// </remarks>
+		/// <param name="sender">The object that raised the event.</param>
+		/// <param name="e">An <see cref="EventArgs{IBackgroundTask}"/> describing the event arguments.</param>
+		private void ViewModel_UpdatingMods(object sender, EventArgs<IBackgroundTask> e)
+		{
+			if (InvokeRequired)
+			{
+				Invoke((Action<object, EventArgs<IBackgroundTask>>)ViewModel_UpdatingMods, sender, e);
+				return;
+			}
+			m_booDisableSummary = true;
+			ProgressDialog.ShowDialog(this, e.Argument);
+			m_booDisableSummary = false;
+		}
+
 		#endregion
 
 		/// <summary>
@@ -431,6 +460,93 @@ namespace Nexus.Client.ModManagement.UI
 		#region Category Management
 
 		/// <summary>
+		/// Loads and initializes the CategoryListView control.
+		/// </summary>
+		private void LoadCategoryView()
+		{
+			if (clwCategoryView.Tag == null)
+			{
+				clwCategoryView.Setup(lvwMods, ViewModel.CategoryManager);
+
+				this.clwCategoryView.SelectedIndexChanged += delegate(object sender, EventArgs e)
+				{
+					SetCommandExecutableStatus();
+				};
+
+				// Enables installing/uninstalling mods using the double click
+				this.clwCategoryView.CellClick += delegate(object sender, BrightIdeasSoftware.CellClickEventArgs e)
+				{
+					if ((e.ClickCount == 2) && (e.Item != null))
+					{
+						try
+						{
+							IMod modMod = (IMod)((ListViewItem)e.Item.RowObject).Tag;
+							if (modMod != null)
+							{
+								if (((ListViewItem)e.Item.RowObject).Checked)
+									ViewModel.DeactivateModCommand.Execute(modMod);
+								else
+									ViewModel.ActivateModCommand.Execute(modMod);
+							}
+						}
+						catch
+						{
+						}
+					}
+				};
+
+				// Enables removing categories or mods using the DEL key
+				this.clwCategoryView.KeyUp += delegate(object sender, KeyEventArgs e)
+				{
+					if (e.KeyData == Keys.Delete)
+					{
+						object objTag = clwCategoryView.GetSelectedItem.Tag;
+
+						if (objTag.GetType() == typeof(ModCategory))
+						{
+							clwCategoryView.RemoveCategory((IModCategory)objTag);
+						}
+						else
+						{
+							try
+							{
+								IMod modMod = (IMod)objTag;
+								ViewModel.DeleteMod(modMod);
+								clwCategoryView.RebuildAll(true);
+							}
+							catch
+							{
+							}
+						}
+					}
+				};
+
+				clwCategoryView.LoadData();
+			}
+		}
+
+		/// <summary>
+		/// Handles the <see cref="CategoryListView.CellToolTipShowing"/>.
+		/// </summary>
+		/// <param name="sender">The object that raised the event.</param>
+		/// <param name="e">A <see cref="BrightIdeasSoftware.ToolTipShowingEventArgs"/> describing the event arguments.</param>
+		private void CategoryListView_CellToolTipShowing(object sender, BrightIdeasSoftware.ToolTipShowingEventArgs e)
+		{
+			if (e.Column.Text == "Latest Version")
+			{
+				IMod modMod = (IMod)((ListViewItem)e.Item.RowObject).Tag;
+				if (!modMod.IsMatchingVersion())
+				{
+					e.AutoPopDelay = 10000;
+					e.Title = "New Version Available Online";
+					e.StandardIcon = BrightIdeasSoftware.ToolTipControl.StandardIcons.Warning;
+					e.Text = "There's a new mod version available on the Nexus,\r\nclick on the version number to access the mod page in your default browser.";
+					e.IsBalloon = true;
+				}
+			}
+		}
+
+		/// <summary>
 		/// Handles the <see cref="CategoryListView.CategorySwitch"/> of the switch
 		/// mod category context menu.
 		/// </summary>
@@ -441,7 +557,14 @@ namespace Nexus.Client.ModManagement.UI
 			if ((clwCategoryView.GetSelectedMod != null) && (sender != null))
 			{
 				IMod modMod = clwCategoryView.GetSelectedMod;
-				ViewModel.SwitchModCategory(modMod, ((IModCategory)sender).Id);
+				ModCategory mctOldCategory = (ModCategory)ViewModel.CategoryManager.FindCategory(modMod.CustomCategoryId >= 0 ? modMod.CustomCategoryId : modMod.CategoryId);
+				IModCategory imcNewCategory = (IModCategory)sender;
+
+				ViewModel.SwitchModCategory(modMod, imcNewCategory.Id);
+				if (clwCategoryView.RefreshData(new ModCategory(imcNewCategory)))
+					clwCategoryView.AddData(imcNewCategory, false);
+				if (clwCategoryView.GetCategoryModCount(mctOldCategory) == 0)
+					clwCategoryView.RemoveData(mctOldCategory);
 				clwCategoryView.RebuildAll(true);
 			}
 		}
@@ -456,8 +579,16 @@ namespace Nexus.Client.ModManagement.UI
 		{
 			if (sender != null)
 			{
+				bool booShowUnassigned = false;
+				if (clwCategoryView.GetCategoryModCount(new ModCategory()) == 0)
+					if (clwCategoryView.GetCategoryModCount((IModCategory)sender) > 0)
+						booShowUnassigned = true;
+
 				ViewModel.SwitchModsToUnassigned((IModCategory)sender);
 				clwCategoryView.RebuildAll(true);
+
+				if (booShowUnassigned)
+					clwCategoryView.AddData(new ModCategory(), false);
 			}
 		}
 
@@ -472,10 +603,74 @@ namespace Nexus.Client.ModManagement.UI
 			if (ViewModel.ResetDefaultCategories())
 			{
 				clwCategoryView.LoadData();
+				clwCategoryView.SetupContextMenu();
 				clwCategoryView.RebuildAll(true);
 			}
 		}
 
+		/// <summary>
+		/// Handles the <see cref="ToolStripItem.Click"/> event of the add new
+		/// category button.
+		/// </summary>
+		/// <param name="sender">The object that raised the event.</param>
+		/// <param name="e">An <see cref="EventArgs"/> describing the event arguments.</param>
+		private void addNewCategory_Click(object sender, EventArgs e)
+		{
+			clwCategoryView.AddNewCategory();
+		}
+
+		/// <summary>
+		/// Handles the <see cref="ToolStripItem.Click"/> event of the add new
+		/// category button.
+		/// </summary>
+		/// <param name="sender">The object that raised the event.</param>
+		/// <param name="e">An <see cref="EventArgs"/> describing the event arguments.</param>
+		private void tsbSwitchCategory_Click(object sender, EventArgs e)
+		{
+			clwCategoryView.Visible = !clwCategoryView.Visible;
+			lvwMods.Visible = !lvwMods.Visible;
+			tsbResetCategories.Enabled = clwCategoryView.Visible;
+		}
+
+		/// <summary>
+		/// Handles the <see cref="ToolStripItem.Click"/> event of the add new
+		/// category button.
+		/// </summary>
+		/// <param name="sender">The object that raised the event.</param>
+		/// <param name="e">An <see cref="EventArgs"/> describing the event arguments.</param>
+		private void collapseAllCategories_Click(object sender, EventArgs e)
+		{
+			clwCategoryView.CollapseAll();
+		}
+
+		/// <summary>
+		/// Handles the <see cref="ToolStripItem.Click"/> event of the add new
+		/// category button.
+		/// </summary>
+		/// <param name="sender">The object that raised the event.</param>
+		/// <param name="e">An <see cref="EventArgs"/> describing the event arguments.</param>
+		private void expandAllCategories_Click(object sender, EventArgs e)
+		{
+			clwCategoryView.ExpandAll();
+		}
+
+		/// <summary>
+		/// Handles the <see cref="ToolStripItem.Click"/> event of the add new
+		/// category button.
+		/// </summary>
+		/// <param name="sender">The object that raised the event.</param>
+		/// <param name="e">An <see cref="EventArgs"/> describing the event arguments.</param>
+		private void toggleHiddenCategories_Click(object sender, EventArgs e)
+		{
+			clwCategoryView.ShowHiddenCategories = !clwCategoryView.ShowHiddenCategories;
+			clwCategoryView.LoadData();
+		}
+
+		/// <summary>
+		/// Handles the <see cref="CategoryListView.CellEditFinishing"/>.
+		/// </summary>
+		/// <param name="sender">The object that raised the event.</param>
+		/// <param name="e">A <see cref="BrightIdeasSoftware.CellEditEventArgs"/> describing the event arguments.</param>
 		private void CategoryListView_CellEditFinishing(object sender, BrightIdeasSoftware.CellEditEventArgs e)
 		{
 			string strValue = e.NewValue.ToString();
@@ -489,7 +684,7 @@ namespace Nexus.Client.ModManagement.UI
 					string strOldValue = mctUpdatedCategory.CategoryName;
 					mctUpdatedCategory.CategoryName = strValue;
 					mctUpdatedCategory.CategoryPath = strValue;
-					ViewModel.CategoryManager.ReplaceCategory((IModCategory)lviItem.Tag, mctUpdatedCategory);
+					ViewModel.CategoryManager.UpdateCategory();
 					clwCategoryView.UpdateData(mctUpdatedCategory, strOldValue);
 				}
 				else
@@ -504,6 +699,41 @@ namespace Nexus.Client.ModManagement.UI
 		}
 
 		/// <summary>
+		/// Handles the <see cref="ListView.AfterLabelEdit"/> event of the category view.
+		/// </summary>
+		/// <remarks>
+		/// This updates the name of the mod/category.
+		/// </remarks>
+		/// <param name="sender">The object that raised the event.</param>
+		/// <param name="e">A <see cref="LabelEditEventArgs"/> describing the event arguments.</param>
+		private void clwCategoryView_AfterLabelEdit(object sender, LabelEditEventArgs e)
+		{
+			string strValue = e.Label;
+			if (!String.IsNullOrEmpty(strValue))
+			{
+				ListViewItem lviItem = (ListViewItem)clwCategoryView.SelectedItem.RowObject;
+
+				if (lviItem.Tag.GetType() == typeof(ModCategory))
+				{
+					ModCategory mctUpdatedCategory = (ModCategory)lviItem.Tag;
+					string strOldValue = mctUpdatedCategory.CategoryName;
+					mctUpdatedCategory.CategoryName = strValue;
+					mctUpdatedCategory.CategoryPath = strValue;
+					ViewModel.CategoryManager.UpdateCategory();
+					clwCategoryView.UpdateData(mctUpdatedCategory, strOldValue);
+				}
+				else
+				{
+					lock (clwCategoryView)
+						ViewModel.UpdateModName((IMod)lviItem.Tag, strValue);
+					clwCategoryView.RebuildAll(true);
+				}
+			}
+
+			e.CancelEdit = true;
+		}
+
+		/// <summary>
 		/// Handles the <see cref="ToolStripItem.Click"/> event of the reset mods to
 		/// the Unassigned category.
 		/// </summary>
@@ -511,9 +741,25 @@ namespace Nexus.Client.ModManagement.UI
 		/// <param name="e">An <see cref="EventArgs"/> describing the event arguments.</param>
 		private void resetModsCategory_Click(object sender, EventArgs e)
 		{
-			// TODO Category: Add progress bar
 			if (ViewModel.ResetToUnassigned())
 			{
+				clwCategoryView.LoadData();
+				clwCategoryView.RebuildAll(true);
+			}
+		}
+
+		/// <summary>
+		/// Handles the <see cref="ToolStripItem.Click"/> event of the remove all
+		/// categories.
+		/// </summary>
+		/// <param name="sender">The object that raised the event.</param>
+		/// <param name="e">An <see cref="EventArgs"/> describing the event arguments.</param>
+		private void removeAllCategories_Click(object sender, EventArgs e)
+		{
+			if (ViewModel.RemoveAllCategories())
+			{
+				clwCategoryView.LoadData();
+				clwCategoryView.SetupContextMenu();
 				clwCategoryView.RebuildAll(true);
 			}
 		}
@@ -551,6 +797,7 @@ namespace Nexus.Client.ModManagement.UI
 			}
 			lviMod.Tag = p_modAdded;
 			lviMod.Text = p_modAdded.ModName;
+			lviMod.SubItems[clmCategory.Name].Text = ViewModel.CategoryManager.FindCategory(p_modAdded.CustomCategoryId >= 0 ? p_modAdded.CustomCategoryId : p_modAdded.CategoryId).CategoryName;
 			lviMod.SubItems[clmVersion.Name].Text = p_modAdded.HumanReadableVersion;
 			lviMod.SubItems[clmWebVersion.Name].Text = p_modAdded.HumanReadableVersion;
 			UpdateNewestVersion(lviMod);
@@ -871,33 +1118,23 @@ namespace Nexus.Client.ModManagement.UI
 				return;
 			}
 
-			List<IModCategory> lstCategories = new List<IModCategory>();
-
 			switch (e.Action)
 			{
 				case NotifyCollectionChangedAction.Add:
 				case NotifyCollectionChangedAction.Replace:
 					foreach (IMod modAdded in e.NewItems)
 					{
-						if (!lstCategories.Any(Item => Item.Id == modAdded.CategoryId))
-							lstCategories.Add((IModCategory)ViewModel.CategoryManager.Categories.Find(Item => Item.Id == modAdded.CategoryId));
 						AddModToList(modAdded);
 					}
 					break;
 				case NotifyCollectionChangedAction.Remove:
 					foreach (IMod modRemoved in e.OldItems)
 					{
-						if (!lstCategories.Any(Item => Item.Id == modRemoved.CategoryId))
-							lstCategories.Add((IModCategory)ViewModel.CategoryManager.Categories.Find(Item => Item.Id == modRemoved.CategoryId));
 						RemoveModFromList(modRemoved);
 					}
 					break;
 			}
 
-			//foreach (ModCategory mctCategory in lstCategories)
-			//{
-			//    clwCategoryView.UpdateData(mctCategory);
-			//}
 			clwCategoryView.RebuildAll(true);
 		}
 
@@ -916,7 +1153,8 @@ namespace Nexus.Client.ModManagement.UI
 				Invoke((Action<object, PropertyChangedEventArgs>)Mod_PropertyChanged, sender, e);
 				return;
 			}
-			UpdateSummary((IMod)sender);
+			if (!m_booDisableSummary) 
+				UpdateSummary((IMod)sender);
 			AddModToList((IMod)sender);
 		}
 
@@ -1145,7 +1383,7 @@ namespace Nexus.Client.ModManagement.UI
 		/// <param name="e">An <see cref="EventArgs"/> describing the event arguments.</param>
 		private void lvwMods_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			if (lvwMods.SelectedItems.Count > 0)
+			if ((lvwMods.SelectedItems.Count > 0) && !m_booDisableSummary)
 				UpdateSummary((IMod)lvwMods.SelectedItems[0].Tag);
 			else
 				UpdateSummary(null);
@@ -1272,6 +1510,42 @@ namespace Nexus.Client.ModManagement.UI
 				clmOther = lvwMods.Columns[e.ColumnIndex + 1];
 			m_booResizing = true;
 			clmOther.Width += (clmThis.Width - e.NewWidth);
+			m_booResizing = false;
+		}
+
+		/// <summary>
+		/// Handles the <see cref="ListView.ColumnWidthChanging"/> event of the mod list.
+		/// </summary>
+		/// <remarks>
+		/// This resizes the column next to the column being resized to resize as well,
+		/// so that the columns keep the list view filled.
+		/// </remarks>
+		/// <param name="sender">The object that raised the event.</param>
+		/// <param name="e">A <see cref="ColumnWidthChangingEventArgs"/> describing the event arguments.</param>
+		private void clwCategoryView_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
+		{
+			if (m_booResizing)
+				return;
+			ColumnHeader clmThis = clwCategoryView.Columns[e.ColumnIndex];
+			ColumnHeader clmOther = null;
+			if (e.ColumnIndex == clwCategoryView.Columns.Count - 1)
+				clmOther = clwCategoryView.Columns[e.ColumnIndex - 1];
+			else
+				clmOther = clwCategoryView.Columns[e.ColumnIndex + 1];
+			m_booResizing = true;
+			clmOther.Width += (clmThis.Width - e.NewWidth);
+			m_booResizing = false;
+		}
+
+		/// <summary>
+		/// This resizes the columns to fill the list view.
+		/// </summary>
+		protected void SizeColumnsToFitClw()
+		{
+			if (clwCategoryView.Columns.Count == 0)
+				return;
+			m_booResizing = true;
+			clwCategoryView.SizeColumnsToFit();
 			m_booResizing = false;
 		}
 
