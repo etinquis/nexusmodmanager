@@ -256,6 +256,22 @@ namespace Nexus.Client.Properties {
 				this["ShowSidePanel"] = value;
 			}
 		}
+		
+		[global::System.Configuration.UserScopedSettingAttribute()]
+		[global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+		[global::System.Configuration.DefaultSettingValueAttribute("True")]
+		public bool ShowEmptyCategory
+		{
+			get
+			{
+				return ((bool)(this["ShowEmptyCategory"]));
+			}
+			set
+			{
+				this["ShowEmptyCategory"] = value;
+			}
+		}
+
 
 		[global::System.Configuration.UserScopedSettingAttribute()]
 		[global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
