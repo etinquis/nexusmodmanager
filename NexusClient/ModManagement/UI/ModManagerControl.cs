@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -780,7 +781,7 @@ namespace Nexus.Client.ModManagement.UI
 					ModCategory mctUpdatedCategory = (ModCategory)lviItem.Tag;
 					string strOldValue = mctUpdatedCategory.CategoryName;
 					mctUpdatedCategory.CategoryName = strValue;
-					mctUpdatedCategory.CategoryPath = strValue;
+					mctUpdatedCategory.CategoryPath = Path.GetInvalidFileNameChars().Aggregate(strValue, (current, c) => current.Replace(c.ToString(), string.Empty)); ;
 					ViewModel.CategoryManager.UpdateCategoryFile();
 					clwCategoryView.UpdateData(mctUpdatedCategory, strOldValue);
 				}
@@ -815,7 +816,7 @@ namespace Nexus.Client.ModManagement.UI
 					ModCategory mctUpdatedCategory = (ModCategory)lviItem.Tag;
 					string strOldValue = mctUpdatedCategory.CategoryName;
 					mctUpdatedCategory.CategoryName = strValue;
-					mctUpdatedCategory.CategoryPath = strValue;
+					mctUpdatedCategory.CategoryPath = Path.GetInvalidFileNameChars().Aggregate(strValue, (current, c) => current.Replace(c.ToString(), string.Empty)); ;
 					ViewModel.CategoryManager.UpdateCategoryFile();
 					clwCategoryView.UpdateData(mctUpdatedCategory, strOldValue);
 				}
