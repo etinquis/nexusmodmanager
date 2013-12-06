@@ -681,39 +681,43 @@ namespace Nexus.Client.Mods.Formats.FOMod
 			string strPrefixPath = null;
 			Stack<string> stkPaths = new Stack<string>();
 			stkPaths.Push("/");
-			while (stkPaths.Count > 0)
+
+			if (m_booUsesPlugins)
 			{
-				string strSourcePath = stkPaths.Pop();
-				string[] directories = m_arcFile.GetDirectories(strSourcePath);
-				bool booFoundData = false;
-				bool booFoundPrefix = false;
-				foreach (string strDirectory in directories)
+				while (stkPaths.Count > 0)
 				{
-					stkPaths.Push(strDirectory);
-					if (StopFolders.Contains(Path.GetFileName(strDirectory).ToLowerInvariant()))
+					string strSourcePath = stkPaths.Pop();
+					string[] directories = m_arcFile.GetDirectories(strSourcePath);
+					bool booFoundData = false;
+					bool booFoundPrefix = false;
+					foreach (string strDirectory in directories)
 					{
-						booFoundPrefix = true;
+						stkPaths.Push(strDirectory);
+						if (StopFolders.Contains(Path.GetFileName(strDirectory).ToLowerInvariant()))
+						{
+							booFoundPrefix = true;
+							break;
+						}
+						if (m_booUsesPlugins)
+							booFoundData |= Path.GetFileName(strDirectory).Equals("data", StringComparison.OrdinalIgnoreCase);
+					}
+					if (booFoundPrefix)
+					{
+						strPrefixPath = strSourcePath;
 						break;
 					}
-					if (m_booUsesPlugins)
-						booFoundData |= Path.GetFileName(strDirectory).Equals("data", StringComparison.OrdinalIgnoreCase);
-				}
-				if (booFoundPrefix)
-				{
-					strPrefixPath = strSourcePath;
-					break;
-				}
-				if (booFoundData)
-				{
-					strPrefixPath = Path.Combine(strSourcePath, "Data");
-					break;
-				}
-				if (!booFoundData && (m_arcFile.GetFiles(strSourcePath, "*.esp", false).Length > 0 ||
-										m_arcFile.GetFiles(strSourcePath, "*.esm", false).Length > 0 ||
-										m_arcFile.GetFiles(strSourcePath, "*.bsa", false).Length > 0))
-				{
-					strPrefixPath = strSourcePath;
-					break;
+					if (booFoundData)
+					{
+						strPrefixPath = Path.Combine(strSourcePath, "Data");
+						break;
+					}
+					if (!booFoundData && (m_arcFile.GetFiles(strSourcePath, "*.esp", false).Length > 0 ||
+											m_arcFile.GetFiles(strSourcePath, "*.esm", false).Length > 0 ||
+											m_arcFile.GetFiles(strSourcePath, "*.bsa", false).Length > 0))
+					{
+						strPrefixPath = strSourcePath;
+						break;
+					}
 				}
 			}
 			strPrefixPath = (strPrefixPath == null) ? "" : strPrefixPath.Trim(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
