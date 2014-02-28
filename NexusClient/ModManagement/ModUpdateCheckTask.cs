@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -189,51 +190,48 @@ namespace Nexus.Client.ModManagement
 
 			try
 			{
-				if (!ModRepository.IsOffline)
+				//get mod info
+				for (int i = 0; i <= m_intRetries; i++)
 				{
-					//get mod info
-					for (int i = 0; i <= m_intRetries; i++)
-					{
-						mifInfo = ModRepository.GetModListInfo(p_lstModList);
-
-						if (mifInfo != null)
-							break;
-
-						Thread.Sleep(1000);
-					}
+					mifInfo = ModRepository.GetModListInfo(p_lstModList);
 
 					if (mifInfo != null)
+						break;
+
+					Thread.Sleep(1000);
+				}
+
+				if (mifInfo != null)
+				{
+					ItemProgress = 0;
+					ItemProgressMaximum = mifInfo.Count;
+					OverallProgressMaximum = OverallProgress + mifInfo.Count;
+
+					foreach (ModInfo modUpdate in mifInfo)
 					{
-						ItemProgress = 0;
-						ItemProgressMaximum = mifInfo.Count;
-						OverallProgressMaximum = OverallProgress + mifInfo.Count;
+						if (m_booCancel)
+							break;
+						if (OverallProgress < OverallProgressMaximum)
+							StepOverallProgress();
 
-						foreach (ModInfo modUpdate in mifInfo)
+						ItemMessage = modUpdate.ModName;
+
+						foreach (IMod modMod in m_lstModList.Where(x => (String.IsNullOrEmpty(modUpdate.Id) ? "0" : modUpdate.Id) == x.Id))
 						{
-							if (m_booCancel)
-								break;
-							if (OverallProgress < OverallProgressMaximum)
-								StepOverallProgress();
-
-							ItemMessage = modUpdate.ModName;
-
-							foreach (IMod modMod in m_lstModList.Where(x => (String.IsNullOrEmpty(modUpdate.Id) ? "0" : modUpdate.Id) == x.Id))
-							{
-								if (ItemProgress < ItemProgressMaximum)
-									StepItemProgress();
-								modUpdate.CustomCategoryId = modMod.CustomCategoryId;
-								modUpdate.UpdateWarningEnabled = modMod.UpdateWarningEnabled;
-								AutoUpdater.AddNewVersionNumberForMod(modMod, modUpdate);
-								modMod.UpdateInfo(modUpdate, false);
-								ItemProgress = 0;
-							}
+							if (ItemProgress < ItemProgressMaximum)
+								StepItemProgress();
+							modUpdate.CustomCategoryId = modMod.CustomCategoryId;
+							modUpdate.UpdateWarningEnabled = modMod.UpdateWarningEnabled;
+							AutoUpdater.AddNewVersionNumberForMod(modMod, modUpdate);
+							modMod.UpdateInfo(modUpdate, false);
+							ItemProgress = 0;
 						}
 					}
 				}
 			}
-			catch (RepositoryUnavailableException)
+			catch (RepositoryUnavailableException e)
 			{
-				//the repository is not available, so don't bother
+				Trace.WriteLine(String.Format("ModUpdateCheck FAILED: {0}", e.Message));
 			}
 		}
 	}
