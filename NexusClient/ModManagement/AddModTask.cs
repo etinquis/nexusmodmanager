@@ -585,6 +585,8 @@ namespace Nexus.Client.ModManagement
 			{
 				if (dicQueuedMods.ContainsKey(p_uriPath.ToString()))
 					dicQueuedMods.Remove(p_uriPath.ToString());
+				if (m_strFileserverCaptions.Count > 0)
+					m_strFileserverCaptions.Clear();
 
 				switch (p_uriPath.Scheme.ToLowerInvariant())
 				{

@@ -999,45 +999,62 @@ namespace Nexus.Client.ModRepositories.Nexus
 
 			try
 			{
-				if (p_strUserLocation != "default")
+				List<string> Countries = (from Url
+											in fsiList
+											where !String.IsNullOrEmpty(Url.Country)
+											select Url.Country).ToList();
+
+				if ((Countries != null) && (Countries.Count > 0))
 				{
-					FileServerZone fszUser = FileServerZones.Find(x => x.FileServerID == p_strUserLocation);
-					if (fszUser != null)
+					if (p_strUserLocation != "default")
 					{
-						intServerAffinity = fszUser.FileServerAffinity;
-						booPremium = fszUser.IsPremium;
+						FileServerZone fszUser = FileServerZones.Find(x => x.FileServerID == p_strUserLocation);
+						if (fszUser != null)
+						{
+							intServerAffinity = fszUser.FileServerAffinity;
+							booPremium = fszUser.IsPremium;
+						}
+						else
+							p_strUserLocation = "default";
 					}
-					else
-						p_strUserLocation = "default";
-				}
 
-				if (booPremium && p_strUserLocation != "default")
-				{
-					fsiBestMatch = (from Url
-									in fsiList
-									where Url.Country == p_strUserLocation && !String.IsNullOrEmpty(Url.DownloadLink)
-									orderby Url.IsPremium descending, Url.ConnectedUsers ascending
-									select Url).ToList();
-				}
-				else if (booPremium && p_strUserLocation == "default")
-				{
-					fsiBestMatch = (from Url
-									in fsiList
-									where !String.IsNullOrEmpty(Url.DownloadLink)
-									orderby Url.IsPremium descending, Url.ConnectedUsers ascending
-									select Url).ToList();
-				}
+					if (booPremium && p_strUserLocation != "default")
+					{
+						fsiBestMatch = (from Url
+										in fsiList
+										where Url.Country == p_strUserLocation && !String.IsNullOrEmpty(Url.DownloadLink)
+										orderby Url.IsPremium descending, Url.ConnectedUsers ascending
+										select Url).ToList();
+					}
+					else if (booPremium && p_strUserLocation == "default")
+					{
+						fsiBestMatch = (from Url
+										in fsiList
+										where !String.IsNullOrEmpty(Url.DownloadLink)
+										orderby Url.IsPremium descending, Url.ConnectedUsers ascending
+										select Url).ToList();
+					}
 
-				if (fsiBestMatch == null)
-					booPremiumUnavailable = true;
+					if (fsiBestMatch == null)
+						booPremiumUnavailable = true;
 
-				if ((p_strUserLocation != "default") && ((fsiBestMatch == null) || (fsiBestMatch.Count == 0)))
-				{
-					fsiBestMatch = (from Url
-									in fsiList
-									where RepositoryFileServerZones.Find(x => x.FileServerID == Url.Country).FileServerAffinity == intServerAffinity && Url.IsPremium == false && !String.IsNullOrEmpty(Url.DownloadLink)
-									orderby Url.ConnectedUsers ascending
-									select Url).ToList();
+					if ((p_strUserLocation != "default") && ((fsiBestMatch == null) || (fsiBestMatch.Count == 0)))
+					{
+
+						Countries = (from Url
+										in fsiList
+										where RepositoryFileServerZones.Find(x => x.FileServerID == Url.Country) != null
+										select Url.Country).ToList();
+
+						if ((Countries != null) && (Countries.Count > 0))
+						{
+							fsiBestMatch = (from Url
+											in fsiList
+											where RepositoryFileServerZones.Find(x => x.FileServerID == Url.Country).FileServerAffinity == intServerAffinity && Url.IsPremium == false && !String.IsNullOrEmpty(Url.DownloadLink)
+											orderby Url.ConnectedUsers ascending
+											select Url).ToList();
+						}
+					}
 				}
 
 				if ((fsiBestMatch == null) || (fsiBestMatch.Count == 0))
@@ -1050,8 +1067,7 @@ namespace Nexus.Client.ModRepositories.Nexus
 				}
 			}
 			catch
-			{
-			}
+			{}
 
 			if (booPremium && booPremiumUnavailable && ((p_strUserLocation == "us.p1") || (p_strUserLocation == "us.p2") || (p_strUserLocation == "eu.p1")))
 				p_strRepositoryMessage = "Premium server unavailable, redirected: ";
