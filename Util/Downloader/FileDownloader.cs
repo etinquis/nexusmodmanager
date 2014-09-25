@@ -308,6 +308,8 @@ namespace Nexus.Client.Util.Downloader
 			m_fmdInfo = GetMetadata();
 
 			string strFilename = p_booUseDefaultFileName ? m_fmdInfo.SuggestedFileName : Path.GetFileName(p_strSavePath);
+			if (strFilename.IndexOf('%') >= 0)
+				strFilename = Uri.UnescapeDataString(strFilename);
 			foreach (char chrInvalid in Path.GetInvalidFileNameChars())
 				strFilename = strFilename.Replace(chrInvalid, '_');
 			p_strSavePath = Path.Combine(p_strSavePath, strFilename);
