@@ -575,7 +575,7 @@ namespace Nexus.Client.Util.Downloader
 			if (fmiInfo == null)
 				fmiInfo = new FileMetadata();
 			if (String.IsNullOrEmpty(fmiInfo.SuggestedFileName))
-				fmiInfo.SuggestedFileName = m_uriURL.Segments[m_uriURL.Segments.Length - 1];
+				fmiInfo.SuggestedFileName = Uri.UnescapeDataString(m_uriURL.Segments[m_uriURL.Segments.Length - 1]);
 			return fmiInfo;
 		}
 	}
