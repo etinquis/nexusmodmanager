@@ -78,7 +78,6 @@ namespace Nexus.Client.Util.Downloader
 		private EventWaitHandle m_ewhProcessQueue = new EventWaitHandle(false, EventResetMode.ManualReset);
 		private bool m_booIsClosing = false;
 		private TrackedThread m_thdWrite = null;
-        public event EventHandler UnableToWrite = delegate { };
 
 		public event EventHandler UnableToWrite = delegate { };
 
@@ -142,12 +141,12 @@ namespace Nexus.Client.Util.Downloader
 		/// Every time the file is written to, the metadata file is updated to reflect which parts
 		/// of the file have been written.
 		/// </remarks>
-        protected void WaitForData()
-        {
+		protected void WaitForData()
+		{
 			int intRetries = 0;
-            string strFolder = Path.GetDirectoryName(m_strFilePath);
-            if (!Directory.Exists(strFolder))
-                Directory.CreateDirectory(strFolder);
+			string strFolder = Path.GetDirectoryName(m_strFilePath);
+			if (!Directory.Exists(strFolder))
+				Directory.CreateDirectory(strFolder);
 			while (true)
 			{
 				while (m_sltBlocksToWrite.Count > 0)
@@ -202,7 +201,6 @@ namespace Nexus.Client.Util.Downloader
 						}
 					}
 				}
-                }
 				if (m_booIsClosing && m_sltBlocksToWrite.Count == 0)
 					return;
 				m_ewhProcessQueue.Reset();

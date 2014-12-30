@@ -24,7 +24,7 @@ namespace Nexus.Client.Util.Downloader
 			private bool m_booKeepRunning = true;
 			private UInt64 m_intDownloadedByteCount = 0;
 			private string m_strUserAgent = "";
-            
+
 			#region Properties
 
 			/// <summary>
@@ -45,7 +45,7 @@ namespace Nexus.Client.Util.Downloader
 			{
 				get
 				{
-						return m_intDownloadedByteCount;
+					return m_intDownloadedByteCount;
 				}
 			}
 
