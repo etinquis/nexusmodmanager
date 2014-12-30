@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Nexus.Client.ActivateModsMonitoring;
 using Nexus.Client.BackgroundTasks;
 using Nexus.Client.DownloadMonitoring;
 using Nexus.Client.Games;
@@ -55,11 +56,11 @@ namespace Nexus.Client.ModManagement
 		/// <returns>The initialized mod manager.</returns>
 		/// <exception cref="InvalidOperationException">Thrown if the mod manager has already
 		/// been initialized.</exception>
-		public static ModManager Initialize(IGameMode p_gmdGameMode, IEnvironmentInfo p_eifEnvironmentInfo, IModRepository p_mrpModRepository, DownloadMonitor p_dmrMonitor, IModFormatRegistry p_frgFormatRegistry, ModRegistry p_mrgModRegistry, FileUtil p_futFileUtility, SynchronizationContext p_scxUIContext, IInstallLog p_ilgInstallLog, IPluginManager p_pmgPluginManager)
+        public static ModManager Initialize(IGameMode p_gmdGameMode, IEnvironmentInfo p_eifEnvironmentInfo, IModRepository p_mrpModRepository, DownloadMonitor p_dmrMonitor, ActivateModsMonitor p_ammMonitor, IModFormatRegistry p_frgFormatRegistry, ModRegistry p_mrgModRegistry, FileUtil p_futFileUtility, SynchronizationContext p_scxUIContext, IInstallLog p_ilgInstallLog, IPluginManager p_pmgPluginManager)	
 		{
 			if (m_mmgCurrent != null)
 				throw new InvalidOperationException("The Mod Manager has already been initialized.");
-			m_mmgCurrent = new ModManager(p_gmdGameMode, p_eifEnvironmentInfo, p_mrpModRepository, p_dmrMonitor, p_frgFormatRegistry, p_mrgModRegistry, p_futFileUtility, p_scxUIContext, p_ilgInstallLog, p_pmgPluginManager);
+            m_mmgCurrent = new ModManager(p_gmdGameMode, p_eifEnvironmentInfo, p_mrpModRepository, p_dmrMonitor, p_ammMonitor, p_frgFormatRegistry, p_mrgModRegistry, p_futFileUtility, p_scxUIContext, p_ilgInstallLog, p_pmgPluginManager);
 			return m_mmgCurrent;
 		}
 
@@ -81,6 +82,9 @@ namespace Nexus.Client.ModManagement
 		#region Properties
 
         public event EventHandler<EventArgs<IBackgroundTask>> UpdateCheckStarted = delegate { };
+
+        public List<ModBackupInfo> lstMBInfo = new List<ModBackupInfo>();
+		public bool IsBackupActive = false;
 
         /// <summary>
 		/// The loginform Task.
@@ -128,6 +132,12 @@ namespace Nexus.Client.ModManagement
 		/// </summary>
 		/// <value>The download monitor to use to display status.</value>
 		protected DownloadMonitor DownloadMonitor { get; private set; }
+
+        /// <summary>
+		/// Gets the activate mods monitor to use to display status.
+		/// </summary>
+		/// <value>The download monitor to use to display status.</value>
+		public ActivateModsMonitor ActivateModsMonitor { get; private set; }
 
 		/// <summary>
 		/// Gets the <see cref="ModInstallerFactory"/> to use to create
@@ -297,7 +307,7 @@ namespace Nexus.Client.ModManagement
 		/// <param name="p_scxUIContext">The <see cref="SynchronizationContext"/> to use to marshall UI interactions to the UI thread.</param>
 		/// <param name="p_ilgInstallLog">The install log tracking mod activations for the current game mode.</param>
 		/// <param name="p_pmgPluginManager">The plugin manager to use to work with plugins.</param>
-		private ModManager(IGameMode p_gmdGameMode, IEnvironmentInfo p_eifEnvironmentInfo, IModRepository p_mrpModRepository, DownloadMonitor p_dmrMonitor, IModFormatRegistry p_frgFormatRegistry, ModRegistry p_mdrManagedModRegistry, FileUtil p_futFileUtility, SynchronizationContext p_scxUIContext, IInstallLog p_ilgInstallLog, IPluginManager p_pmgPluginManager)
+        private ModManager(IGameMode p_gmdGameMode, IEnvironmentInfo p_eifEnvironmentInfo, IModRepository p_mrpModRepository, DownloadMonitor p_dmrMonitor, ActivateModsMonitor p_ammMonitor, IModFormatRegistry p_frgFormatRegistry, ModRegistry p_mdrManagedModRegistry, FileUtil p_futFileUtility, SynchronizationContext p_scxUIContext, IInstallLog p_ilgInstallLog, IPluginManager p_pmgPluginManager)
 		{
 			GameMode = p_gmdGameMode;
 			EnvironmentInfo = p_eifEnvironmentInfo;
@@ -306,8 +316,9 @@ namespace Nexus.Client.ModManagement
 			FormatRegistry = p_frgFormatRegistry;
 			ManagedModRegistry = p_mdrManagedModRegistry;
 			InstallationLog = p_ilgInstallLog;
-			InstallerFactory = new ModInstallerFactory(p_gmdGameMode, p_eifEnvironmentInfo, p_futFileUtility, p_scxUIContext, p_ilgInstallLog, p_pmgPluginManager);
+            InstallerFactory = new ModInstallerFactory(p_gmdGameMode, p_eifEnvironmentInfo, p_futFileUtility, p_scxUIContext, p_ilgInstallLog, p_pmgPluginManager, this);
 			DownloadMonitor = p_dmrMonitor;
+            ActivateModsMonitor = p_ammMonitor;
 			ModAdditionQueue = new AddModQueue(p_eifEnvironmentInfo, this);
 			AutoUpdater = new AutoUpdater(p_mrpModRepository, p_mdrManagedModRegistry, p_eifEnvironmentInfo);
             LoginTask = new LoginFormTask(this);

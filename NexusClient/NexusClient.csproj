@@ -58,6 +58,13 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ActivateModsMonitoring\ActivateModsMonitor.cs" />
+    <Compile Include="ActivateModsMonitoring\UI\ActivateModsListViewItem.cs" />
+    <Compile Include="ActivateModsMonitoring\UI\ActivateModsMonitorControl.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ActivateModsMonitoring\UI\ActivateModsMonitorControl.Designer.cs" />
+    <Compile Include="ActivateModsMonitoring\UI\ActivateModsMonitorVM.cs" />
     <Compile Include="EnvironmentInfo.cs" />
     <Compile Include="GameModeSelectionForm.cs">
       <SubType>Form</SubType>
@@ -114,6 +121,7 @@
     <Compile Include="ModAuthoring\UI\ModPackagingFormVM.cs" />
     <Compile Include="ModManagement\InstallationLog\InstallLog.DummyMod.cs" />
     <Compile Include="ModManagement\InstallationLog\InstallLog.TransactionEnlistment.cs" />
+    <Compile Include="ModManagement\ModBackupInfo.cs" />
     <Compile Include="ModManagement\ModFileInstaller.cs" />
     <Compile Include="ModManagement\InstallationLog\InstallLog.cs" />
     <Compile Include="ModManagement\ModInstaller.cs" />
@@ -137,6 +145,7 @@
     <Compile Include="Mods\NexusModCacheManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="ActivateModsMonitoring\UI\ActivateModsMonitorControl.resx" />
     <EmbeddedResource Include="ActivityMonitoring\UI\ActivityMonitorControl.resx">
       <DependentUpon>ActivityMonitorControl.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -569,6 +578,7 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Runtime.Serialization">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>

@@ -48,6 +48,12 @@ namespace Nexus.Client.ModManagement
 		/// <value>Whether the task set has completed.</value>
 		public bool IsCompleted { get; private set; }
 
+        /// <summary>
+		/// Gets whether the task set has queued.
+		/// </summary>
+		/// <value>Whether the task set has queued.</value>
+		public bool IsQueued { get;  set; }
+
 		#endregion
 
 		#region Constructors

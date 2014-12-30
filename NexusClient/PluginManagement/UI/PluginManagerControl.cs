@@ -545,6 +545,11 @@ namespace Nexus.Client.PluginManagement.UI
 			SetCommandExecutableStatus();
 		}
 
+        public void SetCommandBackupPlugCStatus(bool p_booCheck)
+		{
+			this.Enabled = p_booCheck;
+		}
+
 		#region Plugin Order
 
 		/// <summary>

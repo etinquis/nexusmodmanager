@@ -17,7 +17,10 @@ namespace Nexus.Client.ModManagement
 	/// </summary>
 	public class ModUninstaller : ModInstallerBase
 	{
-		#region Properties
+
+        private ModManager m_mmModManager = null;
+
+        #region Properties
 
 		/// <summary>
 		/// Gets or sets the mod being installed.
@@ -67,7 +70,7 @@ namespace Nexus.Client.ModManagement
 		/// for the current game mode</param>
 		/// <param name="p_pmgPluginManager">The plugin manager.</param>
 		/// <param name="p_rolActiveMods">The list of active mods.</param>
-		public ModUninstaller(IMod p_modMod, IGameMode p_gmdGameMode, IEnvironmentInfo p_eifEnvironmentInfo, IInstallLog p_ilgModInstallLog, IPluginManager p_pmgPluginManager, ReadOnlyObservableList<IMod> p_rolActiveMods)
+        public ModUninstaller(IMod p_modMod, IGameMode p_gmdGameMode, IEnvironmentInfo p_eifEnvironmentInfo, IInstallLog p_ilgModInstallLog, IPluginManager p_pmgPluginManager, ReadOnlyObservableList<IMod> p_rolActiveMods, ModManager p_mmModManager)
 		{
 			Mod = p_modMod;
 			GameMode = p_gmdGameMode;
@@ -75,6 +78,7 @@ namespace Nexus.Client.ModManagement
 			ModInstallLog = p_ilgModInstallLog;
 			PluginManager = p_pmgPluginManager;
 			ActiveMods = p_rolActiveMods;
+            m_mmModManager = p_mmModManager;
 		}
 
 		#endregion
@@ -145,7 +149,7 @@ namespace Nexus.Client.ModManagement
 			p_strErrorMessage = null;
 			IDataFileUtil dfuDataFileUtility = new DataFileUtil(GameMode.GameModeEnvironmentInfo.InstallationPath);
 
-			IModFileInstaller mfiFileInstaller = new ModFileInstaller(GameMode.GameModeEnvironmentInfo, Mod, ModInstallLog, PluginManager, dfuDataFileUtility, p_tfmFileManager, null, GameMode.UsesPlugins);
+            IModFileInstaller mfiFileInstaller = new ModFileInstaller(GameMode.GameModeEnvironmentInfo, Mod, ModInstallLog, PluginManager, dfuDataFileUtility, p_tfmFileManager, null, GameMode.UsesPlugins, m_mmModManager);
 			IIniInstaller iniIniInstaller = new IniInstaller(Mod, ModInstallLog, p_tfmFileManager, null);
 			IGameSpecificValueInstaller gviGameSpecificValueInstaller = GameMode.GetGameSpecificValueInstaller(Mod, ModInstallLog, p_tfmFileManager, new NexusFileUtil(EnvironmentInfo), null);
 

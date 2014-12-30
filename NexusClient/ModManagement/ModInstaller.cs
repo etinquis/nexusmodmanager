@@ -23,6 +23,7 @@ namespace Nexus.Client.ModManagement
 	public class ModInstaller : ModInstallerBase
 	{
 		private ConfirmItemOverwriteDelegate m_dlgOverwriteConfirmationDelegate = null;
+        private ModManager m_mmModManager = null;
 
 		#region Properties
 
@@ -31,6 +32,36 @@ namespace Nexus.Client.ModManagement
 		/// </summary>
 		/// <value>The mod being installed.</value>
 		protected IMod Mod { get; set; }
+
+        /// <summary>
+		/// Gets or sets the mod name.
+		/// </summary>
+		/// <value>The mod name.</value>
+		public string ModName 
+		{ 
+			get
+			{
+				if(Mod != null)
+					return Mod.ModName;
+				else
+					return null;
+			}
+		}
+
+        /// <summary>
+        /// Gets or sets the mod file name.
+        /// </summary>
+        /// <value>The mod file name.</value>
+        public string ModFileName
+        {
+            get
+            {
+                if (Mod != null)
+                    return Mod.Filename;
+                else
+                    return null;
+            }
+        }
 
 		/// <summary>
 		/// Gets or sets the application's envrionment info.
@@ -89,7 +120,7 @@ namespace Nexus.Client.ModManagement
 		/// <param name="p_pmgPluginManager">The plugin manager.</param>
 		/// <param name="p_dlgOverwriteConfirmationDelegate">The method to call in order to confirm an overwrite.</param>
 		/// <param name="p_rolActiveMods">The list of active mods.</param>
-		public ModInstaller(IMod p_modMod, IGameMode p_gmdGameMode, IEnvironmentInfo p_eifEnvironmentInfo, FileUtil p_futFileUtility, SynchronizationContext p_scxUIContext, IInstallLog p_ilgModInstallLog, IPluginManager p_pmgPluginManager, ConfirmItemOverwriteDelegate p_dlgOverwriteConfirmationDelegate, ReadOnlyObservableList<IMod> p_rolActiveMods)
+        public ModInstaller(IMod p_modMod, IGameMode p_gmdGameMode, IEnvironmentInfo p_eifEnvironmentInfo, FileUtil p_futFileUtility, SynchronizationContext p_scxUIContext, IInstallLog p_ilgModInstallLog, IPluginManager p_pmgPluginManager, ConfirmItemOverwriteDelegate p_dlgOverwriteConfirmationDelegate, ReadOnlyObservableList<IMod> p_rolActiveMods, ModManager p_mmModManager)
 		{
 			Mod = p_modMod;
 			GameMode = p_gmdGameMode;
@@ -100,6 +131,7 @@ namespace Nexus.Client.ModManagement
 			PluginManager = p_pmgPluginManager;
 			m_dlgOverwriteConfirmationDelegate = p_dlgOverwriteConfirmationDelegate;
 			ActiveMods = p_rolActiveMods;
+            m_mmModManager = p_mmModManager;
 		}
 
 		#endregion
@@ -312,7 +344,7 @@ namespace Nexus.Client.ModManagement
 		/// <returns>The file installer to use to install the mod's files.</returns>
 		protected virtual IModFileInstaller CreateFileInstaller(TxFileManager p_tfmFileManager, ConfirmItemOverwriteDelegate p_dlgOverwriteConfirmationDelegate)
 		{
-			return new ModFileInstaller(GameMode.GameModeEnvironmentInfo, Mod, ModInstallLog, PluginManager, new DataFileUtil(GameMode.GameModeEnvironmentInfo.InstallationPath), p_tfmFileManager, p_dlgOverwriteConfirmationDelegate, GameMode.UsesPlugins);
+            return new ModFileInstaller(GameMode.GameModeEnvironmentInfo, Mod, ModInstallLog, PluginManager, new DataFileUtil(GameMode.GameModeEnvironmentInfo.InstallationPath), p_tfmFileManager, p_dlgOverwriteConfirmationDelegate, GameMode.UsesPlugins, m_mmModManager);
 		}
 
 		/// <summary>
