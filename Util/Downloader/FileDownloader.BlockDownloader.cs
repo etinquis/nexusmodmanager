@@ -81,7 +81,7 @@ namespace Nexus.Client.Util.Downloader
 				m_fwrWriter = p_fwrWriter;
 				m_intBufferSize = p_intBufferSize;
 				m_strUserAgent = p_strUserAgent;
-                m_fwrWriter.UnableToWrite += new EventHandler(FileWriter_UnableToWrite);
+				m_fwrWriter.UnableToWrite += new EventHandler(FileWriter_UnableToWrite);
 			}
 
 			#endregion
@@ -134,7 +134,7 @@ namespace Nexus.Client.Util.Downloader
 				m_fwrWriter.Close();
 			}
 
-            /// <summary>
+			/// <summary>
 			/// Handles the <see cref="FileWriter.UnableToWrite"/> events of the
 			/// <see cref="FileWriter"/>s being used.
 			/// </summary>
