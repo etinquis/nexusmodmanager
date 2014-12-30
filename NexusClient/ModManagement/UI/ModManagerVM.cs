@@ -26,6 +26,7 @@ namespace Nexus.Client.ModManagement.UI
 	{
 		private bool m_booIsCategoryInitialized = false;
 		private Control m_ctlParentForm = null;
+        public bool ActiveLoadBackup = false;
 
 		#region Events
 
@@ -393,14 +394,14 @@ namespace Nexus.Client.ModManagement.UI
 		/// Activates the given mod.
 		/// </summary>
 		/// <param name="p_modMod">The mod to activate.</param>
-		protected void ActivateMod(IMod p_modMod)
+		public void ActivateMod(IMod p_modMod)
 		{
 			string strErrorMessage = ModManager.RequiredToolErrorMessage;
 			if (String.IsNullOrEmpty(strErrorMessage))
 			{
 				IBackgroundTaskSet btsInstall = ModManager.ActivateMod(p_modMod, ConfirmModUpgrade, ConfirmItemOverwrite, ModManager.ActiveMods);
 				if (btsInstall != null)
-					ChangingModActivation(this, new EventArgs<IBackgroundTaskSet>(btsInstall));
+                    ModManager.ActivateModsMonitor.AddActivity(btsInstall);
 			}
 			else
 			{
@@ -422,12 +423,17 @@ namespace Nexus.Client.ModManagement.UI
 		/// Deactivates all the mods.
 		/// </summary>
 		/// <param name="p_rolModList">The list of Active Mods.</param>
-		public void DeactivateMultipleMods(ReadOnlyObservableList<IMod> p_rolModList)
+        public void DeactivateMultipleMods(ReadOnlyObservableList<IMod> p_rolModList, bool booForceUninstall)
 		{
-			DialogResult Result = MessageBox.Show("Do you want to uninstall all the active mods?", "Deativate Mods", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-			if (Result == DialogResult.Yes)
-			{
+			if (booForceUninstall)
 				DeactivatingMultipleMods(this, new EventArgs<IBackgroundTask>(ModManager.DeactivateMultipleMods(p_rolModList, ConfirmUpdaterAction)));
+			else
+			{
+				DialogResult Result = MessageBox.Show("Do you want to uninstall all the active mods?", "Deativate Mods", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+				if (Result == DialogResult.Yes)
+				{
+					DeactivatingMultipleMods(this, new EventArgs<IBackgroundTask>(ModManager.DeactivateMultipleMods(p_rolModList, ConfirmUpdaterAction)));
+				}
 			}
 		}
 

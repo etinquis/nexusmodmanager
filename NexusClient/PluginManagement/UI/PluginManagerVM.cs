@@ -651,7 +651,7 @@ namespace Nexus.Client.PluginManagement.UI
 		/// Imports a load order from the specified file.
 		/// </summary>
 		/// <param name="p_strFilename">The filename to import a load order from.</param>
-		protected void ImportLoadOrderFromFile(string p_strFilename)
+		public void ImportLoadOrderFromFile(string p_strFilename)
 		{
 			if (string.IsNullOrEmpty(p_strFilename) || !CurrentGameMode.UsesPlugins)
 				return;

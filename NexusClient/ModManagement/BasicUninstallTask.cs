@@ -93,6 +93,7 @@ namespace Nexus.Client.ModManagement
 		protected bool UninstallFiles()
 		{
 			bool booSecondaryInstall = false;
+            string strCheckedFile = string.Empty;
 			OverallMessage = "Uninstalling Mod...";
 			ShowItemProgress = true;
 			OverallProgressStepSize = 1;
@@ -119,9 +120,19 @@ namespace Nexus.Client.ModManagement
 					if (GameMode.CheckSecondaryUninstall(strFile))
 						return false;
 				}
+
+                if (Path.IsPathRooted(strFile))
+				{
+					string strCompatibilityPath = Path.Combine(Path.Combine(GameMode.GameModeEnvironmentInfo.ModDirectory, "VirtualInstall"), Path.GetFileNameWithoutExtension(Mod.Filename));
+					strCheckedFile = strFile.Replace(strCompatibilityPath, "");
+					strCheckedFile = strCheckedFile.TrimStart(Path.DirectorySeparatorChar);
+				}
+				else
+					strCheckedFile = strFile;
+
 				try
 				{
-					Installers.FileInstaller.UninstallDataFile(strFile, booSecondaryInstall);
+                    Installers.FileInstaller.UninstallDataFile(strCheckedFile, booSecondaryInstall);
 				}
 				catch (UnauthorizedAccessException)
 				{

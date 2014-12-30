@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Nexus.Client.ActivateModsMonitoring;
+using Nexus.Client.ActivateModsMonitoring.UI;
 using Nexus.Client.BackgroundTasks;
 using Nexus.Client.DownloadMonitoring;
 using Nexus.Client.DownloadMonitoring.UI;
@@ -121,6 +123,14 @@ namespace Nexus.Client
 		/// <value>The view model that encapsulates the data
 		/// and operations for diaplying the download monitor.</value>
 		public DownloadMonitorVM DownloadMonitorVM { get; private set; }
+
+        /// <summary>
+ 		/// Gets the view model that encapsulates the data
+		/// and operations for diaplying the activate mod monitor.
+		/// </summary>
+		/// <value>The view model that encapsulates the data
+		/// and operations for diaplying the activate mod monitor.</value>
+		public ActivateModsMonitorVM ActivateModsMonitorVM { get; private set; }
 
 		/// <summary>
 		/// Gets the view model that encapsulates the data
@@ -326,7 +336,7 @@ namespace Nexus.Client
 		/// <param name="p_umgUpdateManager">The update manager to use to perform updates.</param>
 		/// <param name="p_mmgModManager">The <see cref="ModManager"/> to use to manage mods.</param>
 		/// <param name="p_pmgPluginManager">The <see cref="PluginManager"/> to use to manage plugins.</param>
-		public MainFormVM(IEnvironmentInfo p_eifEnvironmentInfo, GameModeRegistry p_gmrInstalledGames, IGameMode p_gmdGameMode, IModRepository p_mrpModRepository, DownloadMonitor p_dmtMonitor, UpdateManager p_umgUpdateManager, ModManager p_mmgModManager, IPluginManager p_pmgPluginManager)
+        public MainFormVM(IEnvironmentInfo p_eifEnvironmentInfo, GameModeRegistry p_gmrInstalledGames, IGameMode p_gmdGameMode, IModRepository p_mrpModRepository, DownloadMonitor p_dmtMonitor, ActivateModsMonitor p_ammMonitor, UpdateManager p_umgUpdateManager, ModManager p_mmgModManager, IPluginManager p_pmgPluginManager)
 		{
 			EnvironmentInfo = p_eifEnvironmentInfo;
 			GameMode = p_gmdGameMode;
@@ -338,6 +348,7 @@ namespace Nexus.Client
 			if (GameMode.UsesPlugins)
 				PluginManagerVM = new PluginManagerVM(p_pmgPluginManager, p_eifEnvironmentInfo.Settings, p_gmdGameMode);
 			DownloadMonitorVM = new DownloadMonitorVM(p_dmtMonitor, p_eifEnvironmentInfo.Settings, p_mmgModManager, p_mrpModRepository);
+            ActivateModsMonitorVM = new ActivateModsMonitorVM(p_ammMonitor, p_eifEnvironmentInfo.Settings, p_mmgModManager);
 			HelpInfo = new HelpInformation(p_eifEnvironmentInfo);
 
 			GeneralSettingsGroup gsgGeneralSettings = new GeneralSettingsGroup(p_eifEnvironmentInfo);
