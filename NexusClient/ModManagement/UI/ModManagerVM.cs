@@ -136,7 +136,7 @@ namespace Nexus.Client.ModManagement.UI
 		/// The commands takes an argument describing the mod to be activated.
 		/// </remarks>
 		/// <value>The command to activate a mod.</value>
-		public Command<IMod> ActivateModCommand { get; private set; }
+		public Command<List<IMod>> ActivateModCommand { get; private set; }
 
 		/// <summary>
 		/// Gets the command to deactivate a mod.
@@ -286,7 +286,7 @@ namespace Nexus.Client.ModManagement.UI
 				this.CategoryManager.Backup();
 			AddModCommand = new Command<string>("Add Mod", "Adds a mod to the manager.", AddMod);
 			DeleteModCommand = new Command<IMod>("Delete Mod", "Deletes the selected mod.", DeleteMod);
-			ActivateModCommand = new Command<IMod>("Activate Mod", "Activates the selected mod.", ActivateMod);
+			ActivateModCommand = new Command<List<IMod>>("Activate Mod", "Activates the selected mods.", ActivateMods);
 			DeactivateModCommand = new Command<IMod>("Deactivate Mod", "Deactivates the selected mod.", DeactivateMod);
 			TagModCommand = new Command<IMod>("Tag Mod", "Gets missing mod info.", TagMod);
 
@@ -402,6 +402,28 @@ namespace Nexus.Client.ModManagement.UI
 				IBackgroundTaskSet btsInstall = ModManager.ActivateMod(p_modMod, ConfirmModUpgrade, ConfirmItemOverwrite, ModManager.ActiveMods);
 				if (btsInstall != null)
                     ModManager.ActivateModsMonitor.AddActivity(btsInstall);
+			}
+			else
+			{
+				ExtendedMessageBox.Show(ParentForm, strErrorMessage, "Required Tool not present", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			}
+		}
+
+		/// <summary>
+		/// Activates the given mod.
+		/// </summary>
+		/// <param name="p_lstMod">The mods to activate.</param>
+		public void ActivateMods(List<IMod> p_lstMod)
+		{
+			string strErrorMessage = ModManager.RequiredToolErrorMessage;
+			if (String.IsNullOrEmpty(strErrorMessage))
+			{
+				foreach (IMod modMod in p_lstMod)
+				{
+					IBackgroundTaskSet btsInstall = ModManager.ActivateMod(modMod, ConfirmModUpgrade, ConfirmItemOverwrite, ModManager.ActiveMods);
+					if (btsInstall != null)
+						ModManager.ActivateModsMonitor.AddActivity(btsInstall);
+				}
 			}
 			else
 			{

@@ -85,7 +85,7 @@ namespace Nexus.Client.ModManagement.UI
 				m_vmlViewModel.ConfirmModUpgrade = ConfirmModUpgrade;
 
 				new ToolStripItemCommandBinding<IMod>(tsbDeleteMod, m_vmlViewModel.DeleteModCommand, GetSelectedMod);
-				new ToolStripItemCommandBinding<IMod>(tsbActivate, m_vmlViewModel.ActivateModCommand, GetSelectedMod);
+				new ToolStripItemCommandBinding<List<IMod>>(tsbActivate, m_vmlViewModel.ActivateModCommand, GetSelectedMods);
 				new ToolStripItemCommandBinding<IMod>(tsbDeactivate, m_vmlViewModel.DeactivateModCommand, GetSelectedMod);
 				new ToolStripItemCommandBinding<IMod>(tsbTagMod, m_vmlViewModel.TagModCommand, GetSelectedMod);
 				Command cmdToggleEndorsement = new Command("Toggle Mod Endorsement", "Toggles the mod endorsement.", ToggleEndorsement);
@@ -310,6 +310,19 @@ namespace Nexus.Client.ModManagement.UI
 				return null;
 			else
 				return (IMod)clwCategoryView.GetSelectedItem;
+		}
+
+		/// <summary>
+		/// Retruns the mod that is currently selected in the view.
+		/// </summary>
+		/// <returns>The mod that is currently selected in the view, or
+		/// <c>null</c> if no mod is selected.</returns>
+		private List<IMod> GetSelectedMods()
+		{
+			if ((clwCategoryView.Visible && (clwCategoryView.SelectedIndices.Count == 0)) || (clwCategoryView.GetSelectedItem == null))
+				return null;
+			else
+				return clwCategoryView.GetSelectedItems.OfType<IMod>().ToList();
 		}
 
 		/// <summary>
@@ -576,7 +589,7 @@ namespace Nexus.Client.ModManagement.UI
 									if (ViewModel.ActiveMods.Contains(modMod))
 										ViewModel.DeactivateModCommand.Execute(modMod);
 									else
-										ViewModel.ActivateModCommand.Execute(modMod);
+										ViewModel.ActivateModCommand.Execute(new List<IMod>() { modMod });
 								}
 							}
 						}
