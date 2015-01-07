@@ -438,7 +438,9 @@ namespace Nexus.Client.ModManagement.UI
 		protected void DeactivateMod(IMod p_modMod)
 		{
 			IBackgroundTaskSet btsUninstall = ModManager.DeactivateMod(p_modMod, ModManager.ActiveMods);
-			ChangingModActivation(this, new EventArgs<IBackgroundTaskSet>(btsUninstall));
+            if (btsUninstall != null)
+                ModManager.ActivateModsMonitor.AddActivity(btsUninstall);
+			//ChangingModActivation(this, new EventArgs<IBackgroundTaskSet>(btsUninstall));
 		}
 
 		/// <summary>

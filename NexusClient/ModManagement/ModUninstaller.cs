@@ -28,6 +28,36 @@ namespace Nexus.Client.ModManagement
 		/// <value>The mod being installed.</value>
 		protected IMod Mod { get; set; }
 
+        /// <summary>
+        /// Gets or sets the mod name.
+        /// </summary>
+        /// <value>The mod name.</value>
+        public string ModName
+        {
+            get
+            {
+                if (Mod != null)
+                    return Mod.ModName;
+                else
+                    return null;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the mod file name.
+        /// </summary>
+        /// <value>The mod file name.</value>
+        public string ModFileName
+        {
+            get
+            {
+                if (Mod != null)
+                    return Mod.Filename;
+                else
+                    return null;
+            }
+        }
+
 		/// <summary>
 		/// Gets the current game mode.
 		/// </summary>
@@ -88,11 +118,11 @@ namespace Nexus.Client.ModManagement
 		/// </summary>
 		public void Install()
 		{
-			if (!ModInstallLog.ActiveMods.Contains(Mod))
-			{
-				OnTaskSetCompleted(true, "The mod was successfully deactivated.", Mod);
-				return;
-			}
+            if (!ModInstallLog.ActiveMods.Contains(Mod))
+            {
+                OnTaskSetCompleted(true, "The mod was successfully deactivated.", Mod);
+                return;
+            }
 			TrackedThread thdWorker = new TrackedThread(RunTasks);
 			thdWorker.Thread.IsBackground = false;
 			thdWorker.Start();
@@ -114,6 +144,7 @@ namespace Nexus.Client.ModManagement
 			// hence the lock.
 			bool booSuccess = false;
 			string strErrorMessage = String.Empty;
+
 			lock (objInstallLock)
 			{
 				using (TransactionScope tsTransaction = new TransactionScope())

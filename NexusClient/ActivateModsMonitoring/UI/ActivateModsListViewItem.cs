@@ -72,16 +72,24 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 
 			ListViewSubItem lsiSubItem = SubItems[0];
 			lsiSubItem.Name = "ModName";
-			lsiSubItem.Text = ((ModInstaller)p_btsTask).ModName;
-						
+
+            if (p_btsTask.GetType() == typeof(ModUninstaller))
+			    lsiSubItem.Text = ((ModUninstaller)p_btsTask).ModName;
+            else if (p_btsTask.GetType() == typeof(ModInstaller))
+                lsiSubItem.Text = ((ModInstaller)p_btsTask).ModName;
+		
 			lsiSubItem = SubItems.Add(new ListViewSubItem());
 			lsiSubItem.Name = "Status";
 			lsiSubItem.Text = "Queued";
 			p_btsTask.IsQueued = true;
 
+            lsiSubItem = SubItems.Add(new ListViewSubItem());
+            lsiSubItem.Name = "Operation";
+            lsiSubItem.Text = "";		
+
 			lsiSubItem = SubItems.Add(new ListViewSubItem());
 			lsiSubItem.Name = "Progress";
-						
+                        	
 
 			p_btsTask.TaskStarted += new EventHandler<EventArgs<IBackgroundTask>>(TaskSet_TaskSetStarted);
 
@@ -90,24 +98,39 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 
 		private void TaskSet_TaskSetStarted(object sender, EventArgs<IBackgroundTask> e)
 		{
-			if ((ListView != null) && ListView.InvokeRequired)
+            if ((ListView != null) && ListView.InvokeRequired)
 			{
 				ListView.Invoke((Action<IBackgroundTaskSet,  EventArgs<IBackgroundTask>>)TaskSet_TaskSetStarted, sender, e);
 				return;
 			}
-			SubItems["Status"].Text = "Running";
-			((IBackgroundTaskSet)sender).IsQueued = false;
+                        
+            SubItems["Status"].Text = "Running";
+            if (((IBackgroundTaskSet)sender).GetType() == typeof(ModInstaller))
+                SubItems["Operation"].Text = "Install";
+            else if (((IBackgroundTaskSet)sender).GetType() == typeof(ModUninstaller))
+                SubItems["Operation"].Text = "Uninstall";
 
-			//m_amcControl.lvwActiveTasks.DrawSubItem += new DrawListViewSubItemEventHandler(m_amcControl.lvwActiveTasks_DrawSubItem);
+			((IBackgroundTaskSet)sender).IsQueued = false;
 		}
 
 		private void TaskSet_TaskSetCompleted(object sender, TaskSetCompletedEventArgs e)
 		{
-			if ((ListView != null) && ListView.InvokeRequired)
+
+            if ((ListView != null) && ListView.InvokeRequired)
 			{
 				ListView.Invoke((Action<IBackgroundTaskSet, TaskSetCompletedEventArgs>)TaskSet_TaskSetCompleted, sender, e);
 				return;
 			}
+
+            if (SubItems["Operation"].Text == "")
+            {
+                if (((IBackgroundTaskSet)sender).GetType() == typeof(ModInstaller))
+                    ((ModInstaller)sender).Install();
+                else if (((IBackgroundTaskSet)sender).GetType() == typeof(ModUninstaller))
+                    ((ModUninstaller)sender).Install();
+            }
+                
+
 			SubItems["Status"].Text = "Complete";
 
 			m_amcControl.IsInstalling = false;

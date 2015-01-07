@@ -31,7 +31,8 @@
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
 			this.lvwActiveTasks = new Nexus.UI.Controls.DoubleBufferedListView();
 			this.clmOverallMessage = new System.Windows.Forms.ColumnHeader();
-			this.clmOverallProgress = new System.Windows.Forms.ColumnHeader();
+            this.clmOverallProgress = new System.Windows.Forms.ColumnHeader();
+            this.clmOperation = new System.Windows.Forms.ColumnHeader();
 			//this.clmIcon = new System.Windows.Forms.ColumnHeader();
 			this.tsbCancel = new System.Windows.Forms.ToolStripButton();
 			this.tsbRemoveQueued = new System.Windows.Forms.ToolStripButton();
@@ -92,7 +93,8 @@
 			//this.lvwActiveTasks.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.lvwActiveTasks_DrawColumnHeader);
 			this.lvwActiveTasks.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.clmOverallMessage,
-            this.clmOverallProgress});
+            this.clmOverallProgress,
+            this.clmOperation});
 			//clmIcon});
 			this.lvwActiveTasks.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.lvwActiveTasks.FullRowSelect = true;
@@ -113,11 +115,15 @@
 			// clmOverallMessage
 			// 
 			this.clmOverallMessage.Text = "Name";
-			// 
+           	// 
 			// clmOverallProgress
 			// 
 			this.clmOverallProgress.Text = "Status";
 			this.clmOverallProgress.Width = 100;
+            // 
+            // clmOperation
+            // 
+            this.clmOperation.Text = "Operation";
 			// 
 			// clmIcon
 			// 
@@ -145,6 +151,7 @@
 		public Nexus.UI.Controls.DoubleBufferedListView lvwActiveTasks;
 		private System.Windows.Forms.ColumnHeader clmOverallMessage;
 		private System.Windows.Forms.ColumnHeader clmOverallProgress;
+        private System.Windows.Forms.ColumnHeader clmOperation;
 		//private System.Windows.Forms.ColumnHeader clmIcon;
 		private System.Windows.Forms.ToolStripButton tsbCancel;
 		private System.Windows.Forms.ToolStripButton tsbRemoveAll;
