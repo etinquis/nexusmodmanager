@@ -124,10 +124,12 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 
             if (SubItems["Operation"].Text == "")
             {
+                SubItems["Status"].Text = "Queued";
                 if (((IBackgroundTaskSet)sender).GetType() == typeof(ModInstaller))
                     ((ModInstaller)sender).Install();
                 else if (((IBackgroundTaskSet)sender).GetType() == typeof(ModUninstaller))
                     ((ModUninstaller)sender).Install();
+                return;
             }
                 
 
