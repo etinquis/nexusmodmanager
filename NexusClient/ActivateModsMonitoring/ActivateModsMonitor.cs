@@ -81,7 +81,6 @@ namespace Nexus.Client.ActivateModsMonitoring
 		public void AddActivity(IBackgroundTaskSet p_bstTask)
 		{
 			m_oclTasks.Add(p_bstTask);
-			//m_setQueuedTasks.Add(p_bstTask);
 		}
 				
 
@@ -94,10 +93,9 @@ namespace Nexus.Client.ActivateModsMonitoring
 		/// Tasks can only be removed if they are not running.
 		/// </remarks>
 		/// <param name="p_tskTask">The task to remove.</param>
-		public void RemoveDownload(ModInstaller p_tskTask)
+		public void RemoveTask(ModInstaller p_tskTask)
 		{
-			if (CanRemove(p_tskTask))
-				m_oclTasks.Remove(p_tskTask);
+			m_oclTasks.Remove(p_tskTask);
 		}
 
         /// <summary>
@@ -107,10 +105,9 @@ namespace Nexus.Client.ActivateModsMonitoring
         /// Tasks can only be removed if they are not running.
         /// </remarks>
         /// <param name="p_tskTask">The task to remove.</param>
-        public void RemoveDownloadUn(ModUninstaller p_tskTask)
+        public void RemoveTaskUn(ModUninstaller p_tskTask)
         {
-            if (CanRemoveUn(p_tskTask))
-                m_oclTasks.Remove(p_tskTask);
+            m_oclTasks.Remove(p_tskTask);
         }
 
 		/// <summary>
@@ -120,10 +117,9 @@ namespace Nexus.Client.ActivateModsMonitoring
 		/// Tasks can only be removed if they are not running.
 		/// </remarks>
 		/// <param name="p_tskTask">The task to remove.</param>
-		public void RemoveQueuedDownload(ModInstaller p_tskTask)
+		public void RemoveQueuedTask(ModInstaller p_tskTask)
 		{
-			if (CanRemoveQueued(p_tskTask))
-				m_oclTasks.Remove(p_tskTask);
+			m_oclTasks.Remove(p_tskTask);
 		}
 
         /// <summary>
@@ -133,10 +129,9 @@ namespace Nexus.Client.ActivateModsMonitoring
         /// Tasks can only be removed if they are not running.
         /// </remarks>
         /// <param name="p_tskTask">The task to remove.</param>
-        public void RemoveQueuedDownloadUn(ModUninstaller p_tskTask)
+        public void RemoveQueuedTaskUn(ModUninstaller p_tskTask)
         {
-            if (CanRemoveQueuedUn(p_tskTask))
-                m_oclTasks.Remove(p_tskTask);
+            m_oclTasks.Remove(p_tskTask);
         }
 
         /// <summary>

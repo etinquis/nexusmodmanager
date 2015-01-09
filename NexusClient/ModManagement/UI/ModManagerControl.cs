@@ -9,6 +9,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Windows.Input;
 using System.Xml.Linq;
 using Nexus.Client.BackgroundTasks;
 using Nexus.Client.BackgroundTasks.UI;
@@ -332,7 +333,7 @@ namespace Nexus.Client.ModManagement.UI
         {
             if (!m_booDisableLoadBackup)
             {
-                if (((clwCategoryView.SelectedIndices.Count > 0) && clwCategoryView.Visible && (clwCategoryView.GetSelectedItem.GetType() != typeof(ModCategory))))
+                if ((((clwCategoryView.SelectedIndices.Count > 0) || (clwCategoryView.SelectedObjects.Count > 0))  && clwCategoryView.Visible && (clwCategoryView.GetSelectedItem.GetType() != typeof(ModCategory))))
                 {
                     if (clwCategoryView.Visible)
                         ViewModel.DeactivateModCommand.CanExecute = ViewModel.ActiveMods.Contains((IMod)clwCategoryView.GetSelectedItem);
@@ -544,6 +545,7 @@ namespace Nexus.Client.ModManagement.UI
 		/// </summary>
 		private void LoadCategoryView()
 		{
+			clwCategoryView.RetrieveVirtualItem += new RetrieveVirtualItemEventHandler(listView1_RetrieveVirtualItem);
 			clwCategoryView.ShowHiddenCategories = ViewModel.Settings.ShowEmptyCategory;
 			SortOrder sroDefaultSortOrder = SortOrder.Ascending;
 			if (Enum.IsDefined(typeof(SortOrder), ViewModel.Settings.CategoryViewDefaultSortOrder))
@@ -607,7 +609,7 @@ namespace Nexus.Client.ModManagement.UI
 						SetTextBoxFocus(this, e);
 					}
 				};
-
+				
 				// Enables removing categories or mods using the DEL key
 				this.clwCategoryView.KeyUp += delegate(object sender, KeyEventArgs e)
 				{
@@ -675,6 +677,14 @@ namespace Nexus.Client.ModManagement.UI
 		public void ResetColumns()
 		{
 			clwCategoryView.ResetColumns();
+		}
+
+		/// <summary>
+		//The Shift Key + mouse click event 
+		/// </summary>
+		void listView1_RetrieveVirtualItem(object sender,RetrieveVirtualItemEventArgs e)
+		{
+			SetCommandExecutableStatus();
 		}
 
 		/// <summary>
@@ -1298,9 +1308,18 @@ namespace Nexus.Client.ModManagement.UI
         /// <param name="p_strTempPath">The Temp path.</param>
         public bool LoadListOnDemand(string p_strProfilePath, out string p_strTempPath)
 		{
-			string strTempFolder = Path.Combine(ViewModel.Settings.TempPathFolder, Path.GetRandomFileName());
+			//string strTempFolder = Path.Combine(ViewModel.Settings.TempPathFolder, Path.GetRandomFileName());
+			string strTempFolder = Path.Combine(String.IsNullOrEmpty(ViewModel.Settings.TempPathFolder) ? Path.GetTempPath() : ViewModel.Settings.TempPathFolder, Path.GetRandomFileName());
 			p_strTempPath = strTempFolder;
-			ZipFile.ExtractToDirectory(p_strProfilePath, strTempFolder);
+
+			try
+			{
+				ZipFile.ExtractToDirectory(p_strProfilePath, strTempFolder);
+			}
+			catch(InvalidDataException)
+			{
+				MessageBox.Show("You have selected an invalid archive!");
+			}
 			
 			if (File.Exists(strTempFolder + "\\modlist.xml"))
 			{

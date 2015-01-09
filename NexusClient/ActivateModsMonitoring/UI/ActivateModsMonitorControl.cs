@@ -15,7 +15,7 @@ using System.Drawing;
 namespace Nexus.Client.ActivateModsMonitoring.UI
 {
 	/// <summary>
-	/// The view that exposes Download monitoring functionality.
+	/// The view that exposes Mod Activation monitoring functionality.
 	/// </summary>
 	public partial class ActivateModsMonitorControl : ManagedFontDockContent
 	{
@@ -27,7 +27,6 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		private string m_strTitleSomeActive = "Mod Activation Queue ({0}/{1})";
 		private bool m_booControlIsLoaded = false;
 		private IBackgroundTaskSet m_btsRunningTask = null;
-		private string strStatus = null;
 		private List<IBackgroundTaskSet> QueuedTasks = new List<IBackgroundTaskSet>();
         private bool booQueued = false;
 
@@ -62,22 +61,17 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 							AddTaskToList(tskBasicInstall);
 															
 					m_vmlViewModel.Tasks.CollectionChanged += new NotifyCollectionChangedEventHandler(Tasks_CollectionChanged);
-
 													
-					new ToolStripItemCommandBinding<BasicInstallTask>(tsbCancel, ViewModel.CancelTaskCommand, null);
-
-					Command cmdRemoveAll = new Command("Remove all", "Purges the completed activations from the list.", ViewModel.RemoveAllTasks);
+					Command cmdRemoveAll = new Command("Remove all", "Purges the completed activations from the list.", RemoveAllTasks);
 					new ToolStripItemCommandBinding(tsbRemoveAll, cmdRemoveAll);
 					Command cmdRemoveQueued = new Command("Remove queued", "Purges the queued activations from the list.", RemoveQueuedTasks);
 					new ToolStripItemCommandBinding(tsbRemoveQueued, cmdRemoveQueued);
 					Command cmdRemoveSelected = new Command("Remove selected", "Purges the selected activation from the list.", RemoveSelectedTask);
 					new ToolStripItemCommandBinding(tsbCancel, cmdRemoveSelected);
 
-
-					ViewModel.CancelTaskCommand.CanExecute = false;
-					
-
+					SetCommandExecutableStatus(false);
 				}
+
 				LoadMetrics();
 				UpdateTitle();
 			}
@@ -89,7 +83,6 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			{
 				return (m_btsRunningTask != null);
 			}
-			set { }
 		}
 
 		#endregion
@@ -216,6 +209,19 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 
 		#region Binding
 
+		private void RemoveAllTasks()
+		{
+			List<IBackgroundTaskSet> lstTask = new List<IBackgroundTaskSet>();
+			foreach (ActivateModsListViewItem Item in lvwActiveTasks.Items)
+			{
+				if (Item.IsRemovable)
+					lstTask.Add(Item.Task);
+			}
+			
+			if (lstTask.Count > 0)
+				ViewModel.RemoveAllTasks(lstTask);
+		}
+
 		private void RemoveQueuedTasks()
 		{
 			ViewModel.RemoveQueuedTasks();
@@ -249,9 +255,9 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		/// <summary>
 		/// Sets the executable status of the commands.
 		/// </summary>
-		protected void SetCommandExecutableStatus(bool boo_booCheckStatus)
+		protected void SetCommandExecutableStatus(bool p_booCheckStatus)
 		{
-			ViewModel.CancelTaskCommand.CanExecute = (lvwActiveTasks.SelectedItems.Count > 0) && boo_booCheckStatus;
+			tsbCancel.Enabled = (lvwActiveTasks.SelectedItems.Count > 0) && p_booCheckStatus;
 		}
 			
 		#endregion
@@ -265,8 +271,8 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		/// <param name="p_tskTask">The <see cref="BasicInstallTask"/> to add to the view's list.</param>
 		protected void AddTaskToList(IBackgroundTaskSet p_tskTask)
 		{
-            foreach (ActivateModsListViewItem lviExisitingDownload in lvwActiveTasks.Items)
-				if (lviExisitingDownload.Task == p_tskTask)
+            foreach (ActivateModsListViewItem lviExisitingTask in lvwActiveTasks.Items)
+				if (lviExisitingTask.Task == p_tskTask)
 					return;
 
             if (m_btsRunningTask != null)
@@ -348,8 +354,8 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
             }
 
 			p_tskTask.TaskSetCompleted += new EventHandler<TaskSetCompletedEventArgs>(TaskSet_TaskSetCompleted);
-			ActivateModsListViewItem lviDownload = new ActivateModsListViewItem(p_tskTask, this);
-			lvwActiveTasks.Items.Add(lviDownload);
+			ActivateModsListViewItem lviActivation = new ActivateModsListViewItem(p_tskTask, this);
+			lvwActiveTasks.Items.Add(lviActivation);
 
             if ((m_btsRunningTask == null) || (m_btsRunningTask.IsCompleted))
             {
@@ -368,6 +374,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		private void TaskSet_TaskSetCompleted(object sender, TaskSetCompletedEventArgs e)
 		{
 			m_btsRunningTask = null;
+
             if (QueuedTasks.Count > 0)
 			{
 				m_btsRunningTask = QueuedTasks.First();
@@ -380,7 +387,6 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			else
 				if (EmptyQueue != null)
 					EmptyQueue(this, new EventArgs());
-			
 		}
 		
 		private void lvwActiveTasks_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
@@ -394,7 +400,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		/// task list.
 		/// </summary>
 		/// <remarks>
-		/// This updates the list of tasks to refelct changes to the monitored Download list.
+		/// This updates the list of tasks to refelct changes to the monitored Mod Activation list.
 		/// </remarks>
 		/// <param name="sender">The object that raised the event.</param>
 		/// <param name="e">A <see cref="NotifyCollectionChangedEventArgs"/> describing the event arguments.</param>
@@ -420,16 +426,8 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 					{
 						for (Int32 i = lvwActiveTasks.Items.Count - 1; i >= 0; i--)
 						{
-                            if (tskRemoved.GetType() == typeof(ModInstaller))
-                            {
-                                if ((((ActivateModsListViewItem)lvwActiveTasks.Items[i]).Text == ((ModInstaller)tskRemoved).ModName) && ((((ModInstaller)tskRemoved).IsCompleted) || (((ModInstaller)tskRemoved).IsQueued)))
-                                    lvwActiveTasks.Items.RemoveAt(i);
-                            }
-                            else if (tskRemoved.GetType() == typeof(ModUninstaller))
-                            {
-                                if ((((ActivateModsListViewItem)lvwActiveTasks.Items[i]).Text == ((ModUninstaller)tskRemoved).ModName) && ((((ModUninstaller)tskRemoved).IsCompleted) || (((ModUninstaller)tskRemoved).IsQueued)))
-                                    lvwActiveTasks.Items.RemoveAt(i);
-                            }
+							if (tskRemoved == ((ActivateModsListViewItem)lvwActiveTasks.Items[i]).Task)	
+									lvwActiveTasks.Items.RemoveAt(i);
 						}
 						tskRemoved.TaskSetCompleted -= new EventHandler<TaskSetCompletedEventArgs>(TaskSet_TaskSetCompleted);
 					}
@@ -491,14 +489,15 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 
 
 		/// <summary>
-		/// Handles the <see cref="ListView.SelectedIndexChanged"/> event of the Download list.
+		/// Handles the <see cref="ListView.SelectedIndexChanged"/> event of the Mod Activation list.
 		/// </summary>
 		/// <param name="sender">The object that raised the event.</param>
 		/// <param name="e">An <see cref="EventArgs"/> describing the event arguments.</param>
 		private void lvwTasks_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			bool booCheckStatus = ViewModel.CheckTaskStatus(lvwActiveTasks.FocusedItem.Text);
-			SetCommandExecutableStatus(booCheckStatus);
+			//bool booCheckStatus = ViewModel.CheckTaskStatus(lvwActiveTasks.FocusedItem.Text);
+			//SetCommandExecutableStatus(booCheckStatus);
+			SetCommandExecutableStatus(((ActivateModsListViewItem)lvwActiveTasks.FocusedItem).IsRemovable);
 		}
 
 		/// <summary>

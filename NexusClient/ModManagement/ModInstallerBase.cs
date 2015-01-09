@@ -20,6 +20,14 @@ namespace Nexus.Client.ModManagement
 		/// 
 		protected static readonly object objInstallLock = new object();
 
+		/// <summary>
+		/// We only want on uninstaller running at a time, so as not to mess up
+		/// the file system, of settings files. As such, all uninstaller lock
+		/// on this lock object.
+		/// </summary>
+		/// 
+		protected static readonly object objUninstallLock = new object();
+
 		#region Events
 
 		/// <summary>

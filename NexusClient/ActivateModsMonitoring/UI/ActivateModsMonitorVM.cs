@@ -14,7 +14,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 {
 	/// <summary>
 	/// This class encapsulates the data and the operations presented by UI
-	/// elements that display Download monitoring.
+	/// elements that display Mod Activation monitoring.
 	/// </summary>
 	public class ActivateModsMonitorVM : INotifyPropertyChanged
 	{
@@ -40,9 +40,9 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		
 		
 		/// <summary>
-		/// Gets the number of maximum allowed concurrent downloads.
+		/// Gets the number of maximum allowed concurrent activations.
 		/// </summary>
-		/// <value>The number of maximum allowed concurrent downloads.</value>
+		/// <value>The number of maximum allowed concurrent activations.</value>
 		public int MaxConcurrentActivation
 		{
 			get
@@ -54,9 +54,9 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		#endregion
 
 		/// <summary>
-		/// Gets the Download manager to use to manage the monitored activities.
+		/// Gets the Mod Activation manager to use to manage the monitored activities.
 		/// </summary>
-		/// <value>The Download manager to use to manage the monitored activities.</value>
+		/// <value>The Mod Activation manager to use to manage the monitored activities.</value>
 		protected ActivateModsMonitor ActivateModsMonitor { get; private set; }
 
 		/// <summary>
@@ -123,8 +123,6 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			Settings = p_setSettings;
 			m_mmgModManager = p_mmgModManager;
 			ActivateModsMonitor.PropertyChanged += new PropertyChangedEventHandler(ActiveTasks_PropertyChanged);
-
-			CancelTaskCommand = new Command<BasicInstallTask>("Cancel", "Cancels the selected Download.", CancelTask);
 		}
 
 		#endregion
@@ -159,7 +157,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		public void RemoveTask(ModInstaller p_tskTask)
 		{
 			if (ActivateModsMonitor.CanRemove(p_tskTask))
-				ActivateModsMonitor.RemoveDownload(p_tskTask);
+				ActivateModsMonitor.RemoveTask(p_tskTask);
 		}
 
         /// <summary>
@@ -169,7 +167,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
         public void RemoveTaskUn(ModUninstaller p_tskTask)
         {
             if (ActivateModsMonitor.CanRemoveUn(p_tskTask))
-                ActivateModsMonitor.RemoveDownloadUn(p_tskTask);
+                ActivateModsMonitor.RemoveTaskUn(p_tskTask);
         }
 
 		/// <summary>
@@ -179,7 +177,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		public void RemoveQueuedTask(ModInstaller p_tskTask)
 		{
 			if (ActivateModsMonitor.CanRemoveQueued(p_tskTask))
-				ActivateModsMonitor.RemoveQueuedDownload(p_tskTask);
+				ActivateModsMonitor.RemoveQueuedTask(p_tskTask);
 		}
 
         /// <summary>
@@ -189,7 +187,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
         public void RemoveQueuedTaskUn(ModUninstaller p_tskTask)
         {
             if (ActivateModsMonitor.CanRemoveQueuedUn(p_tskTask))
-                ActivateModsMonitor.RemoveQueuedDownloadUn(p_tskTask);
+                ActivateModsMonitor.RemoveQueuedTaskUn(p_tskTask);
         }
 
 		/// <summary>
@@ -201,9 +199,9 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			if (ActivateModsMonitor.CanRemoveSelected(p_tskTask))
 			{
 				if (p_tskTask.IsCompleted)
-					ActivateModsMonitor.RemoveDownload(p_tskTask);
+					ActivateModsMonitor.RemoveTask(p_tskTask);
 				else if (p_tskTask.IsQueued)
-					ActivateModsMonitor.RemoveQueuedDownload(p_tskTask);
+					ActivateModsMonitor.RemoveQueuedTask(p_tskTask);
 			}
 		}
 
@@ -216,9 +214,9 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
             if (ActivateModsMonitor.CanRemoveSelectedUn(p_tskTask))
             {
                 if (p_tskTask.IsCompleted)
-                    ActivateModsMonitor.RemoveDownloadUn(p_tskTask);
+                    ActivateModsMonitor.RemoveTaskUn(p_tskTask);
                 else if (p_tskTask.IsQueued)
-                    ActivateModsMonitor.RemoveQueuedDownloadUn(p_tskTask);
+                    ActivateModsMonitor.RemoveQueuedTaskUn(p_tskTask);
             }
         }
         
@@ -238,38 +236,21 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
         public void RemoveUselessTaskUn(ModUninstaller p_tskTask)
         {
             ActivateModsMonitor.RemoveUselessTaskUn(p_tskTask);
-        }
-
-		/// <summary>
-		/// Cancels the given task.
-		/// </summary>
-		/// <param name="p_tskTask">The task to cancel.</param>
-		public void CancelTask(BasicInstallTask p_tskTask)
-		{
-			//p_tskTask.Cancel();
-		}
-		
+        }		
 
 		/// <summary>
 		/// Removes all the completed/failed tasks.
 		/// </summary>
-		public void RemoveAllTasks()
+		public void RemoveAllTasks(List<IBackgroundTaskSet> p_tskRunning)
 		{
-			List<IBackgroundTaskSet> lstTasks = new List<IBackgroundTaskSet>();
-			lock (Tasks)
-			{
-				foreach (IBackgroundTaskSet btTask in Tasks)
-					lstTasks.Add(btTask);
-			}
-			if (lstTasks.Count > 0)
-				foreach (IBackgroundTaskSet btRemovable in lstTasks)
+			if (p_tskRunning.Count > 0)
+				foreach (IBackgroundTaskSet btRemovable in p_tskRunning)
                 { 
                     if(btRemovable.GetType() == typeof(ModInstaller))
                         RemoveTask((ModInstaller)btRemovable);
                     else if(btRemovable.GetType() == typeof(ModUninstaller))
                         RemoveTaskUn((ModUninstaller)btRemovable);
-                }
-					
+                }		
 		}
 
 		/// <summary>
@@ -358,20 +339,6 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
                         RemoveQueuedTaskUn((ModUninstaller)btRemovable);
                 }
 		
-		}
-
-		
-
-		/// <summary>
-		/// Determines if the given <see cref="BasicInstallTask"/> can be removed.
-		/// </summary>
-		/// <param name="p_tskTask">The task for which it is to be determined
-		/// if it can be removed.</param>
-		/// <returns><c>true</c> if the task can be removed;
-		/// <c>false</c> otherwise.</returns>
-		public bool CanRemoveDownload(BasicInstallTask p_tskTask)
-		{
-			return true; // ActivateModsMonitor.CanRemove(p_tskTask);
 		}
 
 		/// <summary>

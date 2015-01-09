@@ -145,7 +145,7 @@ namespace Nexus.Client.ModManagement
 			bool booSuccess = false;
 			string strErrorMessage = String.Empty;
 
-			lock (objInstallLock)
+			lock (objUninstallLock)
 			{
 				using (TransactionScope tsTransaction = new TransactionScope())
 				{
@@ -157,9 +157,11 @@ namespace Nexus.Client.ModManagement
 						Mod.InstallDate = null;
 						ModInstallLog.RemoveMod(Mod);
 						tsTransaction.Complete();
+						GC.GetTotalMemory(true);
 					}
 				}
 			}
+
 			if (booSuccess)
 				OnTaskSetCompleted(booSuccess, "The mod was successfully deactivated." + Environment.NewLine + strErrorMessage, Mod);
 			else

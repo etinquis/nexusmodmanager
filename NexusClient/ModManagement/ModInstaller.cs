@@ -162,11 +162,10 @@ namespace Nexus.Client.ModManagement
 			// hence the lock.
 			bool booSuccess = false;
 			string strMessage = "The mod was not activated.";
-			bool booGotLock = false;
+
 			try
 			{
-				booGotLock = Monitor.TryEnter(objInstallLock);
-				if (booGotLock)
+				lock (objUninstallLock)
 				{
 					using (TransactionScope tsTransaction = new TransactionScope())
 					{
@@ -184,10 +183,6 @@ namespace Nexus.Client.ModManagement
 							GC.GetTotalMemory(true);
 						}
 					}
-				}
-				else
-				{
-					strMessage = "Only one installation can be performed at a time.";
 				}
 			}
 			catch (TransactionException)
@@ -229,8 +224,6 @@ namespace Nexus.Client.ModManagement
 			finally
 			{
 				Mod.EndReadOnlyTransaction();
-				if (booGotLock)
-					Monitor.Exit(objInstallLock);
 			}
 			OnTaskSetCompleted(booSuccess, strMessage, Mod);
 		}
