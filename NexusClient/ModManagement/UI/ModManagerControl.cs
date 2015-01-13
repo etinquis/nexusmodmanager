@@ -36,7 +36,7 @@ namespace Nexus.Client.ModManagement.UI
 		private Timer m_tmrColumnSizer = new Timer();
 		private bool m_booDisableSummary = true;
         private bool m_booDisableLoadBackup = false;
-
+		
 		public event EventHandler SetTextBoxFocus;
 		public event EventHandler ResetSearchBox;
 
@@ -72,8 +72,7 @@ namespace Nexus.Client.ModManagement.UI
 					modMod.PropertyChanged -= new PropertyChangedEventHandler(Mod_PropertyChanged);
 					modMod.PropertyChanged += new PropertyChangedEventHandler(Mod_PropertyChanged);
 				}
-
-
+				
 				LoadModFormatFilter();
 
 				tsbAddMod.DefaultItem = tsbAddMod.DropDownItems[m_vmlViewModel.Settings.SelectedAddModCommandIndex];
@@ -333,7 +332,7 @@ namespace Nexus.Client.ModManagement.UI
         {
             if (!m_booDisableLoadBackup)
             {
-                if ((((clwCategoryView.SelectedIndices.Count > 0) || (clwCategoryView.SelectedObjects.Count > 0))  && clwCategoryView.Visible && (clwCategoryView.GetSelectedItem.GetType() != typeof(ModCategory))))
+				if ((((clwCategoryView.SelectedIndices.Count > 0) || (clwCategoryView.SelectedObjects.Count > 0))  && clwCategoryView.Visible && (clwCategoryView.GetSelectedItem.GetType() != typeof(ModCategory))))
                 {
                     if (clwCategoryView.Visible)
                         ViewModel.DeactivateModCommand.CanExecute = ViewModel.ActiveMods.Contains((IMod)clwCategoryView.GetSelectedItem);
@@ -545,7 +544,6 @@ namespace Nexus.Client.ModManagement.UI
 		/// </summary>
 		private void LoadCategoryView()
 		{
-			clwCategoryView.RetrieveVirtualItem += new RetrieveVirtualItemEventHandler(listView1_RetrieveVirtualItem);
 			clwCategoryView.ShowHiddenCategories = ViewModel.Settings.ShowEmptyCategory;
 			SortOrder sroDefaultSortOrder = SortOrder.Ascending;
 			if (Enum.IsDefined(typeof(SortOrder), ViewModel.Settings.CategoryViewDefaultSortOrder))
@@ -572,6 +570,7 @@ namespace Nexus.Client.ModManagement.UI
 				// Enables installing/uninstalling mods using the double click; if a category is clicked it will be expanded/collapsed
 				this.clwCategoryView.CellClick += delegate(object sender, BrightIdeasSoftware.CellClickEventArgs e)
 				{
+					clwCategoryView.RetrieveVirtualItem += new RetrieveVirtualItemEventHandler(listView1_RetrieveVirtualItem);
 					if ((e.ClickCount == 2) && (e.Item != null))
 					{
 						try
@@ -684,7 +683,11 @@ namespace Nexus.Client.ModManagement.UI
 		/// </summary>
 		void listView1_RetrieveVirtualItem(object sender,RetrieveVirtualItemEventArgs e)
 		{
-			SetCommandExecutableStatus();
+			if (((Nexus.Client.UI.Controls.CategoryListView)sender).GetSelectedItems.Count > 1)
+			{
+				clwCategoryView.RetrieveVirtualItem -= new RetrieveVirtualItemEventHandler(listView1_RetrieveVirtualItem);
+				SetCommandExecutableStatus();
+			}
 		}
 
 		/// <summary>
