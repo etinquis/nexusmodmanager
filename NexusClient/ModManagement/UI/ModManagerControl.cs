@@ -35,7 +35,7 @@ namespace Nexus.Client.ModManagement.UI
 		private bool m_booResizing = false;
 		private Timer m_tmrColumnSizer = new Timer();
 		private bool m_booDisableSummary = true;
-        private bool m_booDisableLoadBackup = false;
+		private bool m_booDisableLoadBackup = false;
 		
 		public event EventHandler SetTextBoxFocus;
 		public event EventHandler ResetSearchBox;
@@ -328,41 +328,41 @@ namespace Nexus.Client.ModManagement.UI
 		/// <summary>
 		/// Sets the executable status of the commands.
 		/// </summary>
-        protected void SetCommandExecutableStatus()
-        {
-            if (!m_booDisableLoadBackup)
-            {
+		protected void SetCommandExecutableStatus()
+		{
+			if (!m_booDisableLoadBackup)
+			{
 				if ((((clwCategoryView.SelectedIndices.Count > 0) || (clwCategoryView.SelectedObjects.Count > 0))  && clwCategoryView.Visible && (clwCategoryView.GetSelectedItem.GetType() != typeof(ModCategory))))
-                {
-                    if (clwCategoryView.Visible)
-                        ViewModel.DeactivateModCommand.CanExecute = ViewModel.ActiveMods.Contains((IMod)clwCategoryView.GetSelectedItem);
+				{
+					if (clwCategoryView.Visible)
+						ViewModel.DeactivateModCommand.CanExecute = ViewModel.ActiveMods.Contains((IMod)clwCategoryView.GetSelectedItem);
 
-                    ViewModel.ActivateModCommand.CanExecute = !ViewModel.DeactivateModCommand.CanExecute;
+					ViewModel.ActivateModCommand.CanExecute = !ViewModel.DeactivateModCommand.CanExecute;
 
-                    ViewModel.DeleteModCommand.CanExecute = true;
-                    ViewModel.TagModCommand.CanExecute = true;
-                    tsbToggleEndorse.Enabled = true;
-                    tsbToggleEndorse.Image = GetSelectedMod().IsEndorsed == true ? Properties.Resources.unendorsed : Properties.Resources.endorsed;
-                }
-                else
-                {
-                    ViewModel.ActivateModCommand.CanExecute = false;
-                    ViewModel.DeactivateModCommand.CanExecute = false;
-                    ViewModel.DeleteModCommand.CanExecute = false;
-                    ViewModel.TagModCommand.CanExecute = false;
-                    tsbToggleEndorse.Enabled = false;
-                    tsbToggleEndorse.Image = Properties.Resources.unendorsed;
-                }
+					ViewModel.DeleteModCommand.CanExecute = true;
+					ViewModel.TagModCommand.CanExecute = true;
+					tsbToggleEndorse.Enabled = true;
+					tsbToggleEndorse.Image = GetSelectedMod().IsEndorsed == true ? Properties.Resources.unendorsed : Properties.Resources.endorsed;
+				}
+				else
+				{
+					ViewModel.ActivateModCommand.CanExecute = false;
+					ViewModel.DeactivateModCommand.CanExecute = false;
+					ViewModel.DeleteModCommand.CanExecute = false;
+					ViewModel.TagModCommand.CanExecute = false;
+					tsbToggleEndorse.Enabled = false;
+					tsbToggleEndorse.Image = Properties.Resources.unendorsed;
+				}
 
-                this.tsbDeactivate.Visible = ViewModel.DeactivateModCommand.CanExecute;
-                this.tsbActivate.Visible = ViewModel.ActivateModCommand.CanExecute;
-            }
-        }
+				this.tsbDeactivate.Visible = ViewModel.DeactivateModCommand.CanExecute;
+				this.tsbActivate.Visible = ViewModel.ActivateModCommand.CanExecute;
+			}
+		}
 
-        /// <summary>
-        /// Sets the executable status of the commands in the Mod Manager Control.
-        /// </summary>
-        public void SetCommandBackupMMCStatus(bool p_booCheck)
+		/// <summary>
+		/// Sets the executable status of the commands in the Mod Manager Control.
+		/// </summary>
+		public void SetCommandBackupMMCStatus(bool p_booCheck)
 		{
 			Control.CheckForIllegalCrossThreadCalls = false;
 			m_booDisableLoadBackup = !p_booCheck;
