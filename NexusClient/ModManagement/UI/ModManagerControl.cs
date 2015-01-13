@@ -87,7 +87,7 @@ namespace Nexus.Client.ModManagement.UI
 
 				new ToolStripItemCommandBinding<IMod>(tsbDeleteMod, m_vmlViewModel.DeleteModCommand, GetSelectedMod);
 				new ToolStripItemCommandBinding<List<IMod>>(tsbActivate, m_vmlViewModel.ActivateModCommand, GetSelectedMods);
-				new ToolStripItemCommandBinding<IMod>(tsbDeactivate, m_vmlViewModel.DeactivateModCommand, GetSelectedMod);
+				new ToolStripItemCommandBinding<List<IMod>>(tsbDeactivate, m_vmlViewModel.DeactivateModCommand, GetSelectedMods);
 				new ToolStripItemCommandBinding<IMod>(tsbTagMod, m_vmlViewModel.TagModCommand, GetSelectedMod);
 				Command cmdToggleEndorsement = new Command("Toggle Mod Endorsement", "Toggles the mod endorsement.", ToggleEndorsement);
 				new ToolStripItemCommandBinding(tsbToggleEndorse, cmdToggleEndorsement);
@@ -589,7 +589,7 @@ namespace Nexus.Client.ModManagement.UI
 								if (modMod != null)
 								{
 									if (ViewModel.ActiveMods.Contains(modMod))
-										ViewModel.DeactivateModCommand.Execute(modMod);
+										ViewModel.DeactivateModCommand.Execute(new List<IMod>() { modMod });
 									else
 										ViewModel.ActivateModCommand.Execute(new List<IMod>() { modMod });
 								}

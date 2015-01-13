@@ -350,12 +350,12 @@ namespace Nexus.Client
         /// <summary>
 		/// Load the backup file.
 		/// </summary>
-		protected void LoadBackup()
+		protected void RestoreBackup()
 		{
 			OpenFileDialog ofd = new OpenFileDialog();
 			if (ofd.ShowDialog() == DialogResult.OK)
 			{
-				DialogResult Result = MessageBox.Show("Are you sure to load this backup?", "Load Backup", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+				DialogResult Result = MessageBox.Show("Are you sure to restore this backup?", "Restore Backup", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 				if (Result == DialogResult.Yes)
 				{
                     UninstallAllMods(true);
@@ -974,7 +974,7 @@ namespace Nexus.Client
 			new ToolStripItemCommandBinding(tmiResetTool, cmdResetUI);
 			spbTools.DropDownItems.Add(tmiResetTool);
 
-            Command cmdLoadBackup = new Command("Load Backup", "Load the backup.", LoadBackup);
+			Command cmdLoadBackup = new Command("Restore Backup", "Restore the backup.", RestoreBackup);
 			ToolStripMenuItem tmiLoadBackupTool = new ToolStripMenuItem();
 			tmiResetTool.ImageScaling = ToolStripItemImageScaling.None;
 			new ToolStripItemCommandBinding(tmiLoadBackupTool, cmdLoadBackup);

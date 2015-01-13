@@ -2,7 +2,7 @@
 <tipsManager>
 	<tipsList>
     <tips section="toolStrip1" object="spbTools" ID="1" version="0.53.0">
-      <text>A "Load backup" button has been added to this version of NMM that will allow you to revert future versions of NMM back to this version (0.53.0) should anything go wrong.</text>
+      <text>A "Restore backup" button has been added to this version of NMM that will allow you to revert future versions of NMM back to this version (0.53.0) should anything go wrong.</text>
     </tips>
     <tips section="ActivateMMListView" object="column" ID="2" version="0.53.0">
       <text>A new "Mod Activation Queue" window has been added. You can now queue multiple mods to install one after another rather than waiting to install one mod at a time.</text>

@@ -145,7 +145,7 @@ namespace Nexus.Client.ModManagement.UI
 		/// The commands takes an argument describing the mod to be deactivated.
 		/// </remarks>
 		/// <value>The command to deactivate a mod.</value>
-		public Command<IMod> DeactivateModCommand { get; private set; }
+		public Command<List<IMod>> DeactivateModCommand { get; private set; }
 
 		/// <summary>
 		/// Gets the command to tag a mod.
@@ -287,7 +287,7 @@ namespace Nexus.Client.ModManagement.UI
 			AddModCommand = new Command<string>("Add Mod", "Adds a mod to the manager.", AddMod);
 			DeleteModCommand = new Command<IMod>("Delete Mod", "Deletes the selected mod.", DeleteMod);
 			ActivateModCommand = new Command<List<IMod>>("Activate Mod", "Activates the selected mods.", ActivateMods);
-			DeactivateModCommand = new Command<IMod>("Deactivate Mod", "Deactivates the selected mod.", DeactivateMod);
+			DeactivateModCommand = new Command<List<IMod>>("Deactivate Mod", "Deactivates the selected mod.", DeactivateMods);
 			TagModCommand = new Command<IMod>("Tag Mod", "Gets missing mod info.", TagMod);
 
 			ModManager.UpdateCheckStarted += new EventHandler<EventArgs<IBackgroundTask>>(ModManager_UpdateCheckStarted);
@@ -441,6 +441,28 @@ namespace Nexus.Client.ModManagement.UI
             if (btsUninstall != null)
                 ModManager.ActivateModsMonitor.AddActivity(btsUninstall);
 			//ChangingModActivation(this, new EventArgs<IBackgroundTaskSet>(btsUninstall));
+		}
+
+		/// <summary>
+		/// Deactivates the given mod.
+		/// </summary>
+		/// <param name="p_modMod">The mod to deactivate.</param>
+		protected void DeactivateMods(List<IMod> p_lstMod)
+		{
+			string strErrorMessage = ModManager.RequiredToolErrorMessage;
+			if (String.IsNullOrEmpty(strErrorMessage))
+			{
+				foreach (IMod modMod in p_lstMod)
+				{
+					IBackgroundTaskSet btsUninstall = ModManager.DeactivateMod(modMod, ModManager.ActiveMods);
+					if (btsUninstall != null)
+						ModManager.ActivateModsMonitor.AddActivity(btsUninstall);
+				}
+			}
+			else
+			{
+				ExtendedMessageBox.Show(ParentForm, strErrorMessage, "Required Tool not present", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			}
 		}
 
 		/// <summary>
