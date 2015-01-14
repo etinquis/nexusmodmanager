@@ -281,18 +281,18 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
                 {
                     foreach (IBackgroundTaskSet iBk in QueuedTasks)
                     {
-                        if (iBk.GetType() == typeof(ModInstaller))
-                        {
-                            if (((ModInstaller)iBk).ModFileName == ((ModInstaller)p_tskTask).ModFileName)
-                                if (((ModInstaller)iBk).IsQueued)
-                                    booQueued = true;
-                        }
-                        else if (iBk.GetType() == typeof(ModUninstaller))
-                        {
-                            if (((ModUninstaller)iBk).ModFileName == ((ModInstaller)p_tskTask).ModFileName)
-                                if (((ModUninstaller)iBk).IsQueued)
-                                    booQueued = true;
-                        }
+						if (iBk.GetType() == typeof(ModInstaller))
+						{
+							if (((ModInstaller)iBk).ModFileName == ((ModInstaller)p_tskTask).ModFileName)
+								if (((ModInstaller)iBk).IsQueued)
+									booQueued = true;
+						}
+						else if (iBk.GetType() == typeof(ModUninstaller))
+						{
+							if (((ModUninstaller)iBk).ModFileName == ((ModInstaller)p_tskTask).ModFileName)
+								if (((ModUninstaller)iBk).IsQueued)
+									booQueued = true;
+						}
 						else if (iBk.GetType() == typeof(ModUpgrader))
 						{
 							if (((ModUpgrader)iBk).ModFileName == ((ModInstaller)p_tskTask).ModFileName)
@@ -310,15 +310,15 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
                             return;
                         }
                     }
-                    else if (m_btsRunningTask.GetType() == typeof(ModUninstaller))
-                    {
-                        if ((((ModUninstaller)m_btsRunningTask).ModFileName == ((ModInstaller)p_tskTask).ModFileName) || booQueued)
-                        {
-                            booQueued = false;
-                            m_vmlViewModel.RemoveUselessTask(((ModInstaller)p_tskTask));
-                            return;
-                        }
-                    }
+					else if (m_btsRunningTask.GetType() == typeof(ModUninstaller))
+					{
+						if ((((ModUninstaller)m_btsRunningTask).ModFileName == ((ModInstaller)p_tskTask).ModFileName) || booQueued)
+						{
+							booQueued = false;
+							m_vmlViewModel.RemoveUselessTask(((ModInstaller)p_tskTask));
+							return;
+						}
+					}
 					else if (m_btsRunningTask.GetType() == typeof(ModUpgrader))
 					{
 						if ((((ModUpgrader)m_btsRunningTask).ModFileName == ((ModInstaller)p_tskTask).ModFileName) || booQueued)
@@ -329,48 +329,48 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 						}
 					} 
                 }
-                else if(p_tskTask.GetType() == typeof(ModUninstaller))
-                {
-                    foreach (IBackgroundTaskSet iBk in QueuedTasks)
-                    {
-                        if (iBk.GetType() == typeof(ModInstaller))
-                        {
-                            if (((ModInstaller)iBk).ModFileName == ((ModUninstaller)p_tskTask).ModFileName)
-                                if (((ModInstaller)iBk).IsQueued)
-                                    booQueued = true;
-                        }
-                        else if (iBk.GetType() == typeof(ModUninstaller))
-                        {
-                            if (((ModUninstaller)iBk).ModFileName == ((ModUninstaller)p_tskTask).ModFileName)
-                                if (((ModUninstaller)iBk).IsQueued)
-                                    booQueued = true;
-                        }
+				else if(p_tskTask.GetType() == typeof(ModUninstaller))
+				{
+					foreach (IBackgroundTaskSet iBk in QueuedTasks)
+					{
+						if (iBk.GetType() == typeof(ModInstaller))
+						{
+							if (((ModInstaller)iBk).ModFileName == ((ModUninstaller)p_tskTask).ModFileName)
+								if (((ModInstaller)iBk).IsQueued)
+									booQueued = true;
+						}
+						else if (iBk.GetType() == typeof(ModUninstaller))
+						{
+							if (((ModUninstaller)iBk).ModFileName == ((ModUninstaller)p_tskTask).ModFileName)
+								if (((ModUninstaller)iBk).IsQueued)
+									booQueued = true;
+						}
 						else if (iBk.GetType() == typeof(ModUpgrader))
 						{
 							if (((ModUpgrader)iBk).ModFileName == ((ModUninstaller)p_tskTask).ModFileName)
 								if (((ModUpgrader)iBk).IsQueued)
 									booQueued = true;
 						}
-                    }
+					}
 
-                    if (m_btsRunningTask.GetType() == typeof(ModInstaller))
-                    {
-                        if ((((ModInstaller)m_btsRunningTask).ModFileName == ((ModUninstaller)p_tskTask).ModFileName) || booQueued)
-                        {
-                            booQueued = false;
-                            m_vmlViewModel.RemoveUselessTaskUn(((ModUninstaller)p_tskTask));
-                            return;
-                        }
-                    }
-                    else if (m_btsRunningTask.GetType() == typeof(ModUninstaller))
-                    {
-                        if ((((ModUninstaller)m_btsRunningTask).ModFileName == ((ModUninstaller)p_tskTask).ModFileName) || booQueued)
-                        {
-                            booQueued = false;
-                            m_vmlViewModel.RemoveUselessTaskUn(((ModUninstaller)p_tskTask));
-                            return;
-                        }
-                    }
+					if (m_btsRunningTask.GetType() == typeof(ModInstaller))
+					{
+						if ((((ModInstaller)m_btsRunningTask).ModFileName == ((ModUninstaller)p_tskTask).ModFileName) || booQueued)
+						{
+							booQueued = false;
+							m_vmlViewModel.RemoveUselessTaskUn(((ModUninstaller)p_tskTask));
+							return;
+						}
+					}
+					else if (m_btsRunningTask.GetType() == typeof(ModUninstaller))
+					{
+						if ((((ModUninstaller)m_btsRunningTask).ModFileName == ((ModUninstaller)p_tskTask).ModFileName) || booQueued)
+						{
+							booQueued = false;
+							m_vmlViewModel.RemoveUselessTaskUn(((ModUninstaller)p_tskTask));
+							return;
+						}
+					}
 					else if (m_btsRunningTask.GetType() == typeof(ModUpgrader))
 					{
 						if ((((ModUpgrader)m_btsRunningTask).ModFileName == ((ModUninstaller)p_tskTask).ModFileName) || booQueued)
@@ -380,7 +380,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 							return;
 						}
 					}
-                }
+				}
 				else if (p_tskTask.GetType() == typeof(ModUpgrader))
 				{
 					foreach (IBackgroundTaskSet iBk in QueuedTasks)
@@ -444,8 +444,8 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
                 m_btsRunningTask = p_tskTask;
                 if (m_btsRunningTask.GetType() == typeof(ModInstaller))
                     ((ModInstaller)m_btsRunningTask).Install();
-                else if (m_btsRunningTask.GetType() == typeof(ModUninstaller))
-                    ((ModUninstaller)m_btsRunningTask).Install();
+				else if (m_btsRunningTask.GetType() == typeof(ModUninstaller))
+					((ModUninstaller)m_btsRunningTask).Install();
 				else if (m_btsRunningTask.GetType() == typeof(ModUpgrader))
 					((ModUpgrader)m_btsRunningTask).Install();
             }
@@ -465,8 +465,8 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 				QueuedTasks.Remove(m_btsRunningTask);
                 if (m_btsRunningTask.GetType() == typeof(ModInstaller))
 				    ((ModInstaller)m_btsRunningTask).Install();
-                else if (m_btsRunningTask.GetType() == typeof(ModUninstaller))
-                    ((ModUninstaller)m_btsRunningTask).Install();
+				else if (m_btsRunningTask.GetType() == typeof(ModUninstaller))
+					((ModUninstaller)m_btsRunningTask).Install();
 				else if (m_btsRunningTask.GetType() == typeof(ModUpgrader))
 					((ModUpgrader)m_btsRunningTask).Install();
 			}

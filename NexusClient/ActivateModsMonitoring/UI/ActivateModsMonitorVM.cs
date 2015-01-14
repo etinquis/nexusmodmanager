@@ -162,15 +162,15 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 				ActivateModsMonitor.RemoveTask(p_tskTask);
 		}
 
-        /// <summary>
-        /// Removes the given task.
-        /// </summary>
-        /// <param name="p_tskTask">BasicInstallTask task to remove.</param>
-        public void RemoveTaskUn(ModUninstaller p_tskTask)
-        {
-            if (ActivateModsMonitor.CanRemoveUn(p_tskTask))
-                ActivateModsMonitor.RemoveTaskUn(p_tskTask);
-        }
+		/// <summary>
+		/// Removes the given task.
+		/// </summary>
+		/// <param name="p_tskTask">BasicInstallTask task to remove.</param>
+		public void RemoveTaskUn(ModUninstaller p_tskTask)
+		{
+			if (ActivateModsMonitor.CanRemoveUn(p_tskTask))
+				ActivateModsMonitor.RemoveTaskUn(p_tskTask);
+		}
 
 		/// <summary>
 		/// Removes the given task.
@@ -196,15 +196,15 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 				ActivateModsMonitor.RemoveQueuedTask(p_tskTask);
 		}
 
-        /// <summary>
-        /// Removes the uninstalling given task.
-        /// </summary>
-        /// <param name="p_tskTask">BasicInstallTask task to remove.</param>
-        public void RemoveQueuedTaskUn(ModUninstaller p_tskTask)
-        {
-            if (ActivateModsMonitor.CanRemoveQueuedUn(p_tskTask))
-                ActivateModsMonitor.RemoveQueuedTaskUn(p_tskTask);
-        }
+		/// <summary>
+		/// Removes the uninstalling given task.
+		/// </summary>
+		/// <param name="p_tskTask">BasicInstallTask task to remove.</param>
+		public void RemoveQueuedTaskUn(ModUninstaller p_tskTask)
+		{
+			if (ActivateModsMonitor.CanRemoveQueuedUn(p_tskTask))
+				ActivateModsMonitor.RemoveQueuedTaskUn(p_tskTask);
+		}
 
 		/// <summary>
 		/// Removes the upgrading given task.
@@ -235,20 +235,20 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			}
 		}
 
-        /// <summary>
-        /// Removes the uninstalling given task.
-        /// </summary>
-        /// <param name="p_tskTask">BasicInstallTask task to remove.</param>
-        public void RemoveSelectedTaskUn(ModUninstaller p_tskTask)
-        {
-            if (ActivateModsMonitor.CanRemoveSelectedUn(p_tskTask))
-            {
-                if (p_tskTask.IsCompleted)
-                    ActivateModsMonitor.RemoveTaskUn(p_tskTask);
-                else if (p_tskTask.IsQueued)
-                    ActivateModsMonitor.RemoveQueuedTaskUn(p_tskTask);
-            }
-        }
+		/// <summary>
+		/// Removes the uninstalling given task.
+		/// </summary>
+		/// <param name="p_tskTask">BasicInstallTask task to remove.</param>
+		public void RemoveSelectedTaskUn(ModUninstaller p_tskTask)
+		{
+			if (ActivateModsMonitor.CanRemoveSelectedUn(p_tskTask))
+			{
+				if (p_tskTask.IsCompleted)
+					ActivateModsMonitor.RemoveTaskUn(p_tskTask);
+				else if (p_tskTask.IsQueued)
+					ActivateModsMonitor.RemoveQueuedTaskUn(p_tskTask);
+			}
+		}
 
 		/// <summary>
 		/// Removes the upgrading given task.
@@ -278,14 +278,14 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
             ActivateModsMonitor.RemoveUselessTask(p_tskTask);
         }
 
-        /// <summary>
-        /// Removes the given uninstalling task (the task is already in queue or running).
-        /// </summary>
-        /// <param name="p_tskTask">BasicInstallTask task to remove.</param>
-        public void RemoveUselessTaskUn(ModUninstaller p_tskTask)
-        {
-            ActivateModsMonitor.RemoveUselessTaskUn(p_tskTask);
-        }
+		/// <summary>
+		/// Removes the given uninstalling task (the task is already in queue or running).
+		/// </summary>
+		/// <param name="p_tskTask">BasicInstallTask task to remove.</param>
+		public void RemoveUselessTaskUn(ModUninstaller p_tskTask)
+		{
+			ActivateModsMonitor.RemoveUselessTaskUn(p_tskTask);
+		}
 
 		/// <summary>
 		/// Removes the given upgrading task (the task is already in queue or running).
@@ -336,11 +336,11 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
                         if (((ModInstaller)btRemovable).ModName == p_strTask)
                             RemoveSelectedTask((ModInstaller)btRemovable);
                     }
-                    else if (btRemovable.GetType() == typeof(ModUninstaller))
-                    {
-                        if (((ModUninstaller)btRemovable).ModName == p_strTask)
-                            RemoveSelectedTaskUn((ModUninstaller)btRemovable);
-                    }
+					else if (btRemovable.GetType() == typeof(ModUninstaller))
+					{
+						if (((ModUninstaller)btRemovable).ModName == p_strTask)
+							RemoveSelectedTaskUn((ModUninstaller)btRemovable);
+					}
 					else if (btRemovable.GetType() == typeof(ModUpgrader))
 					{
 						if (((ModUpgrader)btRemovable).ModName == p_strTask)
@@ -373,12 +373,12 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
                             if ((((ModInstaller)btRemovable).IsQueued) || (((ModInstaller)btRemovable).IsCompleted))
                                 booStatus = true;
                     }
-                    else if (btRemovable.GetType() == typeof(ModUninstaller))
-                    {
-                        if (((ModUninstaller)btRemovable).ModName == p_strTask)
-                            if ((((ModUninstaller)btRemovable).IsQueued) || (((ModUninstaller)btRemovable).IsCompleted))
-                                booStatus = true;
-                    }
+					else if (btRemovable.GetType() == typeof(ModUninstaller))
+					{
+						if (((ModUninstaller)btRemovable).ModName == p_strTask)
+							if ((((ModUninstaller)btRemovable).IsQueued) || (((ModUninstaller)btRemovable).IsCompleted))
+								booStatus = true;
+					}
 					else if (btRemovable.GetType() == typeof(ModUpgrader))
 					{
 						if (((ModUpgrader)btRemovable).ModName == p_strTask)
@@ -408,8 +408,8 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
                 {
                     if(btRemovable.GetType() == typeof(ModInstaller))
                         RemoveQueuedTask((ModInstaller)btRemovable);
-                    else if (btRemovable.GetType() == typeof(ModUninstaller))
-                        RemoveQueuedTaskUn((ModUninstaller)btRemovable);
+					else if (btRemovable.GetType() == typeof(ModUninstaller))
+						RemoveQueuedTaskUn((ModUninstaller)btRemovable);
 					else if (btRemovable.GetType() == typeof(ModUpgrader))
 						RemoveQueuedTaskUpg((ModUpgrader)btRemovable);
                 }
