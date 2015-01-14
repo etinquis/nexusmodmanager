@@ -52,6 +52,8 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			    lsiSubItem.Text = ((ModUninstaller)p_btsTask).ModName;
             else if (p_btsTask.GetType() == typeof(ModInstaller))
                 lsiSubItem.Text = ((ModInstaller)p_btsTask).ModName;
+			else if (p_btsTask.GetType() == typeof(ModUpgrader))
+				lsiSubItem.Text = ((ModUpgrader)p_btsTask).ModName;
 		
 			lsiSubItem = SubItems.Add(new ListViewSubItem());
 			lsiSubItem.Name = "Status";
@@ -85,6 +87,8 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
                 SubItems["Operation"].Text = "Install";
             else if (((IBackgroundTaskSet)sender).GetType() == typeof(ModUninstaller))
                 SubItems["Operation"].Text = "Uninstall";
+			else if (((IBackgroundTaskSet)sender).GetType() == typeof(ModUpgrader))
+				SubItems["Operation"].Text = "Upgrading";
 
 			((IBackgroundTaskSet)sender).IsQueued = false;
 		}
@@ -107,6 +111,8 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 				booComplete = ((ModInstaller)btsExecutor).IsCompleted;
 			else if (btsExecutor.GetType() == typeof(ModUninstaller))
 				booComplete = ((ModUninstaller)btsExecutor).IsCompleted;
+			else if (btsExecutor.GetType() == typeof(ModUpgrader))
+				booComplete = ((ModUpgrader)btsExecutor).IsCompleted;
 
 			if (booComplete)
 			{

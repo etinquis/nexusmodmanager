@@ -150,6 +150,8 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		
 		#region Remove Command
 
+		#region Remove
+
 		/// <summary>
 		/// Removes the given task.
 		/// </summary>
@@ -174,6 +176,20 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		/// Removes the given task.
 		/// </summary>
 		/// <param name="p_tskTask">BasicInstallTask task to remove.</param>
+		public void RemoveTaskUpg(ModUpgrader p_tskTask)
+		{
+			if (ActivateModsMonitor.CanRemoveUpg(p_tskTask))
+				ActivateModsMonitor.RemoveTaskUpg(p_tskTask);
+		}
+
+		#endregion
+
+		#region RemoveQueued
+
+		/// <summary>
+		/// Removes the given task.
+		/// </summary>
+		/// <param name="p_tskTask">BasicInstallTask task to remove.</param>
 		public void RemoveQueuedTask(ModInstaller p_tskTask)
 		{
 			if (ActivateModsMonitor.CanRemoveQueued(p_tskTask))
@@ -189,6 +205,20 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
             if (ActivateModsMonitor.CanRemoveQueuedUn(p_tskTask))
                 ActivateModsMonitor.RemoveQueuedTaskUn(p_tskTask);
         }
+
+		/// <summary>
+		/// Removes the upgrading given task.
+		/// </summary>
+		/// <param name="p_tskTask">BasicInstallTask task to remove.</param>
+		public void RemoveQueuedTaskUpg(ModUpgrader p_tskTask)
+		{
+			if (ActivateModsMonitor.CanRemoveQueuedUpg(p_tskTask))
+				ActivateModsMonitor.RemoveQueuedTaskUpg(p_tskTask);
+		}
+
+		#endregion
+
+		#region RemoveSelected
 
 		/// <summary>
 		/// Removes the given task.
@@ -219,8 +249,27 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
                     ActivateModsMonitor.RemoveQueuedTaskUn(p_tskTask);
             }
         }
-        
-        /// <summary>
+
+		/// <summary>
+		/// Removes the upgrading given task.
+		/// </summary>
+		/// <param name="p_tskTask">BasicInstallTask task to remove.</param>
+		public void RemoveSelectedTaskUpg(ModUpgrader p_tskTask)
+		{
+			if (ActivateModsMonitor.CanRemoveSelectedUpg(p_tskTask))
+			{
+				if (p_tskTask.IsCompleted)
+					ActivateModsMonitor.RemoveTaskUpg(p_tskTask);
+				else if (p_tskTask.IsQueued)
+					ActivateModsMonitor.RemoveQueuedTaskUpg(p_tskTask);
+			}
+		}
+
+		#endregion
+
+		#region RemoveUseless
+
+		/// <summary>
         /// Removes the given task (the task is already in queue or running).
         /// </summary>
         /// <param name="p_tskTask">BasicInstallTask task to remove.</param>
@@ -236,7 +285,18 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
         public void RemoveUselessTaskUn(ModUninstaller p_tskTask)
         {
             ActivateModsMonitor.RemoveUselessTaskUn(p_tskTask);
-        }		
+        }
+
+		/// <summary>
+		/// Removes the given upgrading task (the task is already in queue or running).
+		/// </summary>
+		/// <param name="p_tskTask">BasicInstallTask task to remove.</param>
+		public void RemoveUselessTaskUpg(ModUpgrader p_tskTask)
+		{
+			ActivateModsMonitor.RemoveUselessTaskUpg(p_tskTask);
+		}
+
+		#endregion
 
 		/// <summary>
 		/// Removes all the completed/failed tasks.
@@ -250,6 +310,8 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
                         RemoveTask((ModInstaller)btRemovable);
                     else if(btRemovable.GetType() == typeof(ModUninstaller))
                         RemoveTaskUn((ModUninstaller)btRemovable);
+					else if(btRemovable.GetType() == typeof(ModUpgrader))
+						RemoveTaskUpg((ModUpgrader)btRemovable);
                 }		
 		}
 
@@ -279,6 +341,11 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
                         if (((ModUninstaller)btRemovable).ModName == p_strTask)
                             RemoveSelectedTaskUn((ModUninstaller)btRemovable);
                     }
+					else if (btRemovable.GetType() == typeof(ModUpgrader))
+					{
+						if (((ModUpgrader)btRemovable).ModName == p_strTask)
+							RemoveSelectedTaskUpg((ModUpgrader)btRemovable);
+					}
 				}
 			}
 		}
@@ -312,6 +379,12 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
                             if ((((ModUninstaller)btRemovable).IsQueued) || (((ModUninstaller)btRemovable).IsCompleted))
                                 booStatus = true;
                     }
+					else if (btRemovable.GetType() == typeof(ModUpgrader))
+					{
+						if (((ModUpgrader)btRemovable).ModName == p_strTask)
+							if ((((ModUpgrader)btRemovable).IsQueued) || (((ModUpgrader)btRemovable).IsCompleted))
+								booStatus = true;
+					}
 				}
 			}
 			return booStatus;
@@ -337,6 +410,8 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
                         RemoveQueuedTask((ModInstaller)btRemovable);
                     else if (btRemovable.GetType() == typeof(ModUninstaller))
                         RemoveQueuedTaskUn((ModUninstaller)btRemovable);
+					else if (btRemovable.GetType() == typeof(ModUpgrader))
+						RemoveQueuedTaskUpg((ModUpgrader)btRemovable);
                 }
 		
 		}
