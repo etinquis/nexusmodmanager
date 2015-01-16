@@ -1,7 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <tipsManager>
 	<tipsList>
-    <tips section="toolStrip1" object="spbTools" ID="1" version="0.53.0">
+	<tips section="ActivateMMListView" object="column" ID="1" version="0.53.2">
+		<text>The progress meter has been added.</text>
+	</tips>
+	<tips section="toolStrip1" object="spbTools" ID="1" version="0.53.0">
       <text>A "Restore backup" button has been added to this version of NMM that will allow you to revert future versions of NMM back to this version (0.53.0) should anything go wrong.</text>
     </tips>
     <tips section="ActivateMMListView" object="column" ID="2" version="0.53.0">

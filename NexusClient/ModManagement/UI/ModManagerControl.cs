@@ -39,6 +39,7 @@ namespace Nexus.Client.ModManagement.UI
 		
 		public event EventHandler SetTextBoxFocus;
 		public event EventHandler ResetSearchBox;
+		public event EventHandler UpdateModsCount;
 
 		#region Properties
 
@@ -1452,6 +1453,7 @@ namespace Nexus.Client.ModManagement.UI
 			}
 
 			clwCategoryView.ReloadList(false);
+			UpdateModsCount(this, e);
 			SetCommandExecutableStatus();
 		}
 
@@ -1583,6 +1585,8 @@ namespace Nexus.Client.ModManagement.UI
 
 			if (!clwCategoryView.CategoryModeEnabled)
 				clwCategoryView.ReloadList(true);
+
+			UpdateModsCount(this, e);
 
 			SetCommandExecutableStatus();
 		}

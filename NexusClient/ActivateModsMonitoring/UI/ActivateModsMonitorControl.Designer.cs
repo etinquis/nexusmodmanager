@@ -33,7 +33,7 @@
 			this.clmOverallMessage = new System.Windows.Forms.ColumnHeader();
             this.clmOverallProgress = new System.Windows.Forms.ColumnHeader();
             this.clmOperation = new System.Windows.Forms.ColumnHeader();
-			//this.clmIcon = new System.Windows.Forms.ColumnHeader();
+			this.clmProgress = new System.Windows.Forms.ColumnHeader();
 			this.tsbCancel = new System.Windows.Forms.ToolStripButton();
 			this.tsbRemoveQueued = new System.Windows.Forms.ToolStripButton();
 			this.tsbRemoveAll = new System.Windows.Forms.ToolStripButton();
@@ -94,7 +94,8 @@
 			this.lvwActiveTasks.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.clmOverallMessage,
             this.clmOverallProgress,
-            this.clmOperation});
+            this.clmOperation,
+			this.clmProgress});
 			//clmIcon});
 			this.lvwActiveTasks.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.lvwActiveTasks.FullRowSelect = true;
@@ -115,19 +116,22 @@
 			// clmOverallMessage
 			// 
 			this.clmOverallMessage.Text = "Name";
+			this.clmOverallMessage.Width = 338;
            	// 
 			// clmOverallProgress
 			// 
 			this.clmOverallProgress.Text = "Status";
-			this.clmOverallProgress.Width = 100;
+			this.clmOverallProgress.Width = 60;
             // 
             // clmOperation
             // 
             this.clmOperation.Text = "Operation";
-			// 
-			// clmIcon
-			// 
-			//this.clmIcon.Text = "";
+			this.clmOperation.Width = 80;
+			//
+			// clmProgress
+ 			// 
+			this.clmProgress.Text = "Progress";
+			this.clmProgress.Width = 140;
 			// 
 			// ActivateModsMonitorControl
 			// 
@@ -152,7 +156,7 @@
 		private System.Windows.Forms.ColumnHeader clmOverallMessage;
 		private System.Windows.Forms.ColumnHeader clmOverallProgress;
         private System.Windows.Forms.ColumnHeader clmOperation;
-		//private System.Windows.Forms.ColumnHeader clmIcon;
+		private System.Windows.Forms.ColumnHeader clmProgress;
 		private System.Windows.Forms.ToolStripButton tsbCancel;
 		private System.Windows.Forms.ToolStripButton tsbRemoveAll;
 		private System.Windows.Forms.ToolStripButton tsbRemoveQueued;

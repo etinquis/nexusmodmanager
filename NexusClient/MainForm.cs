@@ -140,6 +140,7 @@ namespace Nexus.Client
 			dockPanel1.ActiveContentChanged += new EventHandler(dockPanel1_ActiveContentChanged);
 			mmgModManager.SetTextBoxFocus += new EventHandler(mmgModManager_SetTextBoxFocus);
 			mmgModManager.ResetSearchBox += new EventHandler(mmgModManager_ResetSearchBox);
+			mmgModManager.UpdateModsCount += new EventHandler(mmgModManager_UpdateModsCount);
 			dmcDownloadMonitor.SetTextBoxFocus += new EventHandler(dmcDownloadMonitor_SetTextBoxFocus);
             amcActivateModsMonitor = new ActivateModsMonitorControl();
             amcActivateModsMonitor.EmptyQueue += new EventHandler(amcActivateModsMonitor_EmptyQueue);
@@ -256,6 +257,8 @@ namespace Nexus.Client
 			}
 
             amcActivateModsMonitor.DockTo(dmcDownloadMonitor.Pane, DockStyle.Right, 1);
+
+			tlbModsCounter.Text = "Total mods " + ViewModel.ModManagerVM.ManagedMods.Count + "  |   Active mods " + ViewModel.ModManager.ActiveMods.Count;
 
 			UserStatusFeedback();
 		}
@@ -601,6 +604,14 @@ namespace Nexus.Client
 		private void mmgModManager_ResetSearchBox(object sender, EventArgs e)
 		{
 			tstFind.Clear();
+		}
+
+		/// <summary>
+		/// Updates the Mods Counter
+		/// </summary>
+		private void mmgModManager_UpdateModsCount(object sender, EventArgs e)
+		{
+			tlbModsCounter.Text = "Total mods " + ViewModel.ModManagerVM.ManagedMods.Count + "  |   Active mods " + ViewModel.ModManager.ActiveMods.Count;
 		}
 
 		/// <summary>
