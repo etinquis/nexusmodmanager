@@ -199,7 +199,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		{
 			if (e.KeyData == (Keys.C | Keys.Control))
 			{
-				Clipboard.SetText(lvwActiveTasks.FocusedItem.Text);
+				Clipboard.SetText(lvwActiveTasks.FocusedItem.SubItems["ModName"].Text + " // " + lvwActiveTasks.FocusedItem.SubItems["Status"].Text + " // " + lvwActiveTasks.FocusedItem.SubItems["Operation"].Text + " // " + lvwActiveTasks.FocusedItem.SubItems["Progress"].Text);
 			}
 			if (e.KeyData == (Keys.Control | Keys.F))
 			{
@@ -593,7 +593,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		/// <param name="e">A <see cref="System.EventArgs"/> describing the event arguments.</param>
 		private void cmsContextMenu_Copy(object sender, EventArgs e)
 		{
-			Clipboard.SetText(lvwActiveTasks.FocusedItem.Text);
+			Clipboard.SetText(lvwActiveTasks.FocusedItem.SubItems["ModName"].Text + " // " + lvwActiveTasks.FocusedItem.SubItems["Status"].Text + " // " + lvwActiveTasks.FocusedItem.SubItems["Operation"].Text + " // " + lvwActiveTasks.FocusedItem.SubItems["Progress"].Text);
 		}
 
 		#region Column Resizing
