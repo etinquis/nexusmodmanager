@@ -75,7 +75,9 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 
 		private void TaskSet_TaskSetStarted(object sender, EventArgs<IBackgroundTask> e)
 		{
-            if ((ListView != null) && ListView.InvokeRequired)
+			e.Argument.PropertyChanged += new PropertyChangedEventHandler(Task_PropertyChanged);
+			
+			if ((ListView != null) && ListView.InvokeRequired)
 			{
 				ListView.Invoke((Action<IBackgroundTaskSet,  EventArgs<IBackgroundTask>>)TaskSet_TaskSetStarted, sender, e);
 				return;
@@ -84,11 +86,26 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			m_booRemovable = false;
 			SubItems["Status"].Text = "Running";
 			if (((IBackgroundTaskSet)sender).GetType() == typeof(ModInstaller))
+			{
 				SubItems["Operation"].Text = "Install";
+				if (((ModInstaller)sender).Mod.InstallScript == null)
+					SubItems["Progress"].Text = "0%";
+				else
+					SubItems["Progress"].Text = "Unpacking, please wait...";
+			}
 			else if (((IBackgroundTaskSet)sender).GetType() == typeof(ModUninstaller))
+			{
 				SubItems["Operation"].Text = "Uninstall";
+				SubItems["Progress"].Text = "0%";
+			}
 			else if (((IBackgroundTaskSet)sender).GetType() == typeof(ModUpgrader))
+			{
 				SubItems["Operation"].Text = "Upgrading";
+				if (((ModInstaller)sender).Mod.InstallScript == null)
+					SubItems["Progress"].Text = "0%";
+				else
+					SubItems["Progress"].Text = "Unpacking, please wait...";
+			}
 
 			((IBackgroundTaskSet)sender).IsQueued = false;
 		}
@@ -124,6 +141,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			else
 				SubItems["Status"].Text = e.Message;
 
+			SubItems["Progress"].Text = "100%";
 			m_booRemovable = true;
 		}
 
@@ -146,10 +164,10 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 				string strPropertyName = e.PropertyName;
 				if ((ListView != null) && ListView.InvokeRequired)
 				{
-					ListView.Invoke((Action<BasicInstallTask, string>)HandleChangedTaskProperty, sender, e.PropertyName);
+					ListView.Invoke((Action<IBackgroundTask, string>)HandleChangedTaskProperty, (IBackgroundTask)sender, e.PropertyName);
 					return;
 				}
-				HandleChangedTaskProperty((BasicInstallTask)sender, e.PropertyName);
+				HandleChangedTaskProperty((IBackgroundTask)sender, e.PropertyName);
 			}
 			catch { }
 		}
@@ -159,8 +177,30 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		/// </summary>
 		/// <param name="p_tskTask">The task whose property has changed.</param>
 		/// <param name="p_strPropertyName">The name of the propety that has changed.</param>
-		private void HandleChangedTaskProperty(BasicInstallTask p_tskTask, string p_strPropertyName)
+		private void HandleChangedTaskProperty(IBackgroundTask p_tskTask, string p_strPropertyName)
 		{
+			try
+			{
+				if (p_tskTask.GetType() == typeof(BasicInstallTask))
+				{
+					if (p_strPropertyName.Equals(ObjectHelper.GetPropertyName<IBackgroundTask>(x => x.OverallProgress)))
+						SubItems["Progress"].Text = ((p_tskTask.OverallProgress * 100) / p_tskTask.OverallProgressMaximum).ToString() + "%";
+				}
+				else if (p_tskTask.GetType() == typeof(BasicUninstallTask))
+				{
+					if ((p_strPropertyName.Equals(ObjectHelper.GetPropertyName<IBackgroundTask>(x => x.ItemProgress))) && (p_tskTask.ItemProgress > 0))
+						SubItems["Progress"].Text = ((p_tskTask.ItemProgress * 100) / p_tskTask.ItemProgressMaximum).ToString() + "%";
+				}
+			}
+			catch (NullReferenceException)
+			{
+				//this can happen if we try to update the form before its handle has been created
+				// we should never get here, but if we do, we don't need to care
+			}
+			catch (ArgumentOutOfRangeException)
+			{
+				// we don't care if that happens
+			}
 		}
 
 		#endregion
