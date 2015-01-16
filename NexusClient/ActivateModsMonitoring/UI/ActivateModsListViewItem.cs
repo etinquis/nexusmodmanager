@@ -88,10 +88,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			if (((IBackgroundTaskSet)sender).GetType() == typeof(ModInstaller))
 			{
 				SubItems["Operation"].Text = "Install";
-				if (((ModInstaller)sender).Mod.InstallScript == null)
-					SubItems["Progress"].Text = "0%";
-				else
-					SubItems["Progress"].Text = "Unpacking, please wait...";
+				SubItems["Progress"].Text = "Unpacking, please wait...";
 			}
 			else if (((IBackgroundTaskSet)sender).GetType() == typeof(ModUninstaller))
 			{
@@ -101,10 +98,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			else if (((IBackgroundTaskSet)sender).GetType() == typeof(ModUpgrader))
 			{
 				SubItems["Operation"].Text = "Upgrading";
-				if (((ModInstaller)sender).Mod.InstallScript == null)
-					SubItems["Progress"].Text = "0%";
-				else
-					SubItems["Progress"].Text = "Unpacking, please wait...";
+				SubItems["Progress"].Text = "Unpacking, please wait...";
 			}
 
 			((IBackgroundTaskSet)sender).IsQueued = false;
@@ -134,14 +128,23 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			if (booComplete)
 			{
 				if (!booSuccess)
+				{
 					SubItems["Status"].Text = e.Message;
+					SubItems["Progress"].Text = "";
+				}
 				else
+				{
 					SubItems["Status"].Text = "Complete";
+					SubItems["Progress"].Text = "100%";
+				}
 			}
 			else
+			{
 				SubItems["Status"].Text = e.Message;
+				SubItems["Progress"].Text = "";
+			}
 
-			SubItems["Progress"].Text = "100%";
+			
 			m_booRemovable = true;
 		}
 
