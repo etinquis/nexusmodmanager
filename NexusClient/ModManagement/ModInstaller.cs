@@ -31,7 +31,7 @@ namespace Nexus.Client.ModManagement
 		/// Gets or sets the mod being installed.
 		/// </summary>
 		/// <value>The mod being installed.</value>
-		public IMod Mod { get; set; }
+		protected IMod Mod { get; set; }
 
         /// <summary>
 		/// Gets or sets the mod name.

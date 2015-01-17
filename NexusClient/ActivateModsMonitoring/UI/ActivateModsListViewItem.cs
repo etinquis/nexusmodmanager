@@ -88,10 +88,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			if (((IBackgroundTaskSet)sender).GetType() == typeof(ModInstaller))
 			{
 				SubItems["Operation"].Text = "Install";
-				if (((ModInstaller)sender).Mod.InstallScript == null)
-					SubItems["Progress"].Text = "0%";
-				else
-					SubItems["Progress"].Text = "Unpacking, please wait...";
+				SubItems["Progress"].Text = "Unpacking, please wait...";
 			}
 			else if (((IBackgroundTaskSet)sender).GetType() == typeof(ModUninstaller))
 			{
@@ -101,10 +98,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			else if (((IBackgroundTaskSet)sender).GetType() == typeof(ModUpgrader))
 			{
 				SubItems["Operation"].Text = "Upgrading";
-				if (((ModInstaller)sender).Mod.InstallScript == null)
-					SubItems["Progress"].Text = "0%";
-				else
-					SubItems["Progress"].Text = "Unpacking, please wait...";
+				SubItems["Progress"].Text = "Unpacking, please wait...";
 			}
 
 			((IBackgroundTaskSet)sender).IsQueued = false;
@@ -134,14 +128,23 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			if (booComplete)
 			{
 				if (!booSuccess)
+				{
 					SubItems["Status"].Text = e.Message;
+					SubItems["Progress"].Text = "";
+				}
 				else
+				{
 					SubItems["Status"].Text = "Complete";
+					SubItems["Progress"].Text = "100%";
+				}
 			}
 			else
+			{
 				SubItems["Status"].Text = e.Message;
+				SubItems["Progress"].Text = "";
+			}
 
-			SubItems["Progress"].Text = "100%";
+			
 			m_booRemovable = true;
 		}
 
@@ -181,15 +184,15 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		{
 			try
 			{
-				if (p_tskTask.GetType() == typeof(BasicInstallTask))
-				{
-					if (p_strPropertyName.Equals(ObjectHelper.GetPropertyName<IBackgroundTask>(x => x.OverallProgress)))
-						SubItems["Progress"].Text = ((p_tskTask.OverallProgress * 100) / p_tskTask.OverallProgressMaximum).ToString() + "%";
-				}
-				else if (p_tskTask.GetType() == typeof(BasicUninstallTask))
+				if (p_tskTask.GetType() == typeof(BasicUninstallTask))
 				{
 					if ((p_strPropertyName.Equals(ObjectHelper.GetPropertyName<IBackgroundTask>(x => x.ItemProgress))) && (p_tskTask.ItemProgress > 0))
 						SubItems["Progress"].Text = ((p_tskTask.ItemProgress * 100) / p_tskTask.ItemProgressMaximum).ToString() + "%";
+				}
+				else
+				{
+					if (p_strPropertyName.Equals(ObjectHelper.GetPropertyName<IBackgroundTask>(x => x.OverallProgress)))
+						SubItems["Progress"].Text = ((p_tskTask.OverallProgress * 100) / p_tskTask.OverallProgressMaximum).ToString() + "%";
 				}
 			}
 			catch (NullReferenceException)

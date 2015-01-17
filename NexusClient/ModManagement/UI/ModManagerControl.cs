@@ -684,11 +684,8 @@ namespace Nexus.Client.ModManagement.UI
 		/// </summary>
 		void listView1_RetrieveVirtualItem(object sender,RetrieveVirtualItemEventArgs e)
 		{
-			if (((Nexus.Client.UI.Controls.CategoryListView)sender).GetSelectedItems.Count > 1)
-			{
-				clwCategoryView.RetrieveVirtualItem -= new RetrieveVirtualItemEventHandler(listView1_RetrieveVirtualItem);
-				SetCommandExecutableStatus();
-			}
+			clwCategoryView.RetrieveVirtualItem -= new RetrieveVirtualItemEventHandler(listView1_RetrieveVirtualItem);
+			SetCommandExecutableStatus();
 		}
 
 		/// <summary>
