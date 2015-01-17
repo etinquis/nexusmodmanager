@@ -184,15 +184,15 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		{
 			try
 			{
-				if (p_tskTask.GetType() == typeof(BasicInstallTask))
-				{
-					if (p_strPropertyName.Equals(ObjectHelper.GetPropertyName<IBackgroundTask>(x => x.OverallProgress)))
-						SubItems["Progress"].Text = ((p_tskTask.OverallProgress * 100) / p_tskTask.OverallProgressMaximum).ToString() + "%";
-				}
-				else if (p_tskTask.GetType() == typeof(BasicUninstallTask))
+				if (p_tskTask.GetType() == typeof(BasicUninstallTask))
 				{
 					if ((p_strPropertyName.Equals(ObjectHelper.GetPropertyName<IBackgroundTask>(x => x.ItemProgress))) && (p_tskTask.ItemProgress > 0))
 						SubItems["Progress"].Text = ((p_tskTask.ItemProgress * 100) / p_tskTask.ItemProgressMaximum).ToString() + "%";
+				}
+				else
+				{
+					if (p_strPropertyName.Equals(ObjectHelper.GetPropertyName<IBackgroundTask>(x => x.OverallProgress)))
+						SubItems["Progress"].Text = ((p_tskTask.OverallProgress * 100) / p_tskTask.OverallProgressMaximum).ToString() + "%";
 				}
 			}
 			catch (NullReferenceException)
