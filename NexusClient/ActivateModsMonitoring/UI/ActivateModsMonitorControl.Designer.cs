@@ -116,7 +116,7 @@
 			// clmOverallMessage
 			// 
 			this.clmOverallMessage.Text = "Name";
-			this.clmOverallMessage.Width = 338;
+			this.clmOverallMessage.Width = 288;
            	// 
 			// clmOverallProgress
 			// 
@@ -131,7 +131,7 @@
 			// clmProgress
  			// 
 			this.clmProgress.Text = "Progress";
-			this.clmProgress.Width = 140;
+			this.clmProgress.Width = 190;
 			// 
 			// ActivateModsMonitorControl
 			// 

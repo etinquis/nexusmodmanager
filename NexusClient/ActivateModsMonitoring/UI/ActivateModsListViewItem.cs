@@ -86,20 +86,12 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			m_booRemovable = false;
 			SubItems["Status"].Text = "Running";
 			if (((IBackgroundTaskSet)sender).GetType() == typeof(ModInstaller))
-			{
 				SubItems["Operation"].Text = "Install";
-				SubItems["Progress"].Text = "Unpacking, please wait...";
-			}
 			else if (((IBackgroundTaskSet)sender).GetType() == typeof(ModUninstaller))
-			{
 				SubItems["Operation"].Text = "Uninstall";
-				SubItems["Progress"].Text = "0%";
-			}
 			else if (((IBackgroundTaskSet)sender).GetType() == typeof(ModUpgrader))
-			{
 				SubItems["Operation"].Text = "Upgrading";
-				SubItems["Progress"].Text = "Unpacking, please wait...";
-			}
+			
 
 			((IBackgroundTaskSet)sender).IsQueued = false;
 		}
@@ -187,12 +179,20 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 				if (p_tskTask.GetType() == typeof(BasicUninstallTask))
 				{
 					if ((p_strPropertyName.Equals(ObjectHelper.GetPropertyName<IBackgroundTask>(x => x.ItemProgress))) && (p_tskTask.ItemProgress > 0))
-						SubItems["Progress"].Text = ((p_tskTask.ItemProgress * 100) / p_tskTask.ItemProgressMaximum).ToString() + "%";
+						SubItems["Progress"].Text = "Uninstalling, please wait...(" + ((p_tskTask.ItemProgress * 100) / p_tskTask.ItemProgressMaximum).ToString() + "%)";
 				}
 				else
 				{
-					if (p_strPropertyName.Equals(ObjectHelper.GetPropertyName<IBackgroundTask>(x => x.OverallProgress)))
-						SubItems["Progress"].Text = ((p_tskTask.OverallProgress * 100) / p_tskTask.OverallProgressMaximum).ToString() + "%";
+					if ((p_tskTask.GetType() == typeof(PrepareModTask)))
+					{
+						if (p_strPropertyName.Equals(ObjectHelper.GetPropertyName<IBackgroundTask>(x => x.OverallProgress)))
+							SubItems["Progress"].Text = "Unpacking, please wait...(" + (((p_tskTask.OverallProgress * 100) / p_tskTask.OverallProgressMaximum)/2).ToString() + "%)";
+					}
+					else
+					{
+						if (p_strPropertyName.Equals(ObjectHelper.GetPropertyName<IBackgroundTask>(x => x.OverallProgress)))
+							SubItems["Progress"].Text = "Installing, please wait...(" + ((((p_tskTask.OverallProgress * 100) / p_tskTask.OverallProgressMaximum)/2)+50).ToString() + "%)";
+					}
 				}
 			}
 			catch (NullReferenceException)
