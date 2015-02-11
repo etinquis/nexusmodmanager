@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -406,6 +407,7 @@ namespace Nexus.Client.ModManagement
 			ModDeleter mddDeleter = InstallerFactory.CreateDelete(p_modMod, p_rolActiveMods);
 			mddDeleter.TaskSetCompleted += new EventHandler<TaskSetCompletedEventArgs>(Deactivator_TaskSetCompleted);
 			mddDeleter.Install();
+			DeleteXMLInstalledFile(p_modMod);
 			return mddDeleter;
 		}
 
@@ -437,6 +439,7 @@ namespace Nexus.Client.ModManagement
 		{
 			if (InstallationLog.ActiveMods.Contains(p_modMod))
 				return null;
+			DeleteXMLInstalledFile(p_modMod);
 			return Activator.Activate(p_modMod, p_dlgUpgradeConfirmationDelegate, p_dlgOverwriteConfirmationDelegate, p_rolActiveMods);
 		}
 
@@ -486,6 +489,7 @@ namespace Nexus.Client.ModManagement
 				return null;
 			ModUninstaller munUninstaller = InstallerFactory.CreateUninstaller(p_modMod, p_rolActiveMods);
 			munUninstaller.Install();
+			DeleteXMLInstalledFile(p_modMod);
 			return munUninstaller;
 		}
 
@@ -699,5 +703,15 @@ namespace Nexus.Client.ModManagement
 		}
 
 		#endregion
+
+		/// <summary>
+		/// If the mod is scripted, deletes the XMLInstalledFiles file inside the InstallInfo\Scripted folder.
+		/// </summary>
+		private void DeleteXMLInstalledFile(IMod p_modMod)
+		{
+			string strInstallFilesPath = Path.Combine(Path.Combine(GameMode.GameModeEnvironmentInfo.InstallInfoDirectory, "Scripted"), Path.GetFileNameWithoutExtension(p_modMod.Filename)) + ".xml";
+			if (File.Exists(strInstallFilesPath))
+				File.Delete(strInstallFilesPath);
+		}
 	}
 }
