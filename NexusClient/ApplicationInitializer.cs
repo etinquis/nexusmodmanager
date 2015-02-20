@@ -370,6 +370,15 @@ namespace Nexus.Client
 
 			StepOverallProgress();
 
+			if ((gmdGameMode.GameModeEnvironmentInfo.ModCacheDirectory == null) || (gmdGameMode.GameModeEnvironmentInfo.ModDirectory == null))
+			{
+				ShowMessage(new ViewMessage("Unable to retrieve critical paths from the config file." + Environment.NewLine + "Select this game again to fix the folders setup.", "Warning", MessageBoxIcon.Warning));
+				EnvironmentInfo.Settings.CompletedSetup[p_gmfGameModeFactory.GameModeDescriptor.ModeId] = false;
+				EnvironmentInfo.Settings.Save();
+				Status = TaskStatus.Retrying;
+				return false;
+			}
+
 			ServiceManager svmServices = InitializeServices(gmdGameMode, mrpModRepository, nfuFileUtility, p_scxUIContext, out p_vwmErrorMessage);
 			if (svmServices == null)
 			{
