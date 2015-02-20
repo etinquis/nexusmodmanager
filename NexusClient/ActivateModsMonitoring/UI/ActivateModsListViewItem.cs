@@ -14,7 +14,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 	{
 		ActivateModsMonitorControl m_amcControl = null;
 		private bool m_booRemovable = false;
-		
+				
 		#region Properties
 
 		/// <summary>
@@ -91,9 +91,10 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 				SubItems["Operation"].Text = "Uninstall";
 			else if (((IBackgroundTaskSet)sender).GetType() == typeof(ModUpgrader))
 				SubItems["Operation"].Text = "Upgrading";
-			
 
 			((IBackgroundTaskSet)sender).IsQueued = false;
+
+			m_amcControl.CallUpdateBottomBarFeedback(this);
 		}
 
 		private void TaskSet_TaskSetCompleted(object sender, TaskSetCompletedEventArgs e)
@@ -136,7 +137,8 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 				SubItems["Progress"].Text = "";
 			}
 
-			
+			m_amcControl.CallUpdateBottomBarFeedback(this);
+
 			m_booRemovable = true;
 		}
 

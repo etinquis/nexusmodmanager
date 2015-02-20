@@ -338,6 +338,7 @@
     <None Include="Resources\arrow_state_blue_left.png" />
     <None Include="Resources\arrow_state_blue_right.png" />
     <None Include="Resources\help_book.png" />
+    <None Include="Resources\round_loading.GIF" />
     <Content Include="Resources\tes_logo.ico" />
     <None Include="Resources\update_warning_disabled.png" />
     <None Include="Resources\update_warning.png" />

@@ -68,6 +68,9 @@
 			this.tsbOnlineStatus = new System.Windows.Forms.ToolStripButton();
 			this.tstFind = new System.Windows.Forms.ToolStripTextBox();
 			this.tlbModsCounter = new System.Windows.Forms.ToolStripLabel();
+			this.tlbBottomBarFeedbackCounter = new System.Windows.Forms.ToolStripLabel();
+			this.tlbBottomBarFeedback = new System.Windows.Forms.ToolStripLabel();
+			this.tsbLoader = new System.Windows.Forms.ToolStripButton();
 			this.tlbStatusFiller = new System.Windows.Forms.ToolStripStatusLabel();
 			this.toolStrip1.SuspendLayout();
 			this.tssDownload.SuspendLayout();
@@ -241,6 +244,9 @@
 			this.tsbGoPremium,
 			this.tlbLoginMessage,
 			this.tlbStatusFiller,
+			this.tlbBottomBarFeedback,
+			this.tlbBottomBarFeedbackCounter,
+			this.tsbLoader,
 			this.tlbModsCounter});
 			this.tssDownload.Location = new System.Drawing.Point(0, 497);
 			this.tssDownload.Name = "tssDownload";
@@ -305,8 +311,30 @@
 			// tlbModsCounter
 			// 
 			this.tlbModsCounter.Name = "tlbModsCounter";
-			this.tlbModsCounter.Text = "Total mods / Active mods ";
+			this.tlbModsCounter.Text = " | Total mods / Active mods ";
 			this.tlbModsCounter.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// tlbBottomBarFeedback
+			// 
+			this.tlbBottomBarFeedback.Name = "tlbBottomBarFeedback";
+			this.tlbBottomBarFeedback.Text = "";
+			this.tlbBottomBarFeedback.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			//
+			// tlbBottomBarFeedbackCounter
+			//
+			this.tlbBottomBarFeedbackCounter.Name = "BottomBarFeedbackCounter";
+			this.tlbBottomBarFeedbackCounter.Text = "";
+			this.tlbBottomBarFeedbackCounter.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// tsbLoader
+			// 
+			this.tsbLoader.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.tsbLoader.Image = global::Nexus.Client.Properties.Resources.round_loading;
+			this.tsbLoader.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.tsbLoader.Name = "tsbLoader";
+			this.tsbLoader.Size = new System.Drawing.Size(16, 16);
+			this.tsbLoader.Text = "Settings";
+			this.tsbLoader.Visible = false;
 			// 
 			// 
 			// MainForm
@@ -347,6 +375,9 @@
 		private System.Windows.Forms.ToolStripButton tsbOnlineStatus;
 		public System.Windows.Forms.ToolStripTextBox tstFind;
 		private System.Windows.Forms.ToolStripLabel tlbModsCounter;
+		private System.Windows.Forms.ToolStripLabel tlbBottomBarFeedback;
+		private System.Windows.Forms.ToolStripLabel tlbBottomBarFeedbackCounter;
+		private System.Windows.Forms.ToolStripButton tsbLoader;
 		private System.Windows.Forms.ToolStripStatusLabel tlbStatusFiller;
 	}
 }
