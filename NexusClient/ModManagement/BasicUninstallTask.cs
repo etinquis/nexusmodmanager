@@ -47,6 +47,7 @@ namespace Nexus.Client.ModManagement
 		protected IGameMode GameMode { get; private set; }
 
 		protected ReadOnlyObservableList<IMod> ActiveMods { get; set; }
+		private bool boo_CheckUninstallError = false;
 
 		#endregion
 
@@ -142,7 +143,18 @@ namespace Nexus.Client.ModManagement
 					Installers.FileInstaller.InstallErrors.Add(strDetails);
 					return false;
 				}
-				catch (NullReferenceException ex)
+				catch (Nexus.Client.ModManagement.Scripting.IllegalFilePathException)
+				{
+					string strDetails = Environment.NewLine +
+										"The mod has been deleted with success, but the manager was unable to remove one ore more files. " + Environment.NewLine +
+										"An IllegalFilePathException was thrown, a path is safe to be written to if it contains no charaters disallowed by the operating system and if it is in the Data directory or one of its sub-directories." + Environment.NewLine;
+					if (!boo_CheckUninstallError)
+					{
+						Installers.FileInstaller.InstallErrors.Add(strDetails);
+						boo_CheckUninstallError = true;
+					}
+				}
+               	catch (NullReferenceException ex)
 				{
 					string strDetails = ex.Message;
 					Installers.FileInstaller.InstallErrors.Add(strDetails);
