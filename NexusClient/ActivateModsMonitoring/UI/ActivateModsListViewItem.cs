@@ -15,7 +15,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		ActivateModsMonitorControl m_amcControl = null;
 		private bool m_booRemovable = false;
 		private string m_strModName = string.Empty;
-		
+				
 		#region Properties
 
 		/// <summary>
@@ -108,9 +108,10 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 				if (lviExisitingTask.Text == m_strModName)
 					lviExisitingTask.EnsureVisible();
 			}
-			
 
 			((IBackgroundTaskSet)sender).IsQueued = false;
+
+			m_amcControl.CallUpdateBottomBarFeedback(this);
 		}
 
 		private void TaskSet_TaskSetCompleted(object sender, TaskSetCompletedEventArgs e)
@@ -153,7 +154,8 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 				SubItems["Progress"].Text = "";
 			}
 
-			
+			m_amcControl.CallUpdateBottomBarFeedback(this);
+
 			m_booRemovable = true;
 		}
 

@@ -44,7 +44,7 @@ namespace Nexus.Client
         private double m_dblDefaultActivationMonitorAutoHidePortion = 0;
 		public string strOptionalPremiumMessage = string.Empty;
         private ActivateModsMonitorControl amcActivateModsMonitor = null;
-
+		
 		private ToolStripMenuItem tmiShowTips = null;
 
 		private System.Windows.Forms.TextBox caption;
@@ -144,6 +144,7 @@ namespace Nexus.Client
 			dmcDownloadMonitor.SetTextBoxFocus += new EventHandler(dmcDownloadMonitor_SetTextBoxFocus);
             amcActivateModsMonitor = new ActivateModsMonitorControl();
             amcActivateModsMonitor.EmptyQueue += new EventHandler(amcActivateModsMonitor_EmptyQueue);
+			amcActivateModsMonitor.UpdateBottomBarFeedback += new EventHandler(amcActivateModsMonitor_UpdateBottomBarFeedback);
 			p_vmlViewModel.ModManager.LoginTask.PropertyChanged += new PropertyChangedEventHandler(LoginTask_PropertyChanged);
 			tsbTips.DropDownItemClicked += new ToolStripItemClickedEventHandler(tsbTips_DropDownItemClicked);
 
@@ -615,12 +616,85 @@ namespace Nexus.Client
 		}
 
 		/// <summary>
+		/// Updates the Bottom Bar Feedback
+		/// </summary>
+		private void amcActivateModsMonitor_UpdateBottomBarFeedback(object sender, EventArgs e)
+		{
+			UpgradeBottomBarFeedbackCounter();
+			if (sender != null)
+			{
+				if (((ActivateModsListViewItem)sender).Task != null)
+				{
+					tsbLoader.Visible = true;
+
+					if (!((ActivateModsListViewItem)sender).Task.IsQueued)
+					{
+						if (((ActivateModsListViewItem)sender).Task.GetType() == typeof(ModInstaller))
+							tlbBottomBarFeedback.Text = "Mod Activation: Installing ";
+						else if (((ActivateModsListViewItem)sender).Task.GetType() == typeof(ModUninstaller))
+							tlbBottomBarFeedback.Text = "Mod Activation: Uninstalling ";
+						else if (((ActivateModsListViewItem)sender).Task.GetType() == typeof(ModUpgrader))
+							tlbBottomBarFeedback.Text = "Mod Activation: Upgrading ";
+						else
+							tlbBottomBarFeedback.Text = "";
+					}
+				}
+				else
+				{
+					tlbBottomBarFeedback.Text = "";
+					tsbLoader.Visible = false;
+				}
+
+				if (!amcActivateModsMonitor.IsInstalling)
+				{
+					tsbLoader.Visible = false;
+				}
+			}
+		}
+
+		/// <summary>
 		/// Set the focus to the Search Textbox.
 		/// </summary>
 		private void dmcDownloadMonitor_SetTextBoxFocus(object sender, EventArgs e)
 		{
 			if (mmgModManager.Visible)
 				tstFind.Focus();
+		}
+
+		/// <summary>
+		/// Updates the Bottom Bar Feedback Counter
+		/// </summary>
+		private void UpgradeBottomBarFeedbackCounter()
+		{
+			int intPartialTasks = 0;
+
+			foreach (IBackgroundTaskSet ibt in amcActivateModsMonitor.ViewModel.Tasks)
+			{
+				if (ibt.GetType() == typeof(ModInstaller))
+				{
+					if (((ModInstaller)ibt).IsCompleted)
+						intPartialTasks++;
+				}
+				else if (ibt.GetType() == typeof(ModUninstaller))
+				{
+					if (((ModUninstaller)ibt).IsCompleted)
+						intPartialTasks++;
+				}
+				else if (ibt.GetType() == typeof(ModUpgrader))
+				{
+					if (((ModUpgrader)ibt).IsCompleted)
+						intPartialTasks++;
+				}
+			}
+
+			if (amcActivateModsMonitor.ViewModel.Tasks.Count == 0)
+			{
+				tlbBottomBarFeedbackCounter.Text = "";
+				tlbBottomBarFeedback.Text = "";
+				tsbLoader.Visible = false;
+			}
+			else
+				tlbBottomBarFeedbackCounter.Text = "(" + intPartialTasks + "/" + amcActivateModsMonitor.ViewModel.Tasks.Count + ")";
 		}
 
 		/// <summary>

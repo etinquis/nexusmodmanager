@@ -27,7 +27,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		private string m_strTitleSomeActive = "Mod Activation Queue ({0}/{1})";
 		private bool m_booControlIsLoaded = false;
 		private IBackgroundTaskSet m_btsRunningTask = null;
-		private List<IBackgroundTaskSet> QueuedTasks = new List<IBackgroundTaskSet>();
+		public List<IBackgroundTaskSet> QueuedTasks = new List<IBackgroundTaskSet>();
         private bool booQueued = false;
 
 		
@@ -35,6 +35,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 
 		public event EventHandler EmptyQueue;
 		public event EventHandler SetTextBoxFocus;
+		public event EventHandler UpdateBottomBarFeedback;
 
 		#endregion
 
@@ -220,12 +221,15 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			
 			if (lstTask.Count > 0)
 				ViewModel.RemoveAllTasks(lstTask);
+
+			UpdateBottomBarFeedback(null, new EventArgs());
 		}
 
 		private void RemoveQueuedTasks()
 		{
 			ViewModel.RemoveQueuedTasks();
 			QueuedTasks.RemoveAll(x => x.IsQueued);
+			UpdateBottomBarFeedback(null, new EventArgs());
 		}
 		
 		private void RemoveSelectedTask()
@@ -237,6 +241,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 				m_btsRunningTask = QueuedTasks.First();
 				QueuedTasks.Remove(m_btsRunningTask);
 			}
+			UpdateBottomBarFeedback(null, new EventArgs());
 		}
 
 		/// <summary>
@@ -437,6 +442,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 
 			p_tskTask.TaskSetCompleted += new EventHandler<TaskSetCompletedEventArgs>(TaskSet_TaskSetCompleted);
 			ActivateModsListViewItem lviActivation = new ActivateModsListViewItem(p_tskTask, this);
+			UpdateBottomBarFeedback(lviActivation, new EventArgs());
 			lvwActiveTasks.Items.Add(lviActivation);
 
 			lviActivation.EnsureVisible();
@@ -678,5 +684,10 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		}
 
 		#endregion
+
+		public void CallUpdateBottomBarFeedback(ActivateModsListViewItem p_ActivateModList)
+		{
+			UpdateBottomBarFeedback(p_ActivateModList, new EventArgs());
+		}
 	}
 }
