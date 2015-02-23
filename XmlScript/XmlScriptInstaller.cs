@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
+using System.Xml.Linq;
 using Nexus.Client.Games;
 using Nexus.Client.Mods;
 using Nexus.Client.PluginManagement;
@@ -32,6 +34,9 @@ namespace Nexus.Client.ModManagement.Scripting.XmlScript
 		/// </summary>
 		/// <value>The installer group to use to install mod items.</value>
 		protected InstallerGroup Installers { get; private set; }
+
+		private XDocument m_docLog = new XDocument();
+		private XElement m_xelRoot = null;
 
 		#endregion
 
@@ -174,6 +179,7 @@ namespace Nexus.Client.ModManagement.Scripting.XmlScript
 				ItemProgressMaximum = 2;
 
 				Installers.FileInstaller.InstallFileFromMod(strSource, GameMode.GetModFormatAdjustedPath(Mod.Format, strDest), false);
+				SaveXMLInstalledFiles(strSource, GameMode.GetModFormatAdjustedPath(Mod.Format, strDest));
 
 				StepItemProgress();
 
@@ -216,6 +222,7 @@ namespace Nexus.Client.ModManagement.Scripting.XmlScript
 				strMODFile = lstModFiles[i];
 				string strNewFileName = strMODFile.Substring(strFrom.Length, strMODFile.Length - strFrom.Length);
 				Installers.FileInstaller.InstallFileFromMod(strMODFile, GameMode.GetModFormatAdjustedPath(Mod.Format, Path.Combine(strTo, strNewFileName)), false);
+				SaveXMLInstalledFiles(strMODFile, GameMode.GetModFormatAdjustedPath(Mod.Format, Path.Combine(strTo, strNewFileName)));
 
 				StepItemProgress();
 			}
@@ -223,5 +230,30 @@ namespace Nexus.Client.ModManagement.Scripting.XmlScript
 		}
 
 		#endregion
+
+		/// <summary>
+		/// Create the XML file with the Install Files list (From the rar to the folder).
+		/// </summary>
+		private void SaveXMLInstalledFiles(string p_strFrom, string p_strTo)
+		{
+			string strInstallFilesPath = Path.Combine(Path.Combine(GameMode.GameModeEnvironmentInfo.InstallInfoDirectory, "Scripted"), Path.GetFileNameWithoutExtension(Mod.Filename)) + ".xml";
+			if (!Directory.Exists(Path.Combine(GameMode.GameModeEnvironmentInfo.InstallInfoDirectory, "Scripted")))
+				Directory.CreateDirectory(Path.Combine(GameMode.GameModeEnvironmentInfo.InstallInfoDirectory, "Scripted"));
+
+			if (!File.Exists(strInstallFilesPath))
+			{
+				m_xelRoot = new XElement("FileList", new XAttribute("ModName", Mod.ModName), new XAttribute("ModVersion", Mod.HumanReadableVersion));
+				m_docLog.Add(m_xelRoot);
+				XElement xelFiles = new XElement("File", new XAttribute("FileFrom", p_strFrom), new XAttribute("FileTo", p_strTo));
+				m_xelRoot.Add(xelFiles);
+			}
+			else
+			{
+				XElement xelFiles = new XElement("File", new XAttribute("FileFrom", p_strFrom), new XAttribute("FileTo", p_strTo));
+				m_xelRoot.Add(xelFiles);
+			}
+						
+			m_docLog.Save(strInstallFilesPath);
+		}
 	}
 }
