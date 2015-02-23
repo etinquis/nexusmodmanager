@@ -439,6 +439,8 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			ActivateModsListViewItem lviActivation = new ActivateModsListViewItem(p_tskTask, this);
 			lvwActiveTasks.Items.Add(lviActivation);
 
+			lviActivation.EnsureVisible();
+
             if ((m_btsRunningTask == null) || (m_btsRunningTask.IsCompleted))
             {
                 m_btsRunningTask = p_tskTask;
