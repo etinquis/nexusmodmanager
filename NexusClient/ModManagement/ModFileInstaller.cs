@@ -190,7 +190,7 @@ namespace Nexus.Client.ModManagement
 				strMessage = String.Format("Data file '{{0}}' has already been installed by '{0}'", modOld.ModName);
 				if (booFIDataPath)
 					strMessage += " and is ReadOnly.";
-				strMessage += Environment.NewLine + "Overwrite with this mod's file?";
+				strMessage += Environment.NewLine + String.Format("Overwrite with {0} mod's file?", Mod.ModName);
 			}
 			else
 			{
@@ -199,7 +199,7 @@ namespace Nexus.Client.ModManagement
 					strMessage += " and is ReadOnly.";
 				else
 					strMessage += ".";
-				strMessage += Environment.NewLine + "Overwrite with this mod's file?";
+				strMessage += Environment.NewLine + String.Format("Overwrite with {0} mod's file?", Mod.ModName);
 			}
 			if (booFIDataPath)
 			{
