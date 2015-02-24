@@ -75,38 +75,45 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		}
 
 		private void TaskSet_TaskSetStarted(object sender, EventArgs<IBackgroundTask> e)
-		{
-			e.Argument.PropertyChanged += new PropertyChangedEventHandler(Task_PropertyChanged);
-			
+		{			
 			if ((ListView != null) && ListView.InvokeRequired)
 			{
-				ListView.Invoke((Action<IBackgroundTaskSet,  EventArgs<IBackgroundTask>>)TaskSet_TaskSetStarted, sender, e);
+				ListView.Invoke((Action<IBackgroundTaskSet, EventArgs<IBackgroundTask>>)TaskSet_TaskSetStarted, sender, e);
 				return;
 			}
 
+			e.Argument.PropertyChanged += new PropertyChangedEventHandler(Task_PropertyChanged);
+
 			m_booRemovable = false;
 			SubItems["Status"].Text = "Running";
-			if (((IBackgroundTaskSet)sender).GetType() == typeof(ModInstaller))
+
+			if (sender != null)
 			{
-				SubItems["Operation"].Text = "Install";
-				m_strModName = (((ModInstaller)sender).ModName);
-			}
-			else if (((IBackgroundTaskSet)sender).GetType() == typeof(ModUninstaller))
-			{
-				SubItems["Operation"].Text = "Uninstall";
-				m_strModName = (((ModUninstaller)sender).ModName);
-			}
-			else if (((IBackgroundTaskSet)sender).GetType() == typeof(ModUpgrader))
-			{
-				SubItems["Operation"].Text = "Upgrading";
-				m_strModName = (((ModUpgrader)sender).ModName);
+				if (((IBackgroundTaskSet)sender).GetType() == typeof(ModInstaller))
+				{
+					SubItems["Operation"].Text = "Install";
+					m_strModName = (((ModInstaller)sender).ModName);
+				}
+				else if (((IBackgroundTaskSet)sender).GetType() == typeof(ModUninstaller))
+				{
+					SubItems["Operation"].Text = "Uninstall";
+					m_strModName = (((ModUninstaller)sender).ModName);
+				}
+				else if (((IBackgroundTaskSet)sender).GetType() == typeof(ModUpgrader))
+				{
+					SubItems["Operation"].Text = "Upgrading";
+					m_strModName = (((ModUpgrader)sender).ModName);
+				}
 			}
 
-			ListView.Focus();
-			foreach (ActivateModsListViewItem lviExisitingTask in ListView.Items)
+			if ((ListView != null) && (ListView.Items != null))
 			{
-				if (lviExisitingTask.Text == m_strModName)
-					lviExisitingTask.EnsureVisible();
+				ListView.Focus();
+				foreach (ActivateModsListViewItem lviExisitingTask in ListView.Items)
+				{
+					if ((lviExisitingTask != null) && (lviExisitingTask.Text == m_strModName))
+						lviExisitingTask.EnsureVisible();
+				}
 			}
 
 			((IBackgroundTaskSet)sender).IsQueued = false;
