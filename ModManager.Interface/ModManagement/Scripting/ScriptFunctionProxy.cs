@@ -198,12 +198,12 @@ namespace Nexus.Client.ModManagement.Scripting
 			{
 				new SecurityPermission(SecurityPermissionFlag.UnmanagedCode).Assert();
 				booSuccess = Installers.FileInstaller.InstallFileFromMod(p_strFrom, strFixedTo, false);
+				SaveXMLInstalledFiles(p_strFrom, p_strTo);
 			}
 			finally
 			{
 				PermissionSet.RevertAssert();
 			}
-			SaveXMLInstalledFiles(p_strFrom, p_strTo);
 			return booSuccess;
 		}
 
@@ -212,24 +212,30 @@ namespace Nexus.Client.ModManagement.Scripting
 		/// </summary>
 		private void SaveXMLInstalledFiles(string p_strFrom, string p_strTo)
 		{
+			if (m_docLog == null)
+				m_docLog = new XDocument();
+
 			string strInstallFilesPath = Path.Combine(Path.Combine(GameMode.GameModeEnvironmentInfo.InstallInfoDirectory, "Scripted"), Path.GetFileNameWithoutExtension(Mod.Filename)) + ".xml";
 			if (!Directory.Exists(Path.Combine(GameMode.GameModeEnvironmentInfo.InstallInfoDirectory, "Scripted")))
 				Directory.CreateDirectory(Path.Combine(GameMode.GameModeEnvironmentInfo.InstallInfoDirectory, "Scripted"));
 
-			if (!File.Exists(strInstallFilesPath))
+			if (Directory.Exists(Path.Combine(GameMode.GameModeEnvironmentInfo.InstallInfoDirectory, "Scripted")))
 			{
-				m_xelRoot = new XElement("FileList", new XAttribute("ModName", Mod.ModName), new XAttribute("ModVersion", Mod.HumanReadableVersion));
-				m_docLog.Add(m_xelRoot);
-				XElement xelFiles = new XElement("File", new XAttribute("FileFrom", p_strFrom), new XAttribute("FileTo", p_strTo));
-				m_xelRoot.Add(xelFiles);
+				if (!File.Exists(strInstallFilesPath))
+				{
+					m_xelRoot = new XElement("FileList", new XAttribute("ModName", Mod.ModName ?? String.Empty), new XAttribute("ModVersion", Mod.HumanReadableVersion ?? String.Empty));
+					m_docLog.Add(m_xelRoot);
+					XElement xelFiles = new XElement("File", new XAttribute("FileFrom", p_strFrom ?? String.Empty), new XAttribute("FileTo", p_strTo ?? String.Empty));
+					m_xelRoot.Add(xelFiles);
+				}
+				else
+				{
+					XElement xelFiles = new XElement("File", new XAttribute("FileFrom", p_strFrom ?? String.Empty), new XAttribute("FileTo", p_strTo ?? String.Empty));
+					m_xelRoot.Add(xelFiles);
+				}
+
+				m_docLog.Save(strInstallFilesPath);
 			}
-			else
-			{
-				XElement xelFiles = new XElement("File", new XAttribute("FileFrom", p_strFrom), new XAttribute("FileTo", p_strTo));
-				m_xelRoot.Add(xelFiles);
-			}
-					
-			m_docLog.Save(strInstallFilesPath);
 		}
 
 		/// <summary>
