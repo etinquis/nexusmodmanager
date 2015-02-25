@@ -711,7 +711,7 @@ namespace Nexus.Client.ModManagement
 		{
 			string strInstallFilesPath = Path.Combine(Path.Combine(GameMode.GameModeEnvironmentInfo.InstallInfoDirectory, "Scripted"), Path.GetFileNameWithoutExtension(p_modMod.Filename)) + ".xml";
 			if (File.Exists(strInstallFilesPath))
-				File.Delete(strInstallFilesPath);
+				FileUtil.ForceDelete(strInstallFilesPath);
 		}
 	}
 }
