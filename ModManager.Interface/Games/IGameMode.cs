@@ -237,6 +237,13 @@ namespace Nexus.Client.Games
 		void ModFileMerge(ReadOnlyObservableList<IMod> p_rolActiveMods, IMod p_modMod, bool p_booRemove);
 
 		/// <summary>
+		/// Automatically sorts the given plugin list.
+		/// </summary>
+		/// <returns>The sorted list.</returns>
+		/// <param name="p_lstPlugins">The plugin list to sort.</param>
+		string[] SortPlugins(IList<Plugin> p_lstPlugins);
+
+		/// <summary>
 		/// Checks whether to use the secondary mod install method.
 		/// </summary>
 		/// <returns>Whether to use the secondary mod install method.</returns>

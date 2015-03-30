@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Nexus.Client.BackgroundTasks;
 using Nexus.Client.Games;
 using Nexus.Client.PluginManagement.InstallationLog;
 using Nexus.Client.PluginManagement.OrderLog;
 using Nexus.Client.Plugins;
+using Nexus.Client.UI;
 using Nexus.Client.Util.Collections;
 
 namespace Nexus.Client.PluginManagement
@@ -202,6 +204,18 @@ namespace Nexus.Client.PluginManagement
 		}
 
 		/// <summary>
+		/// Automatically sorts the managed plugins.
+		/// </summary>
+		/// <param name="p_camConfirm">The delegate to call to confirm an action.</param>
+		/// <returns>The background task that will run the sorting.</returns>
+		public IBackgroundTask AutoPluginSorting(ConfirmActionMethod p_camConfirm)
+		{
+			AutoPluginSortingTask pstPluginSortingTask = new AutoPluginSortingTask(GameMode, ManagedPlugins, p_camConfirm);
+			pstPluginSortingTask.Update(p_camConfirm);
+			return pstPluginSortingTask;
+		}
+
+		/// <summary>
 		/// Determines if the specified plugin is registered.
 		/// </summary>
 		/// <param name="p_strPath">The path to the plugin whose registration status is to be determined.</param>
@@ -211,7 +225,7 @@ namespace Nexus.Client.PluginManagement
 		{
 			return GetRegisteredPlugin(p_strPath) != null;
 		}
-
+		
 		/// <summary>
 		/// Gets the specified plugin.
 		/// </summary>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text;
-using Nexus.Client.Games.Gamebryo.PluginManagement.Boss;
+using Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder;
 using Nexus.Client.Games.Gamebryo.Plugins;
 using Nexus.Client.Games.Gamebryo.Tools.TESsnip;
 using Nexus.Client.PluginManagement;
@@ -21,10 +21,10 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement
 		#region Properties
 
 		/// <summary>
-		/// Gets the BOSS plugin sorter.
+		/// Gets the LoadOrder plugin manager.
 		/// </summary>
-		/// <value>The BOSS plugin sorter.</value>
-		protected IBossSorter BossSorter { get; private set; }
+		/// <value>The LoadOrder plugin manager.</value>
+		protected ILoadOrderManager LoadOrderManager { get; private set; }
 
 		#endregion
 
@@ -34,11 +34,11 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement
 		/// A simple constructor that initializes the object with the given values.
 		/// </summary>
 		/// <param name="p_strPluginDirectory">The directory where the plugins are installed.</param>
-		/// <param name="p_bstBoss">The BOSS instance to use to set plugin order.</param>
-		public GamebryoPluginFactory(string p_strPluginDirectory, IBossSorter p_bstBoss)
+		/// <param name="p_bstLoadOrder">The LoadOrder instance to use to set the plugin order.</param>
+		public GamebryoPluginFactory(string p_strPluginDirectory, ILoadOrderManager p_bstLoadOrder)
 		{
 			m_strPluginDirectory = p_strPluginDirectory;
-			BossSorter = p_bstBoss;
+			LoadOrderManager = p_bstLoadOrder;
 		}
 
 		#endregion
@@ -130,7 +130,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement
 			}
 
 
-            Plugin pifInfo = new GamebryoPlugin(p_strPluginPath, stbDescription.ToString(), imgPicture, BossSorter.IsMaster(p_strPluginPath));
+			Plugin pifInfo = new GamebryoPlugin(p_strPluginPath, stbDescription.ToString(), imgPicture, LoadOrderManager.IsMaster(p_strPluginPath));
 			
 			return pifInfo;
 		}

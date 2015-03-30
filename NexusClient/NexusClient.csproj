@@ -143,6 +143,7 @@
     </Compile>
     <Compile Include="Mods\NexusMod.cs" />
     <Compile Include="Mods\NexusModCacheManager.cs" />
+    <Compile Include="PluginManagement\AutoPluginSortingTask.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="ActivateModsMonitoring\UI\ActivateModsMonitorControl.resx" />

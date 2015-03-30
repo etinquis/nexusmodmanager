@@ -719,6 +719,16 @@ namespace Nexus.Client.Games
 		}
 
 		/// <summary>
+		/// Automatically sorts the given plugin list.
+		/// </summary>
+		/// <returns>The sorted list.</returns>
+		/// <param name="p_lstPlugins">The plugin list to sort.</param>
+		public virtual string[] SortPlugins(IList<Plugin> p_lstPlugins)
+		{
+			return null;
+		}
+
+		/// <summary>
 		/// Checks whether the system needs to uninstal secondary parameters.
 		/// </summary>
 		/// <returns>Whether the system needs to uninstal secondary parameters.</returns>
