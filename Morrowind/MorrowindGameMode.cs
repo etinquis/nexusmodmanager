@@ -1,7 +1,15 @@
 ﻿using System.IO;
+using System.Collections.Generic;
+using System;
 using Nexus.Client.Games.Gamebryo;
 using Nexus.Client.Games.Morrowind.Tools;
 using Nexus.Client.Games.Tools;
+using Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder;
+using Nexus.Client.Games.Morrowind.PluginManagement.Boss;
+using Nexus.Client.Games.Gamebryo.PluginManagement.InstallationLog;
+using Nexus.Client.Games.Gamebryo.PluginManagement.OrderLog;
+using Nexus.Client.PluginManagement.InstallationLog;
+using Nexus.Client.PluginManagement.OrderLog;
 using Nexus.Client.Mods;
 using Nexus.Client.Util;
 
@@ -17,6 +25,7 @@ namespace Nexus.Client.Games.Morrowind
         private MorrowindGameModeDescriptor m_gmdGameModeInfo = null;
         private MorrowindLauncher m_glnGameLauncher = null;
         private MorrowindToolLauncher m_gtlToolLauncher = null;
+		private GamebryoPluginOrderLogSerializer m_posPluginOrderSerializer = null;
 
         #region Properties
                
@@ -110,6 +119,19 @@ namespace Nexus.Client.Games.Morrowind
         {
             return new GamebryoSettingsFiles();
         }
+
+		/// <summary>
+		/// Gets the serializer that serializes and deserializes the plugin order
+		/// for this game mode.
+		/// </summary>
+		/// <returns>The serailizer that serializes and deserializes the plugin order
+		/// for this game mode.</returns>
+		public override IPluginOrderLogSerializer GetPluginOrderLogSerializer()
+		{
+			if (m_posPluginOrderSerializer == null)
+				m_posPluginOrderSerializer = new GamebryoPluginOrderLogSerializer(LoadOrderManager, null);
+			return m_posPluginOrderSerializer;
+		}
 
         /// <summary>
         /// Adds the settings files to the game mode's list.

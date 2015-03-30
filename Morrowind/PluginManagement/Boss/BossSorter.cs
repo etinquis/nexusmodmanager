@@ -5,8 +5,9 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Nexus.Client.Util;
+using Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder;
 
-namespace Nexus.Client.Games.Gamebryo.PluginManagement.Boss
+namespace Nexus.Client.Games.Morrowind.PluginManagement.Boss
 {
 	/// <summary>
 	/// The interface for BOSS functionality.
@@ -14,7 +15,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Boss
 	/// <remarks>
 	/// This use BAPI to expose BOSS's pluing sorting and activation abilities.
 	/// </remarks>
-	public class BossSorter : IBossSorter, IDisposable
+	public class BossSorter : ILoadOrderManager, IDisposable
 	{
 		#region Native Methods
 
@@ -334,7 +335,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Boss
 		/// Gets the current game mode.
 		/// </summary>
 		/// <value>The current game mode.</value>
-		protected GamebryoGameModeBase GameMode { get; private set; }
+		protected MorrowindGameMode GameMode { get; private set; }
 
 		/// <summary>
 		/// Gets the path to the masterlist.
@@ -365,7 +366,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Boss
 		/// <param name="p_gmdGameMode">The game mode for which plugins are being managed.</param>
 		/// <param name="p_futFileUtility">The file utility class.</param>
 		/// <param name="p_strMasterlistPath">The path to the masterlist file to use.</param>
-		public BossSorter(IEnvironmentInfo p_eifEnvironmentInfo, GamebryoGameModeBase p_gmdGameMode, FileUtil p_futFileUtility, string p_strMasterlistPath)
+		public BossSorter(IEnvironmentInfo p_eifEnvironmentInfo, MorrowindGameMode p_gmdGameMode, FileUtil p_futFileUtility, string p_strMasterlistPath)
 		{
 			EnvironmentInfo = p_eifEnvironmentInfo;
 			GameMode = p_gmdGameMode;

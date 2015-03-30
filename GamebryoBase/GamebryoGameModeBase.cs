@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using ChinhDo.Transactions;
 using Nexus.Client.Games.Gamebryo.ModManagement;
 using Nexus.Client.Games.Gamebryo.PluginManagement;
-using Nexus.Client.Games.Gamebryo.PluginManagement.Boss;
+using Nexus.Client.Games.Gamebryo.PluginManagement.Sorter;
+using Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder;
 using Nexus.Client.Games.Gamebryo.PluginManagement.InstallationLog;
 using Nexus.Client.Games.Gamebryo.PluginManagement.OrderLog;
 using Nexus.Client.Games.Gamebryo.Settings;
@@ -16,9 +18,11 @@ using Nexus.Client.Mods;
 using Nexus.Client.PluginManagement;
 using Nexus.Client.PluginManagement.InstallationLog;
 using Nexus.Client.PluginManagement.OrderLog;
+using Nexus.Client.Plugins;
 using Nexus.Client.Settings.UI;
 using Nexus.Client.Updating;
 using Nexus.Client.Util;
+
 
 namespace Nexus.Client.Games.Gamebryo
 {
@@ -149,10 +153,16 @@ namespace Nexus.Client.Games.Gamebryo
 		public GamebryoSettingsFiles SettingsFiles { get; private set; }
 
 		/// <summary>
-		/// Gets the BOSS plugin sorter.
+		/// Gets the plugin sorter.
 		/// </summary>
-		/// <value>The BOSS plugin sorter.</value>
-		protected BossSorter BossSorter { get; private set; }
+		/// <value>The plugin sorter.</value>
+		protected PluginSorter PluginSorter { get; private set; }
+
+		/// <summary>
+		/// Gets the LoadOrder plugin manager.
+		/// </summary>
+		/// <value>The LoadOrder plugin manager.</value>
+		protected LoadOrderManager LoadOrderManager { get; private set; }
 
 		#endregion
 
@@ -171,10 +181,28 @@ namespace Nexus.Client.Games.Gamebryo
 			SettingsGroupViews = new List<ISettingsGroupView>();
 			GeneralSettingsGroup gsgGeneralSettings = new GeneralSettingsGroup(p_eifEnvironmentInfo, this);
 			((List<ISettingsGroupView>)SettingsGroupViews).Add(new GeneralSettingsPage(gsgGeneralSettings));
-
+			
+			
 			string strPath = p_eifEnvironmentInfo.ApplicationPersonalDataFolderPath;
-			strPath = Path.Combine(Path.Combine(strPath, "boss"), "masterlist.txt");
-			BossSorter = new BossSorter(p_eifEnvironmentInfo, this, p_futFileUtility, strPath);
+			strPath = Path.Combine(Path.Combine(Path.Combine(strPath, "loot"), ModeId), "masterlist.yaml");
+			if(!File.Exists(strPath))
+			{
+				if (!Directory.Exists(strPath))
+					Directory.CreateDirectory(Path.GetDirectoryName(strPath));
+
+				using (Stream masterlist = new MemoryStream(Properties.Resources.masterlist))
+				{
+					using (ZipArchive archive = new ZipArchive(masterlist, ZipArchiveMode.Read))
+					{
+						archive.GetEntry(String.Format("{0}.yaml", ModeId.ToLower())).ExtractToFile(strPath);
+					}
+				}
+			}
+			
+			
+			PluginSorter = new PluginSorter(p_eifEnvironmentInfo, this, p_futFileUtility, strPath);
+
+			LoadOrderManager = new LoadOrderManager(p_eifEnvironmentInfo, this, p_futFileUtility, strPath);
 		}
 
 		#endregion
@@ -214,7 +242,7 @@ namespace Nexus.Client.Games.Gamebryo
 		public override IPluginFactory GetPluginFactory()
 		{
 			if (m_pgfPluginFactory == null)
-				m_pgfPluginFactory = new GamebryoPluginFactory(PluginDirectory, BossSorter);
+				m_pgfPluginFactory = new GamebryoPluginFactory(PluginDirectory, LoadOrderManager);
 			return m_pgfPluginFactory;
 		}
 
@@ -228,7 +256,7 @@ namespace Nexus.Client.Games.Gamebryo
 		public override IActivePluginLogSerializer GetActivePluginLogSerializer(IPluginOrderLog p_polPluginOrderLog)
 		{
 			if (m_apsActivePluginLogSerializer == null)
-				m_apsActivePluginLogSerializer = new GamebryoActivePluginLogSerializer(this, p_polPluginOrderLog, BossSorter);
+				m_apsActivePluginLogSerializer = new GamebryoActivePluginLogSerializer(this, p_polPluginOrderLog, LoadOrderManager);
 			return m_apsActivePluginLogSerializer;
 		}
 
@@ -252,7 +280,7 @@ namespace Nexus.Client.Games.Gamebryo
 		public override IPluginOrderLogSerializer GetPluginOrderLogSerializer()
 		{
 			if (m_posPluginOrderSerializer == null)
-				m_posPluginOrderSerializer = new GamebryoPluginOrderLogSerializer(BossSorter);
+				m_posPluginOrderSerializer = new GamebryoPluginOrderLogSerializer(LoadOrderManager, PluginSorter);
 			return m_posPluginOrderSerializer;
 		}
 
@@ -309,8 +337,8 @@ namespace Nexus.Client.Games.Gamebryo
 		/// <returns>The updaters used by the game mode.</returns>
 		public override IEnumerable<IUpdater> GetUpdaters()
 		{
-			BossUpdater bupUpdater = new BossUpdater(EnvironmentInfo, BossSorter);
-			yield return bupUpdater;
+			PluginSorterUpdater pupUpdater = new PluginSorterUpdater(EnvironmentInfo, PluginSorter);
+			yield return pupUpdater;
 		}
 
 		/// <summary>
@@ -334,13 +362,29 @@ namespace Nexus.Client.Games.Gamebryo
 		}
 
 		/// <summary>
+		/// Sorts the plugins.
+		/// </summary>
+		/// <param name="p_lstPlugins">The list of plugin to order.</param>
+		public override string[] SortPlugins(IList<Plugin> p_lstPlugins)
+		{
+			string strPath = EnvironmentInfo.ApplicationPersonalDataFolderPath;
+			strPath = Path.Combine(Path.Combine(Path.Combine(strPath, "loot"), ModeId), "masterlist.yaml");
+			if (File.Exists(strPath))
+			{
+				return m_posPluginOrderSerializer.SortPlugins(p_lstPlugins);
+			}
+
+			return null;
+		}
+
+		/// <summary>
 		/// Disposes of the unamanged resources.
 		/// </summary>
 		/// <param name="p_booDisposing">Whether the method is being called from the <see cref="IDisposable.Dispose()"/> method.</param>
 		protected override void Dispose(bool p_booDisposing)
 		{
-			if (BossSorter != null)
-				BossSorter.Dispose();
+			if (LoadOrderManager != null)
+				LoadOrderManager.Dispose();
 		}
 	}
 }

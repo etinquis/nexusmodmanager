@@ -1,14 +1,14 @@
 ﻿using System;
 
-namespace Nexus.Client.Games.Gamebryo.PluginManagement.Boss
+namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 {
 	/// <summary>
-	/// The interface for BOSS functionality.
+	/// The interface for LOADORDER functionality.
 	/// </summary>
 	/// <remarks>
-	/// This use BAPI to expose BOSS's pluing sorting and activation abilities.
+	/// This use LOAPI to expose LOADORDER's pluing sorting and activation abilities.
 	/// </remarks>
-	public interface IBossSorter
+	public interface ILoadOrderManager
 	{
 		#region Properties
 

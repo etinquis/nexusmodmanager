@@ -12,6 +12,8 @@ using Nexus.Client.Games;
 using Nexus.Client.Plugins;
 using Nexus.Client.UI;
 using Nexus.Client.Util;
+using Nexus.Client.BackgroundTasks;
+using Nexus.Client.BackgroundTasks.UI;
 using Nexus.UI.Controls;
 
 namespace Nexus.Client.PluginManagement.UI
@@ -58,7 +60,8 @@ namespace Nexus.Client.PluginManagement.UI
 				m_vmlViewModel.ImportFailed += new EventHandler<ImportFailedEventArgs>(ViewModel_ImportFailed);
 				m_vmlViewModel.ImportPartiallySucceeded += new EventHandler<ImportSucceededEventArgs>(ViewModel_ImportPartiallySucceeded);
 				m_vmlViewModel.ImportSucceeded += new EventHandler<ImportSucceededEventArgs>(ViewModel_ImportSucceeded);
-
+				m_vmlViewModel.SortingPlugins += new EventHandler<EventArgs<IBackgroundTask>>(ViewModel_SortingPlugins);
+				
 				new ToolStripItemCommandBinding<IEnumerable<Plugin>>(tsbMoveUp, m_vmlViewModel.MoveUpCommand, GetSelectedPlugins);
 				new ToolStripItemCommandBinding<IList<Plugin>>(tsbMoveDown, m_vmlViewModel.MoveDownCommand, GetSelectedPlugins);
 				Command cmdDisableAll = new Command("Disable All Plugins", "Disable all the active plugins.", DisableAllPlugins);
@@ -455,6 +458,24 @@ namespace Nexus.Client.PluginManagement.UI
 		}
 
 		/// <summary>
+		/// Handles the <see cref="PluginManagerVM.SortingPlugins"/> event of the view model.
+		/// </summary>
+		/// <remarks>
+		/// This displays the progress dialog.
+		/// </remarks>
+		/// <param name="sender">The object that raised the event.</param>
+		/// <param name="e">An <see cref="EventArgs{IBackgroundTask}"/> describing the event arguments.</param>
+		private void ViewModel_SortingPlugins(object sender, EventArgs<IBackgroundTask> e)
+		{
+			if (InvokeRequired)
+			{
+				Invoke((Action<object, EventArgs<IBackgroundTask>>)ViewModel_SortingPlugins, sender, e);
+				return;
+			}
+			ProgressDialog.ShowDialog(this, e.Argument);
+		}
+
+		/// <summary>
 		/// Handles the <see cref="INotifyCollectionChanged.CollectionChanged"/> event of the view model's
 		/// active plugin list.
 		/// </summary>
@@ -752,7 +773,7 @@ namespace Nexus.Client.PluginManagement.UI
 		}
 
 		#endregion
-
+		
 		#region Import
 
 		/// <summary>

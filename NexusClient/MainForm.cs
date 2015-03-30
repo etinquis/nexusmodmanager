@@ -463,6 +463,14 @@ namespace Nexus.Client
 		}
 
 		/// <summary>
+		/// Automatically sorts the plugin list.
+		/// </summary>
+		protected void SortPlugins()
+		{
+			ViewModel.SortPlugins();	
+		}
+
+		/// <summary>
 		/// Uninstall all active mods.
 		/// </summary>
 		protected void UninstallAllMods()
@@ -1064,6 +1072,13 @@ namespace Nexus.Client
 			tmiResetTool.ImageScaling = ToolStripItemImageScaling.None;
 			new ToolStripItemCommandBinding(tmiLoadBackupTool, cmdLoadBackup);
 			spbTools.DropDownItems.Add(tmiLoadBackupTool);
+
+			Command cmdSortPlugins = new Command("Automatic Plugin Sorting", "Automatically sorts the plugin list.", SortPlugins);
+			ToolStripMenuItem tmicmdSortPluginsTool = new ToolStripMenuItem();
+			tmicmdSortPluginsTool.ImageScaling = ToolStripItemImageScaling.None;
+			new ToolStripItemCommandBinding(tmicmdSortPluginsTool, cmdSortPlugins);
+			spbTools.DropDownItems.Add(tmicmdSortPluginsTool);
+
 
 			IEnumerable<string> enuVersions = bmBalloon.GetVersionList();
 			if (enuVersions != null)
