@@ -84,6 +84,12 @@ namespace Nexus.Client.Games
 		bool UsesPlugins { get; }
 
 		/// <summary>
+		/// Gets whether the game mode supports the automatic sorting
+		/// functionality for plugins.
+		/// </summary>
+		bool SupportsPluginAutoSorting { get; }
+
+		/// <summary>
 		/// Gets the default game categories.
 		/// </summary>
 		/// <value>The default game categories stored in the resource file.</value>
@@ -160,6 +166,13 @@ namespace Nexus.Client.Games
 		/// <c>false</c> otherwise.</returns>
 		bool IsCriticalPlugin(Plugin p_plgPlugin);
 
+		/// <summary>
+		/// Automatically sorts the given plugin list.
+		/// </summary>
+		/// <returns>The sorted list.</returns>
+		/// <param name="p_lstPlugins">The plugin list to sort.</param>
+		string[] SortPlugins(IList<Plugin> p_lstPlugins);
+
 		#endregion
 
 		#region Game Specific Value Management
@@ -235,13 +248,6 @@ namespace Nexus.Client.Games
 		/// <param name="p_modMod">The current mod.</param>
 		/// <param name="p_booRemove">Whether we're adding or removing the mod.</param>
 		void ModFileMerge(ReadOnlyObservableList<IMod> p_rolActiveMods, IMod p_modMod, bool p_booRemove);
-
-		/// <summary>
-		/// Automatically sorts the given plugin list.
-		/// </summary>
-		/// <returns>The sorted list.</returns>
-		/// <param name="p_lstPlugins">The plugin list to sort.</param>
-		string[] SortPlugins(IList<Plugin> p_lstPlugins);
 
 		/// <summary>
 		/// Checks whether to use the secondary mod install method.

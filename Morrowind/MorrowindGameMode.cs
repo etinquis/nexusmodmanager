@@ -10,6 +10,7 @@ using Nexus.Client.Games.Gamebryo.PluginManagement.InstallationLog;
 using Nexus.Client.Games.Gamebryo.PluginManagement.OrderLog;
 using Nexus.Client.PluginManagement.InstallationLog;
 using Nexus.Client.PluginManagement.OrderLog;
+using Nexus.Client.Plugins;
 using Nexus.Client.Mods;
 using Nexus.Client.Util;
 
@@ -93,6 +94,18 @@ namespace Nexus.Client.Games.Morrowind
 			}
 		}
 
+		/// <summary>
+		/// Gets whether the game mode supports the automatic sorting
+		/// functionality for plugins.
+		/// </summary>
+		public override bool SupportsPluginAutoSorting
+		{
+			get
+			{
+				return false;
+			}
+		}
+
         #endregion
 
         #region Constructors
@@ -163,6 +176,16 @@ namespace Nexus.Client.Games.Morrowind
                 return Path.Combine("Data Files", p_strPath ?? "");
             return p_strPath;
         }
+
+
+		/// <summary>
+		/// Sorts the plugins.
+		/// </summary>
+		/// <param name="p_lstPlugins">The list of plugin to order.</param>
+		public override string[] SortPlugins(IList<Plugin> p_lstPlugins)
+		{
+			return null;
+		}
 
         /// <summary>
         /// Creates a game mode descriptor for the current game mode.

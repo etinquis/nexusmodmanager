@@ -192,9 +192,6 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 
 			if (!String.IsNullOrEmpty(MasterlistPath) && File.Exists(MasterlistPath))
 				Load(MasterlistPath, UserlistPath);
-
-			//notimplemented
-			//if (!String.IsNullOrEmpty(UserlistPath) && File.Exists(UserlistPath))		
 		}
 
 		/// <summary>

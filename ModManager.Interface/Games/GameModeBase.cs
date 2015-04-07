@@ -469,6 +469,18 @@ namespace Nexus.Client.Games
 		public abstract bool UsesPlugins { get; }
 
 		/// <summary>
+		/// Gets whether the game mode supports the automatic sorting
+		/// functionality for plugins.
+		/// </summary>
+		public virtual bool SupportsPluginAutoSorting 
+		{ 
+			get
+			{
+				return false;
+			} 
+		}
+
+		/// <summary>
 		/// Gets the directory where the game plugins are installed.
 		/// </summary>
 		/// <value>The directory where the game plugins are installed.</value>

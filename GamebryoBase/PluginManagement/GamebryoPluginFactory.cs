@@ -76,50 +76,55 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement
 			byte[] pic = null;
 			List<string> masters = new List<string>();
 
-            foreach (SubRecord sr in ((Record)tpgPlugin.Records[0]).SubRecords)
-            {
-                switch (sr.Name)
-                {
-                    case "CNAM":
-                        name = sr.GetStrData();
-                        break;
-                    case "SNAM":
-                        desc = sr.GetStrData();
-                        break;
-                    case "MAST":
-                        masters.Add(sr.GetStrData());
-                        break;
-                    case "SCRN":
-                        pic = sr.GetData();
-                        break;
-                }
-            }
-            if (tpgPlugin.Records[0].Name == "TES4" && ((Path.GetExtension(p_strPluginPath).CompareTo(".esp") == 0) != ((((Record)tpgPlugin.Records[0]).Flags1 & 1) == 0)))
-            {
-                if ((((Record)tpgPlugin.Records[0]).Flags1 & 1) == 0)
-                    stbDescription.Append(@"<span style='color:#ff1100;'><b>WARNING: This plugin has the file extension .esm, but its file header marks it as an esp!</b></span><br/><br/>");
-                else
-                    stbDescription.Append(@"<span style='color:#ff1100;'><b>WARNING: This plugin has the file extension .esp, but its file header marks it as an esm!</b></span><br/><br/>");
-            }
-            stbDescription.AppendFormat(@"<b><u>{0}</u></b><br/>", strPluginName);
-            if ((name != null) && (name != string.Empty))
-                stbDescription.AppendFormat(@"<b>Author:</b> {0}<br/>", name);
-            if ((desc != null) && (desc != string.Empty))
-            {
-                desc = desc.Replace("\r\n", "\n").Replace("\n\r", "\n").Replace("\n", "<br/>");
-                stbDescription.AppendFormat(@"<b>Description:</b><br/>{0}<br/>", desc);
-            }
-            if (masters.Count > 0)
-            {
-                stbDescription.Append(@"<b>Masters:</b><ul>");
-                for (int i = 0; i < masters.Count; i++)
-                {
-                    stbDescription.AppendFormat("<li>{0}</li>", masters[i]);
-                }
-                stbDescription.Append(@"</ul>");
-            }
+			foreach (SubRecord sr in ((Record)tpgPlugin.Records[0]).SubRecords)
+			{
+				switch (sr.Name)
+				{
+					case "CNAM":
+						name = sr.GetStrData();
+						break;
+					case "SNAM":
+						desc = sr.GetStrData();
+						break;
+					case "MAST":
+						masters.Add(sr.GetStrData());
+						break;
+					case "SCRN":
+						pic = sr.GetData();
+						break;
+				}
+			}
 
-            Image imgPicture = null;
+			uint intIsMaster = 0;
+			if (tpgPlugin.Records[0].Name == "TES4")
+				intIsMaster = ((Record)tpgPlugin.Records[0]).Flags1 & 1;
+			
+			if (tpgPlugin.Records[0].Name == "TES4" && ((Path.GetExtension(p_strPluginPath).CompareTo(".esp") == 0) != (intIsMaster == 0)))
+			{
+				if ((((Record)tpgPlugin.Records[0]).Flags1 & 1) == 0)
+					stbDescription.Append(@"<span style='color:#ff1100;'><b>WARNING: This plugin has the file extension .esm, but its file header marks it as an esp!</b></span><br/><br/>");
+				else
+					stbDescription.Append(@"<span style='color:#ff1100;'><b>WARNING: This plugin has the file extension .esp, but its file header marks it as an esm!</b></span><br/><br/>");
+			}
+			stbDescription.AppendFormat(@"<b><u>{0}</u></b><br/>", strPluginName);
+			if ((name != null) && (name != string.Empty))
+				stbDescription.AppendFormat(@"<b>Author:</b> {0}<br/>", name);
+			if ((desc != null) && (desc != string.Empty))
+			{
+				desc = desc.Replace("\r\n", "\n").Replace("\n\r", "\n").Replace("\n", "<br/>");
+				stbDescription.AppendFormat(@"<b>Description:</b><br/>{0}<br/>", desc);
+			}
+			if (masters.Count > 0)
+			{
+				stbDescription.Append(@"<b>Masters:</b><ul>");
+				for (int i = 0; i < masters.Count; i++)
+				{
+					stbDescription.AppendFormat("<li>{0}</li>", masters[i]);
+				}
+				stbDescription.Append(@"</ul>");
+			}
+
+			Image imgPicture = null;
 			if (pic != null)
 			{
 				try
@@ -129,8 +134,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement
 				catch { }
 			}
 
-
-			Plugin pifInfo = new GamebryoPlugin(p_strPluginPath, stbDescription.ToString(), imgPicture, LoadOrderManager.IsMaster(p_strPluginPath));
+			Plugin pifInfo = new GamebryoPlugin(p_strPluginPath, stbDescription.ToString(), imgPicture, (intIsMaster == 1));
 			
 			return pifInfo;
 		}

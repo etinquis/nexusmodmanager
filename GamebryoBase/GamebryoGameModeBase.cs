@@ -107,6 +107,18 @@ namespace Nexus.Client.Games.Gamebryo
 		}
 
 		/// <summary>
+		/// Gets whether the game mode supports the automatic sorting
+		/// functionality for plugins.
+		/// </summary>
+		public override bool SupportsPluginAutoSorting
+		{
+			get
+			{
+				return true;
+			}
+		}
+
+		/// <summary>
 		/// Gets the installed version of the script extender.
 		/// </summary>
 		/// <remarks>
