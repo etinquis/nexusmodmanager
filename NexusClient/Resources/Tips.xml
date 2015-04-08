@@ -1,8 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <tipsManager>
 	<tipsList>
-		<tips section="toolStrip1" object="spbTools" ID="1" version="0.54.0">
+	<tips section="toolStrip1" object="spbTools" ID="1" version="0.54.0">
 		<text>Added a new sorting functionality with the "Auto Plugin Sorting" button, when clicked it will automatically sort your plugins \\ (LOOT is not required to be installed, an active internet connection is required to download the latest masterlist).</text>
+	</tips>
+	<tips section="ActivateMMListView" object="column" ID="2" version="0.54.0">
+		<text>Added "Error/Warning" column to the Mod Activation Queue monitor, in case of issues with the current operation you can click the icon in it to check the details.</text>
 	</tips>
 	<tips section="CLWCategoryListView" object="column" ID="1" version="0.53.3">
 		<text>NMM will keep track of options selected in scripted installers (this info will be used in the profile build).</text>

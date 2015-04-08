@@ -34,6 +34,7 @@
             this.clmOverallProgress = new System.Windows.Forms.ColumnHeader();
             this.clmOperation = new System.Windows.Forms.ColumnHeader();
 			this.clmProgress = new System.Windows.Forms.ColumnHeader();
+			this.clmErrorInfo = new System.Windows.Forms.ColumnHeader();
 			this.tsbCancel = new System.Windows.Forms.ToolStripButton();
 			this.tsbRemoveQueued = new System.Windows.Forms.ToolStripButton();
 			this.tsbRemoveAll = new System.Windows.Forms.ToolStripButton();
@@ -88,14 +89,13 @@
 			// 
 			// lvwActiveTasks
 			// 
-			//this.lvwActiveTasks.OwnerDraw = true;
-			//this.lvwActiveTasks.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.lvwActiveTasks_DrawSubItem);
-			//this.lvwActiveTasks.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.lvwActiveTasks_DrawColumnHeader);
+			this.lvwActiveTasks.OwnerDraw = true;
 			this.lvwActiveTasks.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.clmOverallMessage,
             this.clmOverallProgress,
             this.clmOperation,
-			this.clmProgress});
+			this.clmProgress,
+			this.clmErrorInfo});
 			//clmIcon});
 			this.lvwActiveTasks.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.lvwActiveTasks.FullRowSelect = true;
@@ -112,6 +112,9 @@
 			this.lvwActiveTasks.ColumnWidthChanging += new System.Windows.Forms.ColumnWidthChangingEventHandler(this.lvwTasks_ColumnWidthChanging);
 			this.lvwActiveTasks.MouseClick += new System.Windows.Forms.MouseEventHandler(ActivateModsMonitorControl_MouseClick);
 			this.lvwActiveTasks.KeyUp += new System.Windows.Forms.KeyEventHandler(ActivateModsMonitorControl_KeyUp);
+			this.lvwActiveTasks.ColumnWidthChanging += new System.Windows.Forms.ColumnWidthChangingEventHandler(ActivateModsMonitorControl_ColumnWidthChanging);
+			this.lvwActiveTasks.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(ActivateModsMonitorControl_DrawSubItem);
+			this.lvwActiveTasks.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(ActivateModsMonitorControl_DrawColumnHeader);
             // 
 			// clmOverallMessage
 			// 
@@ -132,6 +135,11 @@
  			// 
 			this.clmProgress.Text = "Progress";
 			this.clmProgress.Width = 190;
+			//
+			// clmErrorInfo
+			// 
+			this.clmErrorInfo.Text = "?";
+			this.clmErrorInfo.Width = 20;
 			// 
 			// ActivateModsMonitorControl
 			// 
@@ -157,6 +165,7 @@
 		private System.Windows.Forms.ColumnHeader clmOverallProgress;
         private System.Windows.Forms.ColumnHeader clmOperation;
 		private System.Windows.Forms.ColumnHeader clmProgress;
+		private System.Windows.Forms.ColumnHeader clmErrorInfo;
 		private System.Windows.Forms.ToolStripButton tsbCancel;
 		private System.Windows.Forms.ToolStripButton tsbRemoveAll;
 		private System.Windows.Forms.ToolStripButton tsbRemoveQueued;

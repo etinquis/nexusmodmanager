@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Nexus.Client.BackgroundTasks;
@@ -10,7 +11,7 @@ using Nexus.Client.Commands.Generic;
 using Nexus.Client.ModManagement;
 using Nexus.Client.UI;
 using Nexus.Client.Util;
-using System.Drawing;
+using Nexus.UI.Controls;
 
 namespace Nexus.Client.ActivateModsMonitoring.UI
 {
@@ -29,6 +30,17 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		private IBackgroundTaskSet m_btsRunningTask = null;
 		public List<IBackgroundTaskSet> QueuedTasks = new List<IBackgroundTaskSet>();
         private bool booQueued = false;
+		private string m_strPopupErrorMessage = string.Empty;
+		private string m_strPopupErrorMessageType = string.Empty;
+		private string m_strDetailsErrorMessageType = string.Empty;
+		private Int32 m_intFocusBoundsX = 0;
+
+		/// <summary>
+		/// Gets the messages and images associated with the sub items.
+		/// </summary>
+		/// <value>The messages and images associated with the sub items.</value>
+		protected Dictionary<ListViewItem.ListViewSubItem, KeyValuePair<string, Image>> Messages { get; private set; }
+ 
 
 		
 		#region Events
@@ -103,6 +115,8 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 						
 			m_tmrColumnSizer.Interval = 100;
 			m_tmrColumnSizer.Tick += new EventHandler(ColumnSizer_Tick);
+
+			Messages = new Dictionary<ListViewItem.ListViewSubItem, KeyValuePair<string, Image>>();
 			
 			UpdateTitle();
 		}
@@ -175,6 +189,26 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 				m.MenuItems.Clear();
 				m.MenuItems.Add(new MenuItem("Copy to clipboard", new EventHandler(cmsContextMenu_Copy)));
 				m.Show((Control)(sender), e.Location);
+			}
+			else if (e.Button == MouseButtons.Left)
+			{
+				ListViewItem lvItem = lvwActiveTasks.GetItemAt(e.X, e.Y);
+								
+				if (lvItem == null)
+					return;
+				ListViewItem.ListViewSubItem subItem = lvItem.GetSubItemAt(e.X, e.Y);
+				if (subItem == null)
+					return;
+				if (subItem.Name == "?")
+				{
+					if (subItem.Text != string.Empty)
+					{
+						if(m_strPopupErrorMessageType == "Error")
+							ExtendedMessageBox.Show(this, subItem.Text, "Failed", m_strDetailsErrorMessageType, MessageBoxButtons.OK, MessageBoxIcon.Error);
+						else if(m_strPopupErrorMessageType == "Warning")
+							ExtendedMessageBox.Show(this, subItem.Text, "Warning", m_strDetailsErrorMessageType, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+					}
+				}
 			}
 		}
 
@@ -280,7 +314,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 				if (lviExisitingTask.Task == p_tskTask)
 					return;
 
-            if (m_btsRunningTask != null)
+			if (m_btsRunningTask != null)
             {
                 if (p_tskTask.GetType() == typeof(ModInstaller))
                 {
@@ -465,6 +499,31 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 
 		private void TaskSet_TaskSetCompleted(object sender, TaskSetCompletedEventArgs e)
 		{
+			if (m_btsRunningTask != null)
+			{
+				if (m_btsRunningTask.GetType() == typeof(ModUninstaller))
+				{
+					m_strPopupErrorMessage = ((ModUninstaller)sender).strPopupErrorMessage;
+					m_strPopupErrorMessageType = ((ModUninstaller)sender).strPopupErrorMessageType;
+					m_strDetailsErrorMessageType = ((ModUninstaller)sender).strDetailsErrorMessage;
+				}
+				else if (m_btsRunningTask.GetType() == typeof(ModInstaller))
+				{
+					m_strPopupErrorMessage = ((ModInstaller)sender).strPopupErrorMessage;
+					m_strPopupErrorMessageType = ((ModInstaller)sender).strPopupErrorMessageType;
+					m_strDetailsErrorMessageType = ((ModInstaller)sender).strDetailsErrorMessage;
+				}
+				else if (m_btsRunningTask.GetType() == typeof(ModUpgrader))
+				{
+					m_strPopupErrorMessage = ((ModUpgrader)sender).strPopupErrorMessage;
+					m_strPopupErrorMessageType = ((ModUpgrader)sender).strPopupErrorMessageType;
+					m_strDetailsErrorMessageType = ((ModUpgrader)sender).strDetailsErrorMessage;
+				}
+			}
+						
+			this.lvwActiveTasks.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(ActivateModsMonitorControl_DrawSubItem);
+			this.lvwActiveTasks.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(ActivateModsMonitorControl_DrawColumnHeader);
+			
 			m_btsRunningTask = null;
 
             if (QueuedTasks.Count > 0)
@@ -484,6 +543,149 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		}
 		
 		private void lvwActiveTasks_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
+		{
+			e.DrawDefault = true;
+		}
+
+		/// <summary>
+		/// Handles the <see cref="ActivateModsMonitorControl.ColumnWidthChanging"/> event of the Mod Activation list.
+		/// </summary>
+		void ActivateModsMonitorControl_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
+		{
+			if ((e.ColumnIndex == 4) || (e.ColumnIndex == 3))
+			{
+				//Keep the width not changed.
+				e.NewWidth = this.lvwActiveTasks.Columns[e.ColumnIndex].Width;
+				//Cancel the event.
+				e.Cancel = true;
+			}
+		}
+
+		/// <summary>
+		/// Raises the <see cref="ActivateModsMonitorControl_DrawItem"/> event.
+		/// </summary>
+		void ActivateModsMonitorControl_DrawItem(object sender, DrawListViewItemEventArgs e)
+		{
+			e.DrawDefault = true;
+		}
+
+		/// <summary>
+		/// Raises the <see cref="ActivateModsMonitorControl_DrawSubItem"/> event.
+		/// </summary>
+		void ActivateModsMonitorControl_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
+		{
+			if (m_strPopupErrorMessageType == "Error")
+				SetMessage(e.SubItem, m_strPopupErrorMessage, global::Nexus.Client.Properties.Resources.edit_delete_16);
+			else if(m_strPopupErrorMessageType == "Warning")
+				SetMessage(e.SubItem, m_strPopupErrorMessage, global::Nexus.Client.Properties.Resources.dialog_warning_4);
+
+			OnDrawSubItem(e);
+		}
+
+		/// <summary>
+		/// Raises the <see cref="ListView.DrawSubItem"/> event.
+		/// </summary>
+		/// <remarks>
+		/// This is where the owner draws the specific sub item. We handle this.
+		/// </remarks>
+		/// <param name="e">A <see cref="DrawListViewSubItemEventArgs"/> describing the event arguments.</param>
+		protected void OnDrawSubItem(DrawListViewSubItemEventArgs e)
+		{
+			//if the item is not in a list view, then don't bother trying to draw it,
+			// as it isn't visible anyway
+			if (e.Item.ListView == null)
+				return;
+
+			//base.OnDrawSubItem(e);
+
+			e.DrawBackground();
+
+			Int32 intBoundsX = e.Bounds.X;
+			Int32 intBoundsY = e.Bounds.Y;
+			Int32 intBoundsWidth = e.Bounds.Width;
+			Int32 intFontX = e.Bounds.X + 3;
+			Int32 intFontWidth = e.Bounds.Width - 3;
+			if (e.Item.SubItems[0] == e.SubItem)
+			{
+				intBoundsX += 4;
+				intBoundsWidth -= 4;
+							
+				m_intFocusBoundsX = intBoundsX;
+			}
+
+			Color clrForeColor = e.SubItem.ForeColor;
+			if (e.Item.Selected)
+			{
+				clrForeColor = e.Item.ListView.Focused ? SystemColors.HighlightText : clrForeColor;
+				Color clrBackColor = e.Item.ListView.Focused ? SystemColors.Highlight : SystemColors.Control;
+				e.Graphics.FillRectangle(new SolidBrush(clrBackColor), new Rectangle(intBoundsX, intBoundsY, intBoundsWidth, e.Bounds.Height));
+			}
+
+			if ((Messages.ContainsKey(e.SubItem)) && (e.ColumnIndex == 4) && (e.SubItem.Text != ""))
+			{
+				Image imgIcon = Messages[e.SubItem].Value;
+				Rectangle rctIconBounds = GetMessageIconBounds(e.Bounds, imgIcon, String.IsNullOrEmpty(e.SubItem.Text) ? true : false);
+				Rectangle rctPaint = new Rectangle(new Point(rctIconBounds.X, intBoundsY + rctIconBounds.Y), rctIconBounds.Size);
+				e.Graphics.DrawImage(imgIcon, rctPaint);
+				intFontWidth -= rctIconBounds.Width;
+			}
+
+			Rectangle rctTextBounds = new Rectangle(intFontX, intBoundsY + 2, intFontWidth, e.Bounds.Height - 4);
+			TextRenderer.DrawText(e.Graphics, e.SubItem.Text, e.SubItem.Font, rctTextBounds, clrForeColor, TextFormatFlags.EndEllipsis | TextFormatFlags.VerticalCenter);
+
+			if (e.Item.Focused)
+			{
+				Pen penFocusRectangle = new Pen(Brushes.Black);
+				penFocusRectangle.DashStyle = System.Drawing.Drawing2D.DashStyle.Dot;
+				e.Graphics.DrawRectangle(penFocusRectangle, new Rectangle(m_intFocusBoundsX, intBoundsY, e.Item.Bounds.Width - m_intFocusBoundsX - 1, e.Item.Bounds.Height - 1));
+			}
+		}
+
+		/// <summary>
+		/// Gets the bounds of our custom message icon.
+		/// </summary>
+		/// <returns>The bounds of our custom message icon.</returns>
+		protected Rectangle GetMessageIconBounds(Rectangle p_rctCellBounds, Image p_imgIcon, bool p_booCentered)
+		{
+			Int32 intYOffset = (p_rctCellBounds.Height - p_imgIcon.Height) / 2;
+			Int32 intXOffset = 0;
+			if (p_booCentered)
+				intXOffset = p_rctCellBounds.Left + (p_rctCellBounds.Width / 2) - (p_imgIcon.Width / 2);
+			else
+				intXOffset = p_rctCellBounds.Right - p_imgIcon.Width - intYOffset;
+			Rectangle rctIconBounds = new Rectangle(new Point(intXOffset, intYOffset), p_imgIcon.Size);
+			return rctIconBounds;
+		}
+
+		/// <summary>
+		/// Sets the message and image for the given sub item.
+		/// </summary>
+		/// <param name="p_lsiSubItem">The sub item for which to set the message and image.</param>
+		/// <param name="p_strMessage">The message to associate with the sub item.</param>
+		/// <param name="p_imgIcon">The image to associate with the subitem.</param>
+		public void SetMessage(ListViewItem.ListViewSubItem p_lsiSubItem, string p_strMessage, Image p_imgIcon)
+		{
+			if (p_imgIcon == null)
+				p_imgIcon = new Bitmap(16, 16);
+											
+			Messages[p_lsiSubItem] = new KeyValuePair<string, Image>(p_strMessage, p_imgIcon);
+			this.Invalidate(p_lsiSubItem.Bounds);
+		}
+
+		/// <summary>
+		/// Removes any messages and images assocaited with the given sub item.
+		/// </summary>
+		/// <param name="p_lsiSubItem">The sub item from which to remove any associated messages and images.</param>
+		public void ClearMessage(ListViewItem.ListViewSubItem p_lsiSubItem)
+		{
+			if (Messages.ContainsKey(p_lsiSubItem))
+			{
+				Messages.Remove(p_lsiSubItem);
+				this.Invalidate(p_lsiSubItem.Bounds);
+			}
+		}
+		
+		void ActivateModsMonitorControl_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
 		{
 			e.DrawDefault = true;
 		}

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Drawing;
 using System.Windows.Forms;
 using Nexus.Client.BackgroundTasks;
 using Nexus.Client.ModManagement;
@@ -68,6 +69,9 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			lsiSubItem = SubItems.Add(new ListViewSubItem());
 			lsiSubItem.Name = "Progress";
 
+			lsiSubItem = SubItems.Add(new ListViewSubItem());
+			lsiSubItem.Name = "?";
+
 			m_booRemovable = true;
 			p_btsTask.TaskStarted += new EventHandler<EventArgs<IBackgroundTask>>(TaskSet_TaskSetStarted);
 
@@ -124,7 +128,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		private void TaskSet_TaskSetCompleted(object sender, TaskSetCompletedEventArgs e)
 		{
 
-            if ((ListView != null) && ListView.InvokeRequired)
+			if ((ListView != null) && ListView.InvokeRequired)
 			{
 				ListView.Invoke((Action<IBackgroundTaskSet, TaskSetCompletedEventArgs>)TaskSet_TaskSetCompleted, sender, e);
 				return;
@@ -132,18 +136,32 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 
 			bool booComplete = false;
 			bool booSuccess = false;
+			string strPopupErrorMessage = string.Empty;
 
 			IBackgroundTaskSet btsExecutor = (IBackgroundTaskSet)sender;
 			booSuccess = e.Success;
 			if (btsExecutor.GetType() == typeof(ModInstaller))
+			{
 				booComplete = ((ModInstaller)btsExecutor).IsCompleted;
+				strPopupErrorMessage = ((ModInstaller)btsExecutor).strPopupErrorMessage;
+			}
 			else if (btsExecutor.GetType() == typeof(ModUninstaller))
+			{
 				booComplete = ((ModUninstaller)btsExecutor).IsCompleted;
+				if (((ModUninstaller)btsExecutor).strPopupErrorMessage != string.Empty)
+					strPopupErrorMessage = ((ModUninstaller)btsExecutor).strPopupErrorMessage;
+			}
 			else if (btsExecutor.GetType() == typeof(ModUpgrader))
+			{
 				booComplete = ((ModUpgrader)btsExecutor).IsCompleted;
+				strPopupErrorMessage = ((ModUpgrader)btsExecutor).strPopupErrorMessage;
+			}
 
 			if (booComplete)
 			{
+				if (strPopupErrorMessage != string.Empty)
+					SubItems["?"].Text = strPopupErrorMessage;
+
 				if (!booSuccess)
 				{
 					SubItems["Status"].Text = e.Message;
