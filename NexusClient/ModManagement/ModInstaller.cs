@@ -23,7 +23,10 @@ namespace Nexus.Client.ModManagement
 	public class ModInstaller : ModInstallerBase
 	{
 		private ConfirmItemOverwriteDelegate m_dlgOverwriteConfirmationDelegate = null;
-        private ModManager m_mmModManager = null;
+		private ModManager m_mmModManager = null;
+		public string strPopupErrorMessage = string.Empty;
+		public string strPopupErrorMessageType = string.Empty;
+		public string strDetailsErrorMessage = string.Empty;
 
 		#region Properties
 
@@ -220,6 +223,8 @@ namespace Nexus.Client.ModManagement
 					}
 				string strExceptionMessageFormat = "A problem occurred during install: " + Environment.NewLine + "{0}" + Environment.NewLine + "The mod was not installed."; ;
 				strMessage = String.Format(strExceptionMessageFormat, stbError.ToString());
+				strPopupErrorMessage = strMessage;
+				strPopupErrorMessageType = "Error";
 			}
 			finally
 			{

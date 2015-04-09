@@ -28,12 +28,13 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
 			this.lvwActiveTasks = new Nexus.UI.Controls.DoubleBufferedListView();
 			this.clmOverallMessage = new System.Windows.Forms.ColumnHeader();
-            this.clmOverallProgress = new System.Windows.Forms.ColumnHeader();
-            this.clmOperation = new System.Windows.Forms.ColumnHeader();
+			this.clmOverallProgress = new System.Windows.Forms.ColumnHeader();
+			this.clmOperation = new System.Windows.Forms.ColumnHeader();
 			this.clmProgress = new System.Windows.Forms.ColumnHeader();
+			this.clmErrorInfo = new System.Windows.Forms.ColumnHeader();
 			this.tsbCancel = new System.Windows.Forms.ToolStripButton();
 			this.tsbRemoveQueued = new System.Windows.Forms.ToolStripButton();
 			this.tsbRemoveAll = new System.Windows.Forms.ToolStripButton();
@@ -49,7 +50,7 @@
 			this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.toolStrip1.ImageScalingSize = new System.Drawing.Size(32, 32);
 			this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsbCancel,
+			this.tsbCancel,
 			this.tsbRemoveQueued,
 			this.tsbRemoveAll});
 			this.toolStrip1.Location = new System.Drawing.Point(0, 0);
@@ -88,14 +89,13 @@
 			// 
 			// lvwActiveTasks
 			// 
-			//this.lvwActiveTasks.OwnerDraw = true;
-			//this.lvwActiveTasks.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(this.lvwActiveTasks_DrawSubItem);
-			//this.lvwActiveTasks.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.lvwActiveTasks_DrawColumnHeader);
+			this.lvwActiveTasks.OwnerDraw = true;
 			this.lvwActiveTasks.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.clmOverallMessage,
-            this.clmOverallProgress,
-            this.clmOperation,
-			this.clmProgress});
+			this.clmOverallMessage,
+			this.clmOverallProgress,
+			this.clmOperation,
+			this.clmProgress,
+			this.clmErrorInfo});
 			//clmIcon});
 			this.lvwActiveTasks.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.lvwActiveTasks.FullRowSelect = true;
@@ -112,26 +112,34 @@
 			this.lvwActiveTasks.ColumnWidthChanging += new System.Windows.Forms.ColumnWidthChangingEventHandler(this.lvwTasks_ColumnWidthChanging);
 			this.lvwActiveTasks.MouseClick += new System.Windows.Forms.MouseEventHandler(ActivateModsMonitorControl_MouseClick);
 			this.lvwActiveTasks.KeyUp += new System.Windows.Forms.KeyEventHandler(ActivateModsMonitorControl_KeyUp);
-            // 
+			this.lvwActiveTasks.ColumnWidthChanging += new System.Windows.Forms.ColumnWidthChangingEventHandler(ActivateModsMonitorControl_ColumnWidthChanging);
+			this.lvwActiveTasks.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(ActivateModsMonitorControl_DrawSubItem);
+			this.lvwActiveTasks.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(ActivateModsMonitorControl_DrawColumnHeader);
+			// 
 			// clmOverallMessage
 			// 
 			this.clmOverallMessage.Text = "Name";
 			this.clmOverallMessage.Width = 288;
-           	// 
+			// 
 			// clmOverallProgress
 			// 
 			this.clmOverallProgress.Text = "Status";
 			this.clmOverallProgress.Width = 60;
-            // 
-            // clmOperation
-            // 
-            this.clmOperation.Text = "Operation";
+			// 
+			// clmOperation
+			// 
+			this.clmOperation.Text = "Operation";
 			this.clmOperation.Width = 80;
 			//
 			// clmProgress
- 			// 
+			// 
 			this.clmProgress.Text = "Progress";
 			this.clmProgress.Width = 190;
+			//
+			// clmErrorInfo
+			// 
+			this.clmErrorInfo.Text = "?";
+			this.clmErrorInfo.Width = 20;
 			// 
 			// ActivateModsMonitorControl
 			// 
@@ -155,8 +163,9 @@
 		public Nexus.UI.Controls.DoubleBufferedListView lvwActiveTasks;
 		private System.Windows.Forms.ColumnHeader clmOverallMessage;
 		private System.Windows.Forms.ColumnHeader clmOverallProgress;
-        private System.Windows.Forms.ColumnHeader clmOperation;
+		private System.Windows.Forms.ColumnHeader clmOperation;
 		private System.Windows.Forms.ColumnHeader clmProgress;
+		private System.Windows.Forms.ColumnHeader clmErrorInfo;
 		private System.Windows.Forms.ToolStripButton tsbCancel;
 		private System.Windows.Forms.ToolStripButton tsbRemoveAll;
 		private System.Windows.Forms.ToolStripButton tsbRemoveQueued;

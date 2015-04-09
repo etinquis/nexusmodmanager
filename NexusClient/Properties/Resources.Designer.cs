@@ -403,6 +403,16 @@ namespace Nexus.Client.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap edit_delete_16 {
+            get {
+                object obj = ResourceManager.GetObject("edit_delete_16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap edit_delete_6 {
             get {
                 object obj = ResourceManager.GetObject("edit_delete_6", resourceCulture);
@@ -744,13 +754,11 @@ namespace Nexus.Client.Properties {
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
         ///&lt;tipsManager&gt;
         ///	&lt;tipsList&gt;
-        ///	&lt;tips section=&quot;ActivateMMListView&quot; object=&quot;column&quot; ID=&quot;1&quot; version=&quot;0.53.2&quot;&gt;
-        ///		&lt;text&gt;The progress meter has been added.&lt;/text&gt;
+        ///		&lt;tips section=&quot;toolStrip1&quot; object=&quot;spbTools&quot; ID=&quot;1&quot; version=&quot;0.54.0&quot;&gt;
+        ///		&lt;text&gt;Added a new sorting functionality with the &quot;Auto Plugin Sorting&quot; button, when clicked it will automatically sort your plugins \\ (LOOT is not required to be installed, an active internet connection is required to download the latest masterlist).&lt;/text&gt;
         ///	&lt;/tips&gt;
-        ///	&lt;tips section=&quot;toolStrip1&quot; object=&quot;spbTools&quot; ID=&quot;1&quot; version=&quot;0.53.0&quot;&gt;
-        ///      &lt;text&gt;A &quot;Restore backup&quot; button has been added to this version of NMM that will allow you to revert future versions of NMM back to this version (0.53.0) should anything go wrong.&lt;/text&gt;
-        ///    &lt;/tips&gt;
-        ///    &lt;tips section=&quot;Activate [rest of string was truncated]&quot;;.
+        ///	&lt;tips section=&quot;CLWCategoryListView&quot; object=&quot;column&quot; ID=&quot;1&quot; version=&quot;0.53.3&quot;&gt;
+        ///		&lt;text&gt;NMM will kee [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string TipsXML {
             get {
