@@ -29,7 +29,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		private bool m_booControlIsLoaded = false;
 		private IBackgroundTaskSet m_btsRunningTask = null;
 		public List<IBackgroundTaskSet> QueuedTasks = new List<IBackgroundTaskSet>();
-        private bool booQueued = false;
+		private bool booQueued = false;
 		private string m_strPopupErrorMessage = string.Empty;
 		private string m_strPopupErrorMessageType = string.Empty;
 		private string m_strDetailsErrorMessageType = string.Empty;
@@ -40,9 +40,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		/// </summary>
 		/// <value>The messages and images associated with the sub items.</value>
 		protected Dictionary<ListViewItem.ListViewSubItem, KeyValuePair<string, Image>> Messages { get; private set; }
- 
 
-		
 		#region Events
 
 		public event EventHandler EmptyQueue;

@@ -17,13 +17,12 @@ namespace Nexus.Client.ModManagement
 	/// </summary>
 	public class ModUninstaller : ModInstallerBase
 	{
-
 		private ModManager m_mmModManager = null;
 		public string strPopupErrorMessage = string.Empty;
 		public string strPopupErrorMessageType = string.Empty;
 		public string strDetailsErrorMessage = string.Empty;
 
-        #region Properties
+		#region Properties
 
 		/// <summary>
 		/// Gets or sets the mod being installed.
