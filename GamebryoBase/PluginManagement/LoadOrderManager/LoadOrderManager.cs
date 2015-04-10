@@ -354,6 +354,8 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		{
 			IntPtr ptrLoadOrderDb = IntPtr.Zero;
 			UInt32 uintClientGameId = 0;
+			string strAppDataPath = string.Empty;
+
 			switch (GameMode.ModeId)
 			{
 				case "Oblivion":
@@ -371,7 +373,24 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 				default:
 					throw new LoadOrderException(String.Format("Unsupported game: {0} ({1})", GameMode.Name, GameMode.ModeId));
 			}
+
 			UInt32 uintStatus = m_dlgCreateLoadOrderDb(ref ptrLoadOrderDb, uintClientGameId, GameMode.InstallationPath, null);
+
+			if (uintStatus == 13)
+			{
+				strAppDataPath = Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), Path.Combine(GameMode.ModeId + "loadorder.txt"));
+				if (File.Exists(strAppDataPath))
+				{
+					string strBakFilePath = Path.Combine(Path.GetDirectoryName(strAppDataPath), "LoadOrder.nmmbak");
+					if (File.Exists(strBakFilePath))
+						FileUtil.ForceDelete(strBakFilePath);
+
+					FileUtil.Move(strAppDataPath, strBakFilePath, true);
+				}
+
+				uintStatus = m_dlgCreateLoadOrderDb(ref ptrLoadOrderDb, uintClientGameId, GameMode.InstallationPath, null);
+			}
+
 			HandleStatusCode(uintStatus);
 			if (ptrLoadOrderDb == IntPtr.Zero)
 				throw new LoadOrderException("Could not create LoadOrder DB.");
