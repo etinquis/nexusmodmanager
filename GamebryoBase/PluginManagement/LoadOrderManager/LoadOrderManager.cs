@@ -373,17 +373,19 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 				default:
 					throw new LoadOrderException(String.Format("Unsupported game: {0} ({1})", GameMode.Name, GameMode.ModeId));
 			}
+
 			UInt32 uintStatus = m_dlgCreateLoadOrderDb(ref ptrLoadOrderDb, uintClientGameId, GameMode.InstallationPath, null);
 
 			if (uintStatus == 13)
 			{
-				strAppDataPath = Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), GameMode.ModeId + "\\loadorder.txt");
+				strAppDataPath = Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), Path.Combine(GameMode.ModeId + "loadorder.txt"));
 				if (File.Exists(strAppDataPath))
 				{
-					if (File.Exists(Path.Combine(Path.GetDirectoryName(strAppDataPath), "LoadOrder.nmmbak")))
-						File.Delete(Path.Combine(Path.GetDirectoryName(strAppDataPath), "LoadOrder.nmmbak"));
+					string strBakFilePath = Path.Combine(Path.GetDirectoryName(strAppDataPath), "LoadOrder.nmmbak");
+					if (File.Exists(strBakFilePath))
+						FileUtil.ForceDelete(strBakFilePath);
 
-					File.Move(strAppDataPath, Path.Combine(Path.GetDirectoryName(strAppDataPath), "LoadOrder.nmmbak"));
+					FileUtil.Move(strAppDataPath, strBakFilePath, true);
 				}
 
 				uintStatus = m_dlgCreateLoadOrderDb(ref ptrLoadOrderDb, uintClientGameId, GameMode.InstallationPath, null);
