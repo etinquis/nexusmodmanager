@@ -354,7 +354,6 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		{
 			IntPtr ptrLoadOrderDb = IntPtr.Zero;
 			UInt32 uintClientGameId = 0;
-			string strAppDataPath = string.Empty;
 
 			switch (GameMode.ModeId)
 			{
@@ -378,14 +377,18 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 
 			if (uintStatus == 13)
 			{
-				strAppDataPath = Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), Path.Combine(GameMode.ModeId + "loadorder.txt"));
-				if (File.Exists(strAppDataPath))
-				{
-					string strBakFilePath = Path.Combine(Path.GetDirectoryName(strAppDataPath), "LoadOrder.nmmbak");
-					if (File.Exists(strBakFilePath))
-						FileUtil.ForceDelete(strBakFilePath);
+				string strGameModeLocalAppData = Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), GameMode.ModeId);
+				string strLoadOrderFilePath = Path.Combine(strGameModeLocalAppData, "loadorder.txt");
 
-					FileUtil.Move(strAppDataPath, strBakFilePath, true);
+				if (File.Exists(strLoadOrderFilePath))
+				{
+					string strBakFilePath = Path.Combine(strGameModeLocalAppData, "loadorder.nmmbak");
+					if (File.Exists(strBakFilePath))
+					{
+						FileUtil.Move(strBakFilePath, Path.Combine(strGameModeLocalAppData, Path.Combine(Path.GetRandomFileName(), ".loadorder.bak")), true);
+					}
+
+					FileUtil.Move(strLoadOrderFilePath, strBakFilePath, true);
 				}
 
 				uintStatus = m_dlgCreateLoadOrderDb(ref ptrLoadOrderDb, uintClientGameId, GameMode.InstallationPath, null);
@@ -393,7 +396,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 
 			HandleStatusCode(uintStatus);
 			if (ptrLoadOrderDb == IntPtr.Zero)
-				throw new LoadOrderException("Could not create LoadOrder DB.");
+				throw new LoadOrderException("Could not create LoadOrderManager DB.");
 			return ptrLoadOrderDb;
 		}
 
