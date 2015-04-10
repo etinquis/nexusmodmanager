@@ -193,28 +193,7 @@ namespace Nexus.Client.Games.Gamebryo
 			SettingsGroupViews = new List<ISettingsGroupView>();
 			GeneralSettingsGroup gsgGeneralSettings = new GeneralSettingsGroup(p_eifEnvironmentInfo, this);
 			((List<ISettingsGroupView>)SettingsGroupViews).Add(new GeneralSettingsPage(gsgGeneralSettings));
-			
-			
-			string strPath = p_eifEnvironmentInfo.ApplicationPersonalDataFolderPath;
-			strPath = Path.Combine(Path.Combine(Path.Combine(strPath, "loot"), ModeId), "masterlist.yaml");
-			if(!File.Exists(strPath))
-			{
-				if (!Directory.Exists(strPath))
-					Directory.CreateDirectory(Path.GetDirectoryName(strPath));
-
-				using (Stream masterlist = new MemoryStream(Properties.Resources.masterlist))
-				{
-					using (ZipArchive archive = new ZipArchive(masterlist, ZipArchiveMode.Read))
-					{
-						archive.GetEntry(String.Format("{0}.yaml", ModeId.ToLower())).ExtractToFile(strPath);
-					}
-				}
-			}
-			
-			
-			PluginSorter = new PluginSorter(p_eifEnvironmentInfo, this, p_futFileUtility, strPath);
-
-			LoadOrderManager = new LoadOrderManager(p_eifEnvironmentInfo, this, p_futFileUtility, strPath);
+			SetupPluginManagement(p_futFileUtility);
 		}
 
 		#endregion
@@ -241,6 +220,36 @@ namespace Nexus.Client.Games.Gamebryo
 					Directory.CreateDirectory(strDirectory);
 				File.Create(SettingsFiles.PluginsFilePath).Close();
 			}
+		}
+
+		/// <summary>
+		/// Setup for the plugin management libraries.
+		/// </summary>
+		protected virtual void SetupPluginManagement(FileUtil p_futFileUtility)
+		{
+			string strPath = EnvironmentInfo.ApplicationPersonalDataFolderPath;
+			strPath = Path.Combine(Path.Combine(Path.Combine(strPath, "loot"), ModeId), "masterlist.yaml");
+
+			if (SupportsPluginAutoSorting)
+			{
+				if (!File.Exists(strPath))
+				{
+					if (!Directory.Exists(strPath))
+						Directory.CreateDirectory(Path.GetDirectoryName(strPath));
+
+					using (Stream masterlist = new MemoryStream(Properties.Resources.masterlist))
+					{
+						using (ZipArchive archive = new ZipArchive(masterlist, ZipArchiveMode.Read))
+						{
+							archive.GetEntry(String.Format("{0}.yaml", ModeId.ToLower())).ExtractToFile(strPath);
+						}
+					}
+				}
+
+				PluginSorter = new PluginSorter(EnvironmentInfo, this, p_futFileUtility, strPath);
+			}
+
+			LoadOrderManager = new LoadOrderManager(EnvironmentInfo, this, p_futFileUtility, strPath);
 		}
 
 		#endregion

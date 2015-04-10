@@ -369,13 +369,16 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 				case "Skyrim":
 					uintClientGameId = 3;
 					break;
+				case "Morrowind":
+					uintClientGameId = 1;
+					break;
 				default:
 					throw new LoadOrderException(String.Format("Unsupported game: {0} ({1})", GameMode.Name, GameMode.ModeId));
 			}
 
 			UInt32 uintStatus = m_dlgCreateLoadOrderDb(ref ptrLoadOrderDb, uintClientGameId, GameMode.InstallationPath, null);
 
-			if (uintStatus == 13)
+			if ((uintStatus == 13) && (uintClientGameId != 1))
 			{
 				string strGameModeLocalAppData = Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), GameMode.ModeId);
 				string strLoadOrderFilePath = Path.Combine(strGameModeLocalAppData, "loadorder.txt");
@@ -385,7 +388,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 					string strBakFilePath = Path.Combine(strGameModeLocalAppData, "loadorder.nmmbak");
 					if (File.Exists(strBakFilePath))
 					{
-						FileUtil.Move(strBakFilePath, Path.Combine(strGameModeLocalAppData, Path.Combine(Path.GetRandomFileName(), ".loadorder.bak")), true);
+						FileUtil.Move(strBakFilePath, Path.Combine(strGameModeLocalAppData, Path.GetRandomFileName() + ".loadorder.bak"), true);
 					}
 
 					FileUtil.Move(strLoadOrderFilePath, strBakFilePath, true);

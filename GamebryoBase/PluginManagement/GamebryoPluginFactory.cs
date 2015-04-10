@@ -98,14 +98,17 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement
 			uint intIsMaster = 0;
 			if (tpgPlugin.Records[0].Name == "TES4")
 				intIsMaster = ((Record)tpgPlugin.Records[0]).Flags1 & 1;
+			else if (tpgPlugin.Records[0].Name == "TES3")
+				intIsMaster = Convert.ToUInt32(TesPlugin.GetIsEsm(p_strPluginPath));
 			
 			if (tpgPlugin.Records[0].Name == "TES4" && ((Path.GetExtension(p_strPluginPath).CompareTo(".esp") == 0) != (intIsMaster == 0)))
 			{
-				if ((((Record)tpgPlugin.Records[0]).Flags1 & 1) == 0)
+				if (intIsMaster == 0)
 					stbDescription.Append(@"<span style='color:#ff1100;'><b>WARNING: This plugin has the file extension .esm, but its file header marks it as an esp!</b></span><br/><br/>");
 				else
 					stbDescription.Append(@"<span style='color:#ff1100;'><b>WARNING: This plugin has the file extension .esp, but its file header marks it as an esm!</b></span><br/><br/>");
 			}
+
 			stbDescription.AppendFormat(@"<b><u>{0}</u></b><br/>", strPluginName);
 			if ((name != null) && (name != string.Empty))
 				stbDescription.AppendFormat(@"<b>Author:</b> {0}<br/>", name);

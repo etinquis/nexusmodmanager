@@ -17,15 +17,15 @@ using Nexus.Client.Util;
 
 namespace Nexus.Client.Games.Morrowind
 {
-    /// <summary>
-    /// Provides information required for the programme to manage Morrowind plugins and mods.
-    /// </summary>
-    public class MorrowindGameMode : GamebryoGameModeBase
-    {
-        private static string[] SCRIPT_EXTENDER_EXECUTABLES = { "mwse_loader.exe" };
-        private MorrowindGameModeDescriptor m_gmdGameModeInfo = null;
-        private MorrowindLauncher m_glnGameLauncher = null;
-        private MorrowindToolLauncher m_gtlToolLauncher = null;
+	/// <summary>
+	/// Provides information required for the programme to manage Morrowind plugins and mods.
+	/// </summary>
+	public class MorrowindGameMode : GamebryoGameModeBase
+	{
+		private static string[] SCRIPT_EXTENDER_EXECUTABLES = { "mwse_loader.exe" };
+		private MorrowindGameModeDescriptor m_gmdGameModeInfo = null;
+		private MorrowindLauncher m_glnGameLauncher = null;
+		private MorrowindToolLauncher m_gtlToolLauncher = null;
 		private GamebryoPluginOrderLogSerializer m_posPluginOrderSerializer = null;
 
         #region Properties
