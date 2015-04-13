@@ -386,6 +386,18 @@ namespace Nexus.Client.PluginManagement.UI
 		{
 			SortingPlugins(this, new EventArgs<IBackgroundTask>(PluginManager.AutoPluginSorting(ConfirmUpdaterAction)));		
 		}
+
+		/// <summary>
+		/// Automatically sorts the plugins.
+		/// </summary>
+		public void RefreshPluginSorting(string[] p_strPluginList)
+		{
+			Dictionary<Plugin, string> kvpSortedPlugins;
+
+			GetRegisteredPlugins(p_strPluginList, out kvpSortedPlugins);
+			if ((kvpSortedPlugins != null) && (kvpSortedPlugins.Count > 0))
+				ApplyLoadOrder(kvpSortedPlugins, true);
+		}
 		
 		#endregion
 

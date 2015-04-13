@@ -69,8 +69,8 @@ namespace Nexus.Client.PluginManagement
 		{
 			ShowOverallProgressAsMarquee = true;
 			OverallMessage = "Sorting, please wait...";
-			GameMode.SortPlugins(Plugins);
-			return null;
+			string[] SortedPlugins = GameMode.SortPlugins(Plugins);
+			return SortedPlugins;
 		}
 	}
 }
