@@ -378,7 +378,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 
 			UInt32 uintStatus = m_dlgCreateLoadOrderDb(ref ptrLoadOrderDb, uintClientGameId, GameMode.InstallationPath, null);
 
-			if ((uintStatus == 13) && (uintClientGameId != 1))
+			if ((uintStatus == 13) && (uintClientGameId != 1) && (ptrLoadOrderDb == IntPtr.Zero))
 			{
 				string strGameModeLocalAppData = Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), GameMode.ModeId);
 				string strLoadOrderFilePath = Path.Combine(strGameModeLocalAppData, "loadorder.txt");
@@ -428,11 +428,12 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 					break;
 				case 1:
 					//LIBLO_WARN_BAD_FILENAME
-					throw new LoadOrderException("LIBLO_WARN_BAD_FILENAME: " + strDetails);
+					//throw new LoadOrderException("LIBLO_WARN_BAD_FILENAME: " + strDetails);
 					break;
 				case 2:
 					//LIBLO_WARN_LO_MISMATCH;
-					throw new LoadOrderException("LIBLO_WARN_LO_MISMATCH: " + strDetails);
+					//throw new LoadOrderException("LIBLO_WARN_LO_MISMATCH: " + strDetails);
+					break;
 				case 3:
 					//LIBLO_ERROR_FILE_READ_FAIL;
 					throw new LoadOrderException("LIBLO_ERROR_FILE_READ_FAIL: " + strDetails);
@@ -448,28 +449,26 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 				case 7:
 					//LIBLO_ERROR_FILE_RENAME_FAIL
 					throw new LoadOrderException("LIBLO_ERROR_FILE_RENAME_FAIL: " + strDetails);
-					break;
 				case 8:
 					//LIBLO_ERROR_TIMESTAMP_READ_FAIL;
 					throw new LoadOrderException("LIBLO_ERROR_TIMESTAMP_READ_FAIL: " + strDetails);
+					break;
 				case 9:
 					//LIBLO_ERROR_TIMESTAMP_WRITE_FAIL
 					throw new LoadOrderException("LIBLO_ERROR_TIMESTAMP_WRITE_FAIL: " + strDetails);
-					break;
 				case 10:
 					//LIBLO_ERROR_FILE_PARSE_FAIL
 					throw new LoadOrderException("LIBLO_ERROR_FILE_PARSE_FAIL: " + strDetails);
-					break;
 				case 11:
 					//LIBLO_ERROR_NO_MEM
 					throw new LoadOrderException("LIBLO_ERROR_NO_MEM: " + strDetails);
-					break;
 				case 12:
 					//LIBLO_ERROR_INVALID_ARGS;
 					throw new LoadOrderException("LIBLO_ERROR_INVALID_ARGS: " + strDetails);
 				case 13:
 					//LIBLO_WARN_INVALID_LIST;
-					throw new LoadOrderException("LIBLO_WARN_INVALID_LIST: " + strDetails);
+					//throw new LoadOrderException("LIBLO_WARN_INVALID_LIST: " + strDetails);
+					break;
 							
 				
 				default:
