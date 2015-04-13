@@ -82,12 +82,16 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.InstallationLog
 			List<string> lstActivePlugins = new List<string>();
 			foreach (string strPlugin in GameMode.OrderedCriticalPluginNames)
 			{
-				lstPlugins.Remove(strPlugin, StringComparer.CurrentCultureIgnoreCase);
-				lstActivePlugins.Add(strPlugin);
+				lstPlugins.RemoveAll(x => x.Equals(strPlugin, StringComparison.CurrentCultureIgnoreCase));
+				if (!lstActivePlugins.Contains(strPlugin, StringComparer.CurrentCultureIgnoreCase))
+					lstActivePlugins.Add(strPlugin);
 			}
 			foreach (Plugin plgPlugin in PluginOrderLog.OrderedPlugins)
+			{
 				if (lstPlugins.Contains(plgPlugin.Filename, StringComparer.CurrentCultureIgnoreCase))
-					lstActivePlugins.Add(plgPlugin.Filename);
+					if (!lstActivePlugins.Contains(plgPlugin.Filename, StringComparer.CurrentCultureIgnoreCase))
+						lstActivePlugins.Add(plgPlugin.Filename);
+			}
 			LoadOrderManager.SetActivePlugins(lstActivePlugins.ToArray());
 		}
 	}

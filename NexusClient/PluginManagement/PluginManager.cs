@@ -233,7 +233,7 @@ namespace Nexus.Client.PluginManagement
 		/// <returns>The specified plugin, or <c>null</c> if the plugin is not registered.</returns>
 		public Plugin GetRegisteredPlugin(string p_strPath)
 		{
-			//TODO this check doesn't work for Bamegryo based games
+			//TODO this check doesn't work for Gamebryo based games
 			// GetFormatSpecificInstallPath() (or whatever it is called) should be
 			// used instead of InstallationPath
 			// but we can't use it because asking for the mod format here makes no
@@ -241,7 +241,7 @@ namespace Nexus.Client.PluginManagement
 			// as such, mods should pass in the full path, or at least a path relative to
 			// InstallationPath
 			// Really, I think GetFormatSpecificInstallPath() should be scrapped,
-			// and mods sohuld adjust for the current game mode, not the game mode for the
+			// and mods should adjust for the current game mode, not the game mode for the
 			// current mod format
 			string strPath = p_strPath;
 			if (!Path.IsPathRooted(p_strPath))
