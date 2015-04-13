@@ -464,7 +464,8 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 					throw new LoadOrderException("LIBLO_ERROR_NO_MEM: " + strDetails);
 				case 12:
 					//LIBLO_ERROR_INVALID_ARGS;
-					throw new LoadOrderException("LIBLO_ERROR_INVALID_ARGS: " + strDetails);
+					//throw new LoadOrderException("LIBLO_ERROR_INVALID_ARGS: " + strDetails);
+					break;
 				case 13:
 					//LIBLO_WARN_INVALID_LIST;
 					//throw new LoadOrderException("LIBLO_WARN_INVALID_LIST: " + strDetails);
