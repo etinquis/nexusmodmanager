@@ -392,9 +392,9 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 					}
 
 					FileUtil.Move(strLoadOrderFilePath, strBakFilePath, true);
-				}
 
-				uintStatus = m_dlgCreateLoadOrderDb(ref ptrLoadOrderDb, uintClientGameId, GameMode.InstallationPath, null);
+					uintStatus = m_dlgCreateLoadOrderDb(ref ptrLoadOrderDb, uintClientGameId, GameMode.InstallationPath, null);
+				}
 			}
 
 			HandleStatusCode(uintStatus);
@@ -452,7 +452,6 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 				case 8:
 					//LIBLO_ERROR_TIMESTAMP_READ_FAIL;
 					throw new LoadOrderException("LIBLO_ERROR_TIMESTAMP_READ_FAIL: " + strDetails);
-					break;
 				case 9:
 					//LIBLO_ERROR_TIMESTAMP_WRITE_FAIL
 					throw new LoadOrderException("LIBLO_ERROR_TIMESTAMP_WRITE_FAIL: " + strDetails);
@@ -610,7 +609,6 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 				MessageBox.Show("The selected plugin has been manually removed." + Environment.NewLine + "Restart NMM or select again your game on Change Game Mode to refresh the plugin list.");
 			}
 		}
-
 
 		/// <summary>
 		/// Gets the list of plugin, sorted by load order.

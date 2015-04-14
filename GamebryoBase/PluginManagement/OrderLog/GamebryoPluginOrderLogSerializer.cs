@@ -20,7 +20,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.OrderLog
 		/// Gets the LoadOrder plugin manager.
 		/// </summary>
 		/// <value>The LoadOrder plugin manager.</value>
-		protected LoadOrderManager LoadOrderManager { get; private set; }
+		protected ILoadOrderManager LoadOrderManager { get; private set; }
 
 
 		/// <summary>
@@ -37,7 +37,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.OrderLog
 		/// A simple constructor that initializes the object with the given dependencies.
 		/// </summary>
 		/// <param name="p_bstPluginSorter">The PluginSorter instance to use to set plugin order.</param>
-		public GamebryoPluginOrderLogSerializer(LoadOrderManager p_bstLoadOrder, PluginSorter p_bstPluginSorter)
+		public GamebryoPluginOrderLogSerializer(ILoadOrderManager p_bstLoadOrder, PluginSorter p_bstPluginSorter)
 		{
 			LoadOrderManager = p_bstLoadOrder;
 			PluginSorter = p_bstPluginSorter;
@@ -53,7 +53,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.OrderLog
 		/// <returns>The ordered list of plugins.</returns>
 		public IEnumerable<string> LoadPluginOrder()
 		{
-			Trace.TraceInformation("Getting Plugin Load Order from LOOT...");
+			Trace.TraceInformation("Getting Plugin Load Order from LibLoadOrder...");
 			return new List<string>(LoadOrderManager.GetLoadOrder());
 		}
 

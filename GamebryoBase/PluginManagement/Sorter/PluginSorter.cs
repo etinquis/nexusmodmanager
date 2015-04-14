@@ -126,7 +126,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 		private IntPtr m_ptrSorterDb = IntPtr.Zero;
 
 		#region Properties
-
+		
 		/// <summary>
 		/// Gets the application's envrionment info.
 		/// </summary>
@@ -269,7 +269,6 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 				case 1:
 					//loot_error_liblo_error
 					throw new SorterException("loot_error_liblo_error: " + strDetails);
-					break;
 				case 4:
 					//loot_error_condition_eval_fail;
 					throw new SorterException("loot_error_condition_eval_fail: " + strDetails);
@@ -288,33 +287,26 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 				case 9:
 					//loot_error_path_not_found
 					throw new SorterException("loot_error_path_not_found: " + strDetails);
-					break;
 				case 10:
 					//loot_error_no_game_detected;
 					throw new SorterException("loot_error_no_game_detected: " + strDetails);
 				case 12:
 					//loot_error_git_error
 					throw new SorterException("loot_error_git_error: " + strDetails);
-					break;
 				case 13:
 					//loot_error_windows_error
 					throw new SorterException("loot_error_windows_error: " + strDetails);
-					break;
 				case 14:
 					//loot_error_sorting_error
-					throw new SorterException("loot_error_sorting_error: " + strDetails);
-					break;
-				
+					throw new SorterException("loot_error_sorting_error: " + strDetails);			
 				case 3333:
 					//loot_error_file_write_fail;
 					throw new SorterException("loot_error_file_write_fail: " + strDetails);
 				case 4444:
 					//loot_error_parse_fail;
-					throw new SorterException("loot_error_parse_fail: " + strDetails);
-							
-				
+					throw new SorterException("loot_error_parse_fail: " + strDetails);		
 				default:
-					throw new SorterException(String.Format("Unreconized error value {1}: {0}", strDetails, p_uintStatusCode));
+					throw new SorterException(String.Format("Unrecognized error value {1}: {0}", strDetails, p_uintStatusCode));
 			}
 		}
 			
@@ -451,7 +443,6 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 		{
 			m_dlgDestroyDb(m_ptrSorterDb);
 		}
-
 		
 		#endregion
 
