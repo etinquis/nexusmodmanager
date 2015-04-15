@@ -146,7 +146,7 @@ namespace Nexus.Client.PluginManagement
 				if (CurrentTransaction == null)
 					Commit();
 				else
-					Commit();//Enlist();
+					Enlist();
 				return true;
 			}
 
