@@ -146,7 +146,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement
 					if (i < highestMasterIndex)
 					{
 						if (booHasMove)
-							((ThreadSafeObservableList<Plugin>)p_lstPlugins).Move(i, highestMasterIndex + 1);
+							((ThreadSafeObservableList<Plugin>)p_lstPlugins).Move(i, highestMasterIndex);
 						else
 						{
 							Plugin plgPlugin = p_lstPlugins[i];
