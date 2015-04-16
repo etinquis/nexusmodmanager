@@ -138,7 +138,8 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement
 			}
 
 			Plugin pifInfo = new GamebryoPlugin(p_strPluginPath, stbDescription.ToString(), imgPicture, (intIsMaster == 1));
-			
+			pifInfo.SetMasters(masters);
+
 			return pifInfo;
 		}
 

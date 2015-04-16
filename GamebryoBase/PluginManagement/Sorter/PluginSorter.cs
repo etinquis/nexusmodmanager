@@ -430,6 +430,26 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 			}
 
 			UInt32 uintStatus = m_dlgCreateDb(ref ptrSorterDb, uintClientGameId, GameMode.InstallationPath, null);
+
+			if ((uintStatus == 1) && (ptrSorterDb == IntPtr.Zero))
+			{
+				string strGameModeLocalAppData = Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), GameMode.ModeId);
+				string strLoadOrderFilePath = Path.Combine(strGameModeLocalAppData, "loadorder.txt");
+
+				if (File.Exists(strLoadOrderFilePath))
+				{
+					string strBakFilePath = Path.Combine(strGameModeLocalAppData, "loadorder.nmmbak");
+					if (File.Exists(strBakFilePath))
+					{
+						FileUtil.Move(strBakFilePath, Path.Combine(strGameModeLocalAppData, Path.GetRandomFileName() + ".loadorder.bak"), true);
+					}
+
+					FileUtil.Move(strLoadOrderFilePath, strBakFilePath, true);
+
+					uintStatus = m_dlgCreateDb(ref ptrSorterDb, uintClientGameId, GameMode.InstallationPath, null);
+				}
+			}
+
 			HandleStatusCode(uintStatus);
 			if (ptrSorterDb == IntPtr.Zero)
 				throw new SorterException("Could not create LOOT DB.");

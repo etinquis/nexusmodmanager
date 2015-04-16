@@ -201,7 +201,7 @@ namespace Nexus.Client.PluginManagement.OrderLog
 		}
 
 		/// <summary>
-		/// Sets the load order of the specifid plugin.
+		/// Sets the load order of the specified plugin.
 		/// </summary>
 		/// <param name="p_plgPlugin">The full path to the plugin file whose load order is to be set.</param>
 		/// <param name="p_intNewIndex">The new load order index of the plugin.</param>

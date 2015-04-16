@@ -136,7 +136,7 @@ namespace Nexus.Client.ModManagement
 
 		protected async void ActivatePlugin(string p_strPlugin)
 		{
-			await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(1));
+			await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(2));
 			if ((GameMode.UsesPlugins) && (PluginManager.IsActivatiblePluginFile(p_strPlugin)))
 				PluginManager.ActivatePlugin(p_strPlugin); 
 		}

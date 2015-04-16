@@ -9,10 +9,10 @@ using Nexus.Client.Util;
 namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 {
 	/// <summary>
-	/// The interface for SORTER functionality.
+	/// The interface for LibLoadOrder functionality.
 	/// </summary>
 	/// <remarks>
-	/// This use SORTERAPI to expose SORTER's pluing sorting and activation abilities.
+	/// This use LibLoadOrder API to expose its plugin sorting and activation abilities.
 	/// </remarks>
 	public class LoadOrderManager : ILoadOrderManager, IDisposable
 	{
@@ -29,7 +29,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		[return: MarshalAs(UnmanagedType.Bool)]
 		private static extern bool FreeLibrary(IntPtr hModule);
 
-		#region Native SORTERAPI Methods
+		#region Native LibLoadOrder API Methods
 
 
 		/// <summary>
@@ -287,7 +287,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// The finalizer.
 		/// </summary>
 		/// <remarks>
-		/// Disposes unmanaged resources used by SORTER.
+		/// Disposes unmanaged resources used by LoadOrderManager.
 		/// </remarks>
 		~LoadOrderManager()
 		{
@@ -297,7 +297,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		#endregion
 
 		/// <summary>
-		/// Loads the native SORTERAPI methods.
+		/// Loads the native LibLoadOrder API methods.
 		/// </summary>
 		private void LoadMethods()
 		{
@@ -318,7 +318,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		#region IDisposable Members
 
 		/// <summary>
-		/// Disposes of any resources that the sorter allocated.
+		/// Disposes of any resources that the LoadOrderManager allocated.
 		/// </summary>
 		public void Dispose()
 		{
@@ -329,7 +329,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		#endregion
 
 		/// <summary>
-		/// Disposes of the unamanged resources need for SORTERAPI.
+		/// Disposes of the unamanged resources need for LibLoadOrder API.
 		/// </summary>
 		/// <param name="p_booDisposing">Whether the method is being called from the <see cref="Dispose()"/> method.</param>
 		protected virtual void Dispose(bool p_booDisposing)
@@ -412,7 +412,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		}
 
 		/// <summary>
-		/// Handles the status code returned by the SORTERAPI methods.
+		/// Handles the status code returned by the LibLoadOrder methods.
 		/// </summary>
 		/// <param name="p_uintStatusCode">The status code to handle.</param>
 		private void HandleStatusCode(UInt32 p_uintStatusCode)
