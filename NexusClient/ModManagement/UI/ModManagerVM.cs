@@ -440,7 +440,6 @@ namespace Nexus.Client.ModManagement.UI
 			IBackgroundTaskSet btsUninstall = ModManager.DeactivateMod(p_modMod, ModManager.ActiveMods);
             if (btsUninstall != null)
                 ModManager.ActivateModsMonitor.AddActivity(btsUninstall);
-			//ChangingModActivation(this, new EventArgs<IBackgroundTaskSet>(btsUninstall));
 		}
 
 		/// <summary>
@@ -449,19 +448,11 @@ namespace Nexus.Client.ModManagement.UI
 		/// <param name="p_modMod">The mod to deactivate.</param>
 		protected void DeactivateMods(List<IMod> p_lstMod)
 		{
-			string strErrorMessage = ModManager.RequiredToolErrorMessage;
-			if (String.IsNullOrEmpty(strErrorMessage))
+			foreach (IMod modMod in p_lstMod)
 			{
-				foreach (IMod modMod in p_lstMod)
-				{
-					IBackgroundTaskSet btsUninstall = ModManager.DeactivateMod(modMod, ModManager.ActiveMods);
-					if (btsUninstall != null)
-						ModManager.ActivateModsMonitor.AddActivity(btsUninstall);
-				}
-			}
-			else
-			{
-				ExtendedMessageBox.Show(ParentForm, strErrorMessage, "Required Tool not present", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				IBackgroundTaskSet btsUninstall = ModManager.DeactivateMod(modMod, ModManager.ActiveMods);
+				if (btsUninstall != null)
+					ModManager.ActivateModsMonitor.AddActivity(btsUninstall);
 			}
 		}
 
@@ -471,14 +462,17 @@ namespace Nexus.Client.ModManagement.UI
 		/// <param name="p_rolModList">The list of Active Mods.</param>
         public void DeactivateMultipleMods(ReadOnlyObservableList<IMod> p_rolModList, bool booForceUninstall)
 		{
-			if (booForceUninstall)
-				DeactivatingMultipleMods(this, new EventArgs<IBackgroundTask>(ModManager.DeactivateMultipleMods(p_rolModList, ConfirmUpdaterAction)));
-			else
+			if ((p_rolModList != null) && (p_rolModList.Count > 0))
 			{
-				DialogResult Result = MessageBox.Show("Do you want to uninstall all the active mods?", "Deativate Mods", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-				if (Result == DialogResult.Yes)
+				if (booForceUninstall)
+					DeactivateMods(p_rolModList.ToList());
+				else
 				{
-					DeactivatingMultipleMods(this, new EventArgs<IBackgroundTask>(ModManager.DeactivateMultipleMods(p_rolModList, ConfirmUpdaterAction)));
+					DialogResult Result = MessageBox.Show("Do you want to uninstall all the active mods?", "Deativate Mods", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+					if (Result == DialogResult.Yes)
+					{
+						DeactivateMods(p_rolModList.ToList());
+					}
 				}
 			}
 		}
