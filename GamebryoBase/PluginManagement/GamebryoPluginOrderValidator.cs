@@ -121,7 +121,10 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement
 						{
 							Plugin plgPlugin = p_lstPlugins[i];
 							p_lstPlugins.RemoveAt(i);
-							p_lstPlugins.Insert(intFirstNonMasterIndex, plgPlugin);
+							if (intFirstNonMasterIndex >= p_lstPlugins.Count)
+								p_lstPlugins.Add(plgPlugin);
+							else
+								p_lstPlugins.Insert(intFirstNonMasterIndex, plgPlugin);
 						}
 						intFirstNonMasterIndex--;
 					}
@@ -148,7 +151,10 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement
 						{
 							Plugin plgPlugin = p_lstPlugins[i];
 							p_lstPlugins.RemoveAt(i);
-							p_lstPlugins.Insert(highestMasterIndex + 1, plgPlugin);
+							if (highestMasterIndex >= p_lstPlugins.Count)
+								p_lstPlugins.Add(plgPlugin);
+							else
+								p_lstPlugins.Insert(highestMasterIndex, plgPlugin);
 						}
 					}			
 				}
