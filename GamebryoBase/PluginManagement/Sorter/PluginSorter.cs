@@ -188,7 +188,11 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 			m_ptrSorterDb = CreateSorterDb();
 
 			MasterlistPath = p_strMasterlistPath;
-			UserlistPath = null;
+			string strUserList = Path.Combine(Path.GetDirectoryName(p_strMasterlistPath), "userlist.yaml");
+			if (File.Exists(strUserList))
+				UserlistPath = strUserList;
+			else
+				UserlistPath = null;
 
 			if (!String.IsNullOrEmpty(MasterlistPath) && File.Exists(MasterlistPath))
 				Load(MasterlistPath, UserlistPath);
@@ -429,6 +433,8 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 					throw new SorterException(String.Format("Unsupported game: {0} ({1})", GameMode.Name, GameMode.ModeId));
 			}
 
+			Backup();
+
 			UInt32 uintStatus = m_dlgCreateDb(ref ptrSorterDb, uintClientGameId, GameMode.InstallationPath, null);
 
 			if ((uintStatus == 1) && (ptrSorterDb == IntPtr.Zero))
@@ -457,7 +463,31 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 		}
 
 		/// <summary>
-		/// Destroys the SORTER DB.
+		/// Backup the plugins.txt and loadorder.txt files
+		/// </summary>
+		private void Backup()
+		{
+			string strGameModeLocalAppData = Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), GameMode.ModeId);
+			string strLoadOrderFilePath = Path.Combine(strGameModeLocalAppData, "loadorder.txt");
+			string strPluginsFilePath = Path.Combine(strGameModeLocalAppData, "plugins.txt");
+
+			if (File.Exists(strLoadOrderFilePath))
+			{
+				string strBakFilePath = Path.Combine(strGameModeLocalAppData, "loadorder.backup.nmm");
+				if (!File.Exists(strBakFilePath))
+					File.Copy(strLoadOrderFilePath, strBakFilePath, false);
+			}
+
+			if (File.Exists(strPluginsFilePath))
+			{
+				string strBakFilePath = Path.Combine(strGameModeLocalAppData, "plugins.backup.nmm");
+				if (!File.Exists(strBakFilePath))
+					File.Copy(strPluginsFilePath, strBakFilePath, false);
+			}
+		}
+
+		/// <summary>
+		/// Destroys the LOOT DB.
 		/// </summary>
 		private void DestroySorterDb()
 		{
