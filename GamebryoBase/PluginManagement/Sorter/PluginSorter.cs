@@ -273,6 +273,12 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 				case 1:
 					//loot_error_liblo_error
 					throw new SorterException("loot_error_liblo_error: " + strDetails);
+				case 2:
+					//loot_error_file_write_fail;
+					throw new SorterException("loot_error_file_write_fail: " + strDetails);
+				case 3:
+					//loot_error_parse_fail;
+					throw new SorterException("loot_error_parse_fail: " + strDetails);	
 				case 4:
 					//loot_error_condition_eval_fail;
 					throw new SorterException("loot_error_condition_eval_fail: " + strDetails);
@@ -302,13 +308,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 					throw new SorterException("loot_error_windows_error: " + strDetails);
 				case 14:
 					//loot_error_sorting_error
-					throw new SorterException("loot_error_sorting_error: " + strDetails);			
-				case 3333:
-					//loot_error_file_write_fail;
-					throw new SorterException("loot_error_file_write_fail: " + strDetails);
-				case 4444:
-					//loot_error_parse_fail;
-					throw new SorterException("loot_error_parse_fail: " + strDetails);		
+					throw new SorterException("loot_error_sorting_error: " + strDetails);				
 				default:
 					throw new SorterException(String.Format("Unrecognized error value {1}: {0}", strDetails, p_uintStatusCode));
 			}
@@ -511,6 +511,10 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 		protected void Load(string p_strMasterlistPath, string p_strUserlistPath)
 		{
 			UInt32 uintStatus = m_dlgLoadLists(m_ptrSorterDb, p_strMasterlistPath, p_strUserlistPath);
+
+			if (uintStatus == 3)
+				uintStatus = m_dlgLoadLists(m_ptrSorterDb, p_strMasterlistPath, null);
+
 			HandleStatusCode(uintStatus);
 		}
 
