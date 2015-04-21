@@ -467,7 +467,8 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 		/// </summary>
 		private void Backup()
 		{
-			string strGameModeLocalAppData = Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), GameMode.ModeId);
+			string strLocalAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+			string strGameModeLocalAppData = Path.Combine(strLocalAppData, GameMode.ModeId);
 			string strLoadOrderFilePath = Path.Combine(strGameModeLocalAppData, "loadorder.txt");
 			string strPluginsFilePath = Path.Combine(strGameModeLocalAppData, "plugins.txt");
 
