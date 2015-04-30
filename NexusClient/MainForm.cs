@@ -631,31 +631,33 @@ namespace Nexus.Client
 			UpgradeBottomBarFeedbackCounter();
 			if (sender != null)
 			{
-				if (((ActivateModsListViewItem)sender).Task != null)
+				if (amcActivateModsMonitor.IsInstalling)
 				{
-					tsbLoader.Visible = true;
-
-					if (!((ActivateModsListViewItem)sender).Task.IsQueued)
+					ActivateModsListViewItem lwiListViewItem = (ActivateModsListViewItem)sender;
+					if (lwiListViewItem.Task != null)
 					{
-						if (((ActivateModsListViewItem)sender).Task.GetType() == typeof(ModInstaller))
-							tlbBottomBarFeedback.Text = "Mod Activation: Installing ";
-						else if (((ActivateModsListViewItem)sender).Task.GetType() == typeof(ModUninstaller))
-							tlbBottomBarFeedback.Text = "Mod Activation: Uninstalling ";
-						else if (((ActivateModsListViewItem)sender).Task.GetType() == typeof(ModUpgrader))
-							tlbBottomBarFeedback.Text = "Mod Activation: Upgrading ";
-						else
-							tlbBottomBarFeedback.Text = "";
+						tsbLoader.Visible = true;
+
+						if (!lwiListViewItem.Task.IsQueued)
+						{
+							if (lwiListViewItem.Task.GetType() == typeof(ModInstaller))
+								tlbBottomBarFeedback.Text = "Mod Activation: Installing ";
+							else if (lwiListViewItem.Task.GetType() == typeof(ModUninstaller))
+								tlbBottomBarFeedback.Text = "Mod Activation: Uninstalling ";
+							else if (lwiListViewItem.Task.GetType() == typeof(ModUpgrader))
+								tlbBottomBarFeedback.Text = "Mod Activation: Upgrading ";
+						}
+					}
+					else
+					{
+						tlbBottomBarFeedback.Text = "Idle";
+						tsbLoader.Visible = false;
 					}
 				}
 				else
 				{
-					tlbBottomBarFeedback.Text = "";
 					tsbLoader.Visible = false;
-				}
-
-				if (!amcActivateModsMonitor.IsInstalling)
-				{
-					tsbLoader.Visible = false;
+					tlbBottomBarFeedback.Text = "Idle";
 				}
 			}
 		}

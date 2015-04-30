@@ -18,9 +18,6 @@ namespace Nexus.Client.ModManagement
 	public class ModUninstaller : ModInstallerBase
 	{
 		private ModManager m_mmModManager = null;
-		public string strPopupErrorMessage = string.Empty;
-		public string strPopupErrorMessageType = string.Empty;
-		public string strDetailsErrorMessage = string.Empty;
 
 		#region Properties
 
@@ -198,10 +195,10 @@ namespace Nexus.Client.ModManagement
 			{
 				p_strErrorMessage = Environment.NewLine + "There were issues while installing/uninstalling this mod:" + Environment.NewLine;
 				foreach (string strPath in mfiFileInstaller.InstallErrors)
-					strDetailsErrorMessage += strPath + Environment.NewLine;
+					DetailsErrorMessage += strPath + Environment.NewLine;
 
-				strPopupErrorMessage = p_strErrorMessage;
-				strPopupErrorMessageType = butTask.strPopupErrorMessageType;
+				PopupErrorMessage = p_strErrorMessage;
+				PopupErrorMessageType = butTask.strPopupErrorMessageType;
 			}
 
 			mfiFileInstaller.FinalizeInstall();
