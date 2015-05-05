@@ -1161,7 +1161,8 @@ namespace Nexus.Client.Mods.Formats.FOMod
 			{
 				try
 				{
-					IsEndorsed = !String.IsNullOrEmpty(xndEndorsed.InnerText) ? (bool?)Convert.ToBoolean(xndEndorsed.InnerText) : null;
+					bool booEndorsed;
+					IsEndorsed = Boolean.TryParse(xndEndorsed.InnerText, out booEndorsed) ? (bool?)booEndorsed : null;
 				}
 				catch
 				{
