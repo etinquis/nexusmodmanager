@@ -963,6 +963,8 @@ namespace Nexus.Client
 		/// <c>false</c> otherwise.</returns>
 		private bool ConfirmMismatchedVersionModUpgrade(IMod p_modOld, IMod p_modNew)
 		{
+			if (String.IsNullOrWhiteSpace(p_modNew.HumanReadableVersion))
+				return false;
 			string strUpgradeMessage = "A different version of {0} has been detected. The installed version is {1}, the new version is {2}. Would you like to upgrade?" + Environment.NewLine + "Selecting No will replace the mod in the mod list, but won't change any files.";
 			switch ((DialogResult)ShowMessage(new ViewMessage(String.Format(strUpgradeMessage, p_modNew.ModName, p_modOld.HumanReadableVersion, p_modNew.HumanReadableVersion), null, "Upgrade", ExtendedMessageBoxButtons.Yes | ExtendedMessageBoxButtons.No, MessageBoxIcon.Question)))
 			{
