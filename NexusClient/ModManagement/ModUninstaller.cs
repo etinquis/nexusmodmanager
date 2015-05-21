@@ -147,6 +147,8 @@ namespace Nexus.Client.ModManagement
 			bool booSuccess = false;
 			string strErrorMessage = String.Empty;
 
+			PluginManager.TooManyPluginsWarning = true;
+
 			lock (objUninstallLock)
 			{
 				using (TransactionScope tsTransaction = new TransactionScope())
@@ -168,6 +170,8 @@ namespace Nexus.Client.ModManagement
 				OnTaskSetCompleted(booSuccess, "The mod was successfully deactivated." + Environment.NewLine + strErrorMessage, Mod);
 			else
 				OnTaskSetCompleted(false, "The mod was not deactivated." + Environment.NewLine + strErrorMessage, Mod);
+
+			PluginManager.TooManyPluginsWarning = false;
 		}
 
 		/// <summary>

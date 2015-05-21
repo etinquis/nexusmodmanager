@@ -142,8 +142,9 @@ namespace Nexus.Client
 			mmgModManager.ResetSearchBox += new EventHandler(mmgModManager_ResetSearchBox);
 			mmgModManager.UpdateModsCount += new EventHandler(mmgModManager_UpdateModsCount);
 			dmcDownloadMonitor.SetTextBoxFocus += new EventHandler(dmcDownloadMonitor_SetTextBoxFocus);
-            amcActivateModsMonitor = new ActivateModsMonitorControl();
-            amcActivateModsMonitor.EmptyQueue += new EventHandler(amcActivateModsMonitor_EmptyQueue);
+			pmcPluginManager.UpdatePluginsCount += new EventHandler(pmcPluginManager_UpdatePluginsCount);
+			amcActivateModsMonitor = new ActivateModsMonitorControl();
+			amcActivateModsMonitor.EmptyQueue += new EventHandler(amcActivateModsMonitor_EmptyQueue);
 			amcActivateModsMonitor.UpdateBottomBarFeedback += new EventHandler(amcActivateModsMonitor_UpdateBottomBarFeedback);
 			p_vmlViewModel.ModManager.LoginTask.PropertyChanged += new PropertyChangedEventHandler(LoginTask_PropertyChanged);
 			tsbTips.DropDownItemClicked += new ToolStripItemClickedEventHandler(tsbTips_DropDownItemClicked);
@@ -259,7 +260,21 @@ namespace Nexus.Client
 
             amcActivateModsMonitor.DockTo(dmcDownloadMonitor.Pane, DockStyle.Right, 1);
 
-			tlbModsCounter.Text = "Total mods " + ViewModel.ModManagerVM.ManagedMods.Count + "  |   Active mods " + ViewModel.ModManager.ActiveMods.Count;
+			tlbPluginsCounter.Text = "  Total plugins: " + ViewModel.PluginManagerVM.ManagedPlugins.Count + "   |   Active plugins: ";
+
+			if (ViewModel.PluginManagerVM.ActivePlugins.Count > ViewModel.PluginManagerVM.MaxAllowedActivePluginsCount)
+			{
+				tlbActivePluginsCounter.ForeColor = Color.Red;
+				tlbActivePluginsCounter.Text = ViewModel.PluginManagerVM.ActivePlugins.Count.ToString();
+				tlbActivePluginsCounter.ToolTipText = "Too Many!";
+			}
+			else
+			{
+				tlbActivePluginsCounter.ForeColor = Color.Black;
+				tlbActivePluginsCounter.Text = ViewModel.PluginManagerVM.ActivePlugins.Count.ToString();
+			}
+
+			tlbModsCounter.Text = "  Total mods: " + ViewModel.ModManagerVM.ManagedMods.Count + "   |   Active mods: " + ViewModel.ModManager.ActiveMods.Count;
 
 			UserStatusFeedback();
 		}
@@ -620,8 +635,28 @@ namespace Nexus.Client
 		/// </summary>
 		private void mmgModManager_UpdateModsCount(object sender, EventArgs e)
 		{
-			tlbModsCounter.Text = "Total mods " + ViewModel.ModManagerVM.ManagedMods.Count + "  |   Active mods " + ViewModel.ModManager.ActiveMods.Count;
+			tlbModsCounter.Text = "  Total mods: " + ViewModel.ModManagerVM.ManagedMods.Count + "   |   Active mods: " + ViewModel.ModManager.ActiveMods.Count;
 		}
+
+		/// <summary>
+		/// Updates the Plugins Counter
+		/// </summary>
+		private void pmcPluginManager_UpdatePluginsCount(object sender, EventArgs e)
+		{
+			tlbPluginsCounter.Text = "  Total plugins: " + ViewModel.PluginManagerVM.ManagedPlugins.Count + "   |   Active plugins: ";
+			
+			if (ViewModel.PluginManagerVM.ActivePlugins.Count > ViewModel.PluginManagerVM.MaxAllowedActivePluginsCount)
+			{
+				tlbActivePluginsCounter.ForeColor = Color.Red;
+				tlbActivePluginsCounter.Text = ViewModel.PluginManagerVM.ActivePlugins.Count.ToString();
+				tlbActivePluginsCounter.ToolTipText = "Too Many!";
+			}
+			else
+			{
+				tlbActivePluginsCounter.ForeColor = Color.Black;
+				tlbActivePluginsCounter.Text = ViewModel.PluginManagerVM.ActivePlugins.Count.ToString();
+			}
+ 		}
 
 		/// <summary>
 		/// Updates the Bottom Bar Feedback

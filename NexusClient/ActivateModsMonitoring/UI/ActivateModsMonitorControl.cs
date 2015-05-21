@@ -201,7 +201,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 				{
 					if (subItem.Text != string.Empty)
 					{
-						if(m_strPopupErrorMessageType == "Error")
+						if((m_strPopupErrorMessageType == "Error") || (String.IsNullOrEmpty(m_strPopupErrorMessageType)))
 							ExtendedMessageBox.Show(this, subItem.Text, "Failed", m_strDetailsErrorMessageType, MessageBoxButtons.OK, MessageBoxIcon.Error);
 						else if(m_strPopupErrorMessageType == "Warning")
 							ExtendedMessageBox.Show(this, subItem.Text, "Warning", m_strDetailsErrorMessageType, MessageBoxButtons.OK, MessageBoxIcon.Warning);
