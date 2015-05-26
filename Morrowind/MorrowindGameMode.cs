@@ -4,10 +4,10 @@ using System;
 using Nexus.Client.Games.Gamebryo;
 using Nexus.Client.Games.Morrowind.Tools;
 using Nexus.Client.Games.Tools;
-using Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder;
 using Nexus.Client.Games.Morrowind.PluginManagement.Boss;
 using Nexus.Client.Games.Gamebryo.PluginManagement.InstallationLog;
 using Nexus.Client.Games.Gamebryo.PluginManagement.OrderLog;
+using Nexus.Client.PluginManagement;
 using Nexus.Client.PluginManagement.InstallationLog;
 using Nexus.Client.PluginManagement.OrderLog;
 using Nexus.Client.Plugins;
@@ -107,10 +107,22 @@ namespace Nexus.Client.Games.Morrowind
 		}
 
 		/// <summary>
-		/// Gets the LoadOrder plugin manager.
+		/// Gets the plugin loadorder manager.
 		/// </summary>
-		/// <value>The LoadOrder plugin manager.</value>
-		protected LoadOrderManager LoadOrderManager { get; private set; }
+		/// <value>The plugin loadorder manager.</value>
+		public override ILoadOrderManager LoadOrderManager
+		{
+			get
+			{
+				return BossSorter;
+			}
+		}
+
+		/// <summary>
+		/// Gets the BossSorter plugin manager.
+		/// </summary>
+		/// <value>The BossSorter plugin manager.</value>
+		protected BossSorter BossSorter { get; private set; }
 
         #endregion
 
@@ -148,7 +160,7 @@ namespace Nexus.Client.Games.Morrowind
 		public override IPluginOrderLogSerializer GetPluginOrderLogSerializer()
 		{
 			if (m_posPluginOrderSerializer == null)
-				m_posPluginOrderSerializer = new GamebryoPluginOrderLogSerializer(LoadOrderManager, null);
+				m_posPluginOrderSerializer = new GamebryoPluginOrderLogSerializer(BossSorter, null);
 			return m_posPluginOrderSerializer;
 		}
 

@@ -16,14 +16,14 @@ namespace Nexus.Client.Games.Morrowind.PluginManagement.Boss
 	/// <remarks>
 	/// This use BAPI to expose BOSS's pluing sorting and activation abilities.
 	/// </remarks>
-	public class BossSorter : IDisposable
+	public class BossSorter : ILoadOrderManager, IDisposable
 	{
 
 		#region Events
 
-		event EventHandler LoadOrderUpdate;
-		event EventHandler ActivePluginUpdate;
-		event EventHandler ExternalPluginAdded;
+		public event EventHandler LoadOrderUpdate;
+		public event EventHandler ActivePluginUpdate;
+		public event EventHandler ExternalPluginAdded;
 
 		#endregion
 
