@@ -257,15 +257,20 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			if ((source == null) || (e == null))
 				return;
 
-			string strFile = e.Name;
+			string strFile = e.Name ?? String.Empty;
 
-			if (strFile.Equals("plugins.txt", StringComparison.InvariantCultureIgnoreCase) && !m_booPluginsLock)
+			if (!String.IsNullOrWhiteSpace(strFile))
 			{
-				ActivePluginUpdate(GetActivePlugins(), new EventArgs());
-			}
-			else if (strFile.Equals("loadorder.txt", StringComparison.InvariantCultureIgnoreCase) && !m_booLoadOrderLock && !TimestampOrder)
-			{
-				LoadOrderUpdate(GetLoadOrder(), new EventArgs());
+				if (strFile.Equals("plugins.txt", StringComparison.InvariantCultureIgnoreCase) && !m_booPluginsLock)
+				{
+					if (ActivePluginUpdate != null)
+						ActivePluginUpdate(GetActivePlugins(), new EventArgs());
+				}
+				else if (strFile.Equals("loadorder.txt", StringComparison.InvariantCultureIgnoreCase) && !m_booLoadOrderLock && !TimestampOrder)
+				{
+					if (LoadOrderUpdate != null)
+						LoadOrderUpdate(GetLoadOrder(), new EventArgs());
+				}
 			}
 		}
 
@@ -276,7 +281,8 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 
 			if (TimestampOrder && !m_booLoadOrderLock)
 			{
-				LoadOrderUpdate(GetLoadOrder(), new EventArgs());
+				if (LoadOrderUpdate != null)
+					LoadOrderUpdate(GetLoadOrder(), new EventArgs());
 			}
 		}
 
@@ -286,7 +292,8 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 				return;
 
 			if (!m_booLoadOrderLock && !m_booPluginsLock)
-				ExternalPluginAdded(e.FullPath, new EventArgs());
+				if (ExternalPluginAdded != null)
+					ExternalPluginAdded(e.FullPath, new EventArgs());
 		}
 
 		#endregion
