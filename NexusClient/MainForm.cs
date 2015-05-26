@@ -513,7 +513,7 @@ namespace Nexus.Client
 					e.Cancel = true;
 			}
 
-            if (amcActivateModsMonitor.IsInstalling)
+            if (ViewModel.IsInstalling)
 			{
 				DialogResult drFormClose = MessageBox.Show("You cannot close NMM because there is an ongoing mod installation!", "Closing", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 					e.Cancel = true;
@@ -653,7 +653,7 @@ namespace Nexus.Client
 					tsbLoader.Visible = false;
 				}
 
-				if (!amcActivateModsMonitor.IsInstalling)
+				if (!ViewModel.IsInstalling)
 				{
 					tsbLoader.Visible = false;
 				}

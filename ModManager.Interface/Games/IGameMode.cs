@@ -90,6 +90,12 @@ namespace Nexus.Client.Games
 		bool SupportsPluginAutoSorting { get; }
 
 		/// <summary>
+		/// Gets the plugin loadorder manager.
+		/// </summary>
+		/// <value>The plugin loadorder manager.</value>
+		ILoadOrderManager LoadOrderManager { get; }
+
+		/// <summary>
 		/// Gets the default game categories.
 		/// </summary>
 		/// <value>The default game categories stored in the resource file.</value>

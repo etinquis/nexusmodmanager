@@ -481,6 +481,18 @@ namespace Nexus.Client.Games
 		}
 
 		/// <summary>
+		/// Gets the plugin loadorder manager.
+		/// </summary>
+		/// <value>The plugin loadorder manager.</value>
+		public virtual ILoadOrderManager LoadOrderManager 
+		{ 
+			get
+			{
+				return null;
+			}
+		}
+
+		/// <summary>
 		/// Gets the directory where the game plugins are installed.
 		/// </summary>
 		/// <value>The directory where the game plugins are installed.</value>

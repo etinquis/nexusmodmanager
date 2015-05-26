@@ -27,7 +27,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		private string m_strTitleAllActive = "Mod Activation Queue ({0})";
 		private string m_strTitleSomeActive = "Mod Activation Queue ({0}/{1})";
 		private bool m_booControlIsLoaded = false;
-		private IBackgroundTaskSet m_btsRunningTask = null;
+		
 		public List<IBackgroundTaskSet> QueuedTasks = new List<IBackgroundTaskSet>();
 		private bool booQueued = false;
 		private string m_strPopupErrorMessage = string.Empty;
@@ -85,14 +85,6 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 
 				LoadMetrics();
 				UpdateTitle();
-			}
-		}
-
-		public bool IsInstalling
-		{
-			get
-			{
-				return (m_btsRunningTask != null);
 			}
 		}
 
@@ -171,8 +163,6 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		}
 
 		#endregion
-
-		
 
 		/// <summary>
 		/// Hanldes the <see cref="Control.MouseClick"/> event of the controls.
@@ -270,8 +260,8 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			ViewModel.RemoveSelectedTask(strTaskName);
 			if (QueuedTasks.Count > 0)
 			{
-				m_btsRunningTask = QueuedTasks.First();
-				QueuedTasks.Remove(m_btsRunningTask);
+				ViewModel.RunningTask = QueuedTasks.First();
+				QueuedTasks.Remove(ViewModel.RunningTask);
 			}
 			UpdateBottomBarFeedback(null, new EventArgs());
 		}
@@ -312,7 +302,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 				if (lviExisitingTask.Task == p_tskTask)
 					return;
 
-			if (m_btsRunningTask != null)
+			if (ViewModel.RunningTask != null)
             {
                 if (p_tskTask.GetType() == typeof(ModInstaller))
                 {
@@ -338,27 +328,27 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 						}
                     }
 
-                    if (m_btsRunningTask.GetType() == typeof(ModInstaller))
+					if (ViewModel.RunningTask.GetType() == typeof(ModInstaller))
                     {
-                        if ((((ModInstaller)m_btsRunningTask).ModFileName == ((ModInstaller)p_tskTask).ModFileName) || booQueued)
+						if ((((ModInstaller)ViewModel.RunningTask).ModFileName == ((ModInstaller)p_tskTask).ModFileName) || booQueued)
                         {
                             booQueued = false;
                             m_vmlViewModel.RemoveUselessTask(((ModInstaller)p_tskTask));
                             return;
                         }
                     }
-					else if (m_btsRunningTask.GetType() == typeof(ModUninstaller))
+					else if (ViewModel.RunningTask.GetType() == typeof(ModUninstaller))
 					{
-						if ((((ModUninstaller)m_btsRunningTask).ModFileName == ((ModInstaller)p_tskTask).ModFileName) || booQueued)
+						if ((((ModUninstaller)ViewModel.RunningTask).ModFileName == ((ModInstaller)p_tskTask).ModFileName) || booQueued)
 						{
 							booQueued = false;
 							m_vmlViewModel.RemoveUselessTask(((ModInstaller)p_tskTask));
 							return;
 						}
 					}
-					else if (m_btsRunningTask.GetType() == typeof(ModUpgrader))
+					else if (ViewModel.RunningTask.GetType() == typeof(ModUpgrader))
 					{
-						if ((((ModUpgrader)m_btsRunningTask).ModFileName == ((ModInstaller)p_tskTask).ModFileName) || booQueued)
+						if ((((ModUpgrader)ViewModel.RunningTask).ModFileName == ((ModInstaller)p_tskTask).ModFileName) || booQueued)
 						{
 							booQueued = false;
 							m_vmlViewModel.RemoveUselessTask(((ModInstaller)p_tskTask));
@@ -390,27 +380,27 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 						}
 					}
 
-					if (m_btsRunningTask.GetType() == typeof(ModInstaller))
+					if (ViewModel.RunningTask.GetType() == typeof(ModInstaller))
 					{
-						if ((((ModInstaller)m_btsRunningTask).ModFileName == ((ModUninstaller)p_tskTask).ModFileName) || booQueued)
+						if ((((ModInstaller)ViewModel.RunningTask).ModFileName == ((ModUninstaller)p_tskTask).ModFileName) || booQueued)
 						{
 							booQueued = false;
 							m_vmlViewModel.RemoveUselessTaskUn(((ModUninstaller)p_tskTask));
 							return;
 						}
 					}
-					else if (m_btsRunningTask.GetType() == typeof(ModUninstaller))
+					else if (ViewModel.RunningTask.GetType() == typeof(ModUninstaller))
 					{
-						if ((((ModUninstaller)m_btsRunningTask).ModFileName == ((ModUninstaller)p_tskTask).ModFileName) || booQueued)
+						if ((((ModUninstaller)ViewModel.RunningTask).ModFileName == ((ModUninstaller)p_tskTask).ModFileName) || booQueued)
 						{
 							booQueued = false;
 							m_vmlViewModel.RemoveUselessTaskUn(((ModUninstaller)p_tskTask));
 							return;
 						}
 					}
-					else if (m_btsRunningTask.GetType() == typeof(ModUpgrader))
+					else if (ViewModel.RunningTask.GetType() == typeof(ModUpgrader))
 					{
-						if ((((ModUpgrader)m_btsRunningTask).ModFileName == ((ModUninstaller)p_tskTask).ModFileName) || booQueued)
+						if ((((ModUpgrader)ViewModel.RunningTask).ModFileName == ((ModUninstaller)p_tskTask).ModFileName) || booQueued)
 						{
 							booQueued = false;
 							m_vmlViewModel.RemoveUselessTaskUn(((ModUninstaller)p_tskTask));
@@ -442,27 +432,27 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 						}
 					}
 
-					if (m_btsRunningTask.GetType() == typeof(ModInstaller))
+					if (ViewModel.RunningTask.GetType() == typeof(ModInstaller))
 					{
-						if ((((ModInstaller)m_btsRunningTask).ModFileName == ((ModUpgrader)p_tskTask).ModFileName) || booQueued)
+						if ((((ModInstaller)ViewModel.RunningTask).ModFileName == ((ModUpgrader)p_tskTask).ModFileName) || booQueued)
 						{
 							booQueued = false;
 							m_vmlViewModel.RemoveUselessTaskUpg(((ModUpgrader)p_tskTask));
 							return;
 						}
 					}
-					else if (m_btsRunningTask.GetType() == typeof(ModUninstaller))
+					else if (ViewModel.RunningTask.GetType() == typeof(ModUninstaller))
 					{
-						if ((((ModUninstaller)m_btsRunningTask).ModFileName == ((ModUpgrader)p_tskTask).ModFileName) || booQueued)
+						if ((((ModUninstaller)ViewModel.RunningTask).ModFileName == ((ModUpgrader)p_tskTask).ModFileName) || booQueued)
 						{
 							booQueued = false;
 							m_vmlViewModel.RemoveUselessTaskUpg(((ModUpgrader)p_tskTask));
 							return;
 						}
 					}
-					else if (m_btsRunningTask.GetType() == typeof(ModUpgrader))
+					else if (ViewModel.RunningTask.GetType() == typeof(ModUpgrader))
 					{
-						if ((((ModUpgrader)m_btsRunningTask).ModFileName == ((ModUpgrader)p_tskTask).ModFileName) || booQueued)
+						if ((((ModUpgrader)ViewModel.RunningTask).ModFileName == ((ModUpgrader)p_tskTask).ModFileName) || booQueued)
 						{
 							booQueued = false;
 							m_vmlViewModel.RemoveUselessTaskUpg(((ModUpgrader)p_tskTask));
@@ -479,15 +469,15 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 
 			lviActivation.EnsureVisible();
 
-            if ((m_btsRunningTask == null) || (m_btsRunningTask.IsCompleted))
+			if ((ViewModel.RunningTask == null) || (ViewModel.RunningTask.IsCompleted))
             {
-                m_btsRunningTask = p_tskTask;
-                if (m_btsRunningTask.GetType() == typeof(ModInstaller))
-                    ((ModInstaller)m_btsRunningTask).Install();
-				else if (m_btsRunningTask.GetType() == typeof(ModUninstaller))
-					((ModUninstaller)m_btsRunningTask).Install();
-				else if (m_btsRunningTask.GetType() == typeof(ModUpgrader))
-					((ModUpgrader)m_btsRunningTask).Install();
+				ViewModel.RunningTask = p_tskTask;
+				if (ViewModel.RunningTask.GetType() == typeof(ModInstaller))
+					((ModInstaller)ViewModel.RunningTask).Install();
+				else if (ViewModel.RunningTask.GetType() == typeof(ModUninstaller))
+					((ModUninstaller)ViewModel.RunningTask).Install();
+				else if (ViewModel.RunningTask.GetType() == typeof(ModUpgrader))
+					((ModUpgrader)ViewModel.RunningTask).Install();
             }
             else
             {
@@ -497,21 +487,21 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 
 		private void TaskSet_TaskSetCompleted(object sender, TaskSetCompletedEventArgs e)
 		{
-			if (m_btsRunningTask != null)
+			if (ViewModel.RunningTask != null)
 			{
-				if (m_btsRunningTask.GetType() == typeof(ModUninstaller))
+				if (ViewModel.RunningTask.GetType() == typeof(ModUninstaller))
 				{
 					m_strPopupErrorMessage = ((ModUninstaller)sender).strPopupErrorMessage;
 					m_strPopupErrorMessageType = ((ModUninstaller)sender).strPopupErrorMessageType;
 					m_strDetailsErrorMessageType = ((ModUninstaller)sender).strDetailsErrorMessage;
 				}
-				else if (m_btsRunningTask.GetType() == typeof(ModInstaller))
+				else if (ViewModel.RunningTask.GetType() == typeof(ModInstaller))
 				{
 					m_strPopupErrorMessage = ((ModInstaller)sender).strPopupErrorMessage;
 					m_strPopupErrorMessageType = ((ModInstaller)sender).strPopupErrorMessageType;
 					m_strDetailsErrorMessageType = ((ModInstaller)sender).strDetailsErrorMessage;
 				}
-				else if (m_btsRunningTask.GetType() == typeof(ModUpgrader))
+				else if (ViewModel.RunningTask.GetType() == typeof(ModUpgrader))
 				{
 					m_strPopupErrorMessage = ((ModUpgrader)sender).strPopupErrorMessage;
 					m_strPopupErrorMessageType = ((ModUpgrader)sender).strPopupErrorMessageType;
@@ -521,19 +511,19 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 						
 			this.lvwActiveTasks.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(ActivateModsMonitorControl_DrawSubItem);
 			this.lvwActiveTasks.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(ActivateModsMonitorControl_DrawColumnHeader);
-			
-			m_btsRunningTask = null;
+
+			ViewModel.RunningTask = null;
 
             if (QueuedTasks.Count > 0)
 			{
-				m_btsRunningTask = QueuedTasks.First();
-				QueuedTasks.Remove(m_btsRunningTask);
-                if (m_btsRunningTask.GetType() == typeof(ModInstaller))
-				    ((ModInstaller)m_btsRunningTask).Install();
-				else if (m_btsRunningTask.GetType() == typeof(ModUninstaller))
-					((ModUninstaller)m_btsRunningTask).Install();
-				else if (m_btsRunningTask.GetType() == typeof(ModUpgrader))
-					((ModUpgrader)m_btsRunningTask).Install();
+				ViewModel.RunningTask = QueuedTasks.First();
+				QueuedTasks.Remove(ViewModel.RunningTask);
+				if (ViewModel.RunningTask.GetType() == typeof(ModInstaller))
+					((ModInstaller)ViewModel.RunningTask).Install();
+				else if (ViewModel.RunningTask.GetType() == typeof(ModUninstaller))
+					((ModUninstaller)ViewModel.RunningTask).Install();
+				else if (ViewModel.RunningTask.GetType() == typeof(ModUpgrader))
+					((ModUpgrader)ViewModel.RunningTask).Install();
 			}
 			else
 				if (EmptyQueue != null)

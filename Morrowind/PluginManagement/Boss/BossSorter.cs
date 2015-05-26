@@ -4,8 +4,9 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using Nexus.Client.Util;
 using Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder;
+using Nexus.Client.PluginManagement;
+using Nexus.Client.Util;
 
 namespace Nexus.Client.Games.Morrowind.PluginManagement.Boss
 {
@@ -15,8 +16,17 @@ namespace Nexus.Client.Games.Morrowind.PluginManagement.Boss
 	/// <remarks>
 	/// This use BAPI to expose BOSS's pluing sorting and activation abilities.
 	/// </remarks>
-	public class BossSorter : ILoadOrderManager, IDisposable
+	public class BossSorter : IDisposable
 	{
+
+		#region Events
+
+		event EventHandler LoadOrderUpdate;
+		event EventHandler ActivePluginUpdate;
+		event EventHandler ExternalPluginAdded;
+
+		#endregion
+
 		#region Native Methods
 
 		[DllImport("kernel32.dll", BestFitMapping = false, ThrowOnUnmappableChar = true)]

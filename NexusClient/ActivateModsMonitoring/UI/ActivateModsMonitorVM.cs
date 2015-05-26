@@ -57,7 +57,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		/// Gets the Mod Activation manager to use to manage the monitored activities.
 		/// </summary>
 		/// <value>The Mod Activation manager to use to manage the monitored activities.</value>
-		protected ActivateModsMonitor ActivateModsMonitor { get; private set; }
+		public ActivateModsMonitor ActivateModsMonitor { get; private set; }
 
 		/// <summary>
 		/// Gets the mod repository from which to get mods and mod metadata.
@@ -100,7 +100,18 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 				return ActivateModsMonitor.Status;
 			}
 		}
-				
+
+		public IBackgroundTaskSet RunningTask
+		{
+			get
+			{
+				return ActivateModsMonitor.RunningTask;
+			}
+			set
+			{
+				ActivateModsMonitor.RunningTask = value;
+			}
+		}				
 
 		/// <summary>
 		/// Gets the application and user settings.

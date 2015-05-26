@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder;
+using Nexus.Client.PluginManagement;
 using Nexus.Client.PluginManagement.InstallationLog;
 using Nexus.Client.PluginManagement.OrderLog;
 using Nexus.Client.Plugins;

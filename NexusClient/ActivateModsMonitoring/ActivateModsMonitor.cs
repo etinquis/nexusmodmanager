@@ -18,6 +18,7 @@ namespace Nexus.Client.ActivateModsMonitoring
 		private ThreadSafeObservableList<IBackgroundTaskSet> m_oclTasks = new ThreadSafeObservableList<IBackgroundTaskSet>();
 		//private IBackgroundTaskSet m_bstRunningTask = null;
 		private string m_Status = null;
+		private IBackgroundTaskSet m_btsRunningTask = null;
 		
 		/// <summary>
 		/// Raised whenever a property of the class changes.
@@ -39,6 +40,18 @@ namespace Nexus.Client.ActivateModsMonitoring
 		/// <value>The list of tasks being executed.</value>
 		public ReadOnlyObservableList<IBackgroundTaskSet> ActiveTasks { get; private set; }
 
+		public IBackgroundTaskSet RunningTask
+		{
+			get
+			{
+				return m_btsRunningTask;
+			}
+			set
+			{
+				m_btsRunningTask = value;
+			}
+		}
+
 		public string Status
 		{
 			get
@@ -57,8 +70,15 @@ namespace Nexus.Client.ActivateModsMonitoring
 					OnPropertyChanged("Status");
 			}
 		}
-		
-		
+
+		public bool IsInstalling
+		{
+			get
+			{
+				return (m_btsRunningTask != null);
+			}
+		}
+
 		#endregion
 
 		#region Constructors

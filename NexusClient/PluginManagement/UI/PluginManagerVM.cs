@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
+using Nexus.Client.ActivateModsMonitoring;
 using Nexus.Client.Commands;
 using Nexus.Client.Commands.Generic;
 using Nexus.Client.Games;
@@ -188,6 +190,14 @@ namespace Nexus.Client.PluginManagement.UI
 		protected IGameMode CurrentGameMode { get; private set; }
 
 		/// <summary>
+		/// Gets the view model that encapsulates the data
+		/// and operations for diaplying the mod activation monitor.
+		/// </summary>
+		/// <value>The view model that encapsulates the data
+		/// and operations for diaplying the mod activation monitor.</value>
+		protected ActivateModsMonitor ModActivationMonitor { get; private set; }
+
+		/// <summary>
 		/// Gets the max allowed number of active plugins.
 		/// </summary>
 		/// <value>The max allowed number of active plugins (0 if there's no limit).</value>
@@ -209,11 +219,16 @@ namespace Nexus.Client.PluginManagement.UI
 		/// <param name="p_pmgPluginManager">The plugin manager to use to manage plugins.</param>
 		/// <param name="p_setSettings">The application and user settings.</param>
 		/// <param name="p_gmdGameMode">The game mode that is currently being managed.</param>
-		public PluginManagerVM(IPluginManager p_pmgPluginManager, ISettings p_setSettings, IGameMode p_gmdGameMode)
+		public PluginManagerVM(IPluginManager p_pmgPluginManager, ISettings p_setSettings, IGameMode p_gmdGameMode, ActivateModsMonitor p_ammMonitor)
 		{
 			PluginManager = p_pmgPluginManager;
 			Settings = p_setSettings;
 			CurrentGameMode = p_gmdGameMode;
+			ModActivationMonitor = p_ammMonitor;
+
+			CurrentGameMode.LoadOrderManager.ActivePluginUpdate += new EventHandler(LoadOrderManager_ActivePluginUpdate);
+			CurrentGameMode.LoadOrderManager.LoadOrderUpdate += new EventHandler(LoadOrderManager_LoadOrderUpdate);
+			CurrentGameMode.LoadOrderManager.ExternalPluginAdded +=	new EventHandler(LoadOrderManager_ExternalPluginAdded);
 
 			ActivatePluginCommand = new Command<Plugin>("Activate Plugin", "Activates the selected plugin.", ActivatePlugin);
 			DeactivatePluginCommand = new Command<Plugin>("Deactivate Plugin", "Deactivates the selected plugin.", DeactivatePlugin);
@@ -224,6 +239,61 @@ namespace Nexus.Client.PluginManagement.UI
 			ExportLoadOrderToClipboardCommand = new Command("Export to the clipboard", "Exports the current load order to the clipboard.", ExportLoadOrderToClipboard);
 			ImportLoadOrderFromFileCommand = new Command<string>("Import from a text file", "Imports a load order from a text file", ImportLoadOrderFromFile);
 			ImportLoadOrderFromClipboardCommand = new Command("Import from the clipboard", "Imports a load order from the clipboard", ImportLoadOrderFromClipboard);
+		}
+
+		#endregion
+
+		#region External Plugin Update
+
+		private void LoadOrderManager_ActivePluginUpdate(object sender, EventArgs e)
+		{
+			if (ModActivationMonitor.IsInstalling)
+				return;
+
+			List<string> lstNewActiveList;
+			List<string> lstActivatedPlugins = new List<string>();
+			List<string> lstActivePlugins;
+
+			if (sender != null)
+			{
+				lstNewActiveList = ((string[])sender).ToList();
+
+				if (ActivePlugins.Count > 0)
+				{
+					lstActivePlugins = ActivePlugins.Select(x => x.Filename).ToList();
+					var ActivatedPlugins = lstNewActiveList.Except(lstActivePlugins, StringComparer.InvariantCultureIgnoreCase);
+					if (ActivatedPlugins != null)
+						lstActivatedPlugins = ActivatedPlugins.ToList();
+				}
+				else
+					lstActivatedPlugins = lstNewActiveList;
+				
+				foreach (string plugin in lstActivatedPlugins)
+				{
+					PluginManager.ActivatePlugin(plugin);
+				}
+
+			}
+		}
+
+		private void LoadOrderManager_LoadOrderUpdate(object sender, EventArgs e)
+		{
+			if (ModActivationMonitor.IsInstalling)
+				return;
+
+			if (sender != null)
+				RefreshPluginSorting((string[])sender);
+		}
+
+		private void LoadOrderManager_ExternalPluginAdded(object sender, EventArgs e)
+		{
+			if (ModActivationMonitor.IsInstalling)
+				return;
+
+			if (sender != null)
+			{
+				PluginManager.AddPlugin(sender.ToString());
+			}
 		}
 
 		#endregion

@@ -1,15 +1,24 @@
 ﻿using System;
 
-namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
+namespace Nexus.Client.PluginManagement
 {
 	/// <summary>
-	/// The interface for LOADORDER functionality.
+	/// The interface for the LoadOrder Manager.
 	/// </summary>
 	/// <remarks>
-	/// This use LOAPI to expose LOADORDER's pluing sorting and activation abilities.
+	/// This exposes the LoadOrder Manager's plugin sorting and activation abilities.
 	/// </remarks>
 	public interface ILoadOrderManager
 	{
+
+		#region Events
+
+		event EventHandler LoadOrderUpdate;
+		event EventHandler ActivePluginUpdate;
+		event EventHandler ExternalPluginAdded;
+
+		#endregion
+
 		#region Properties
 
 		/// <summary>

@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Nexus.Client.PluginManagement;
 using Nexus.Client.Util;
 
 namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
@@ -16,6 +17,15 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 	/// </remarks>
 	public class LoadOrderManager : ILoadOrderManager, IDisposable
 	{
+
+		#region Events
+
+		public event EventHandler LoadOrderUpdate;
+		public event EventHandler ActivePluginUpdate;
+		public event EventHandler ExternalPluginAdded;
+
+		#endregion
+
 		#region Native Methods
 
 		

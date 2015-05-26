@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder;
 using Nexus.Client.Games.Gamebryo.PluginManagement.Sorter;
+using Nexus.Client.PluginManagement;
 using Nexus.Client.PluginManagement.OrderLog;
 using Nexus.Client.Plugins;
 
