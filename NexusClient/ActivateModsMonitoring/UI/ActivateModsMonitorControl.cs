@@ -487,35 +487,33 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 
 		private void TaskSet_TaskSetCompleted(object sender, TaskSetCompletedEventArgs e)
 		{
-			if (ViewModel.RunningTask != null)
+			ModInstallerBase mibModInstaller;
+
+			try
 			{
-				if (ViewModel.RunningTask.GetType() == typeof(ModUninstaller))
-				{
-					m_strPopupErrorMessage = ((ModUninstaller)sender).strPopupErrorMessage;
-					m_strPopupErrorMessageType = ((ModUninstaller)sender).strPopupErrorMessageType;
-					m_strDetailsErrorMessageType = ((ModUninstaller)sender).strDetailsErrorMessage;
-				}
-				else if (ViewModel.RunningTask.GetType() == typeof(ModInstaller))
-				{
-					m_strPopupErrorMessage = ((ModInstaller)sender).strPopupErrorMessage;
-					m_strPopupErrorMessageType = ((ModInstaller)sender).strPopupErrorMessageType;
-					m_strDetailsErrorMessageType = ((ModInstaller)sender).strDetailsErrorMessage;
-				}
-				else if (ViewModel.RunningTask.GetType() == typeof(ModUpgrader))
-				{
-					m_strPopupErrorMessage = ((ModUpgrader)sender).strPopupErrorMessage;
-					m_strPopupErrorMessageType = ((ModUpgrader)sender).strPopupErrorMessageType;
-					m_strDetailsErrorMessageType = ((ModUpgrader)sender).strDetailsErrorMessage;
-				}
+				mibModInstaller = (ModInstallerBase)sender;
+				m_strPopupErrorMessage = mibModInstaller.PopupErrorMessage;
+				m_strPopupErrorMessageType = mibModInstaller.PopupErrorMessageType;
+				m_strDetailsErrorMessageType = mibModInstaller.DetailsErrorMessage;
 			}
-						
+			catch { }
+
+
 			this.lvwActiveTasks.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(ActivateModsMonitorControl_DrawSubItem);
 			this.lvwActiveTasks.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(ActivateModsMonitorControl_DrawColumnHeader);
 
-			ViewModel.RunningTask = null;
-
-            if (QueuedTasks.Count > 0)
+			IBackgroundTaskSet btsCompletedTask = null;
+			if (sender != null)
 			{
+				btsCompletedTask = (IBackgroundTaskSet)sender;
+			}
+
+			if ((ViewModel.RunningTask == null) || (ViewModel.RunningTask == btsCompletedTask))
+			{
+				ViewModel.RunningTask = null;
+
+				if (QueuedTasks.Count > 0)
+				{
 				ViewModel.RunningTask = QueuedTasks.First();
 				QueuedTasks.Remove(ViewModel.RunningTask);
 				if (ViewModel.RunningTask.GetType() == typeof(ModInstaller))
@@ -524,10 +522,11 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 					((ModUninstaller)ViewModel.RunningTask).Install();
 				else if (ViewModel.RunningTask.GetType() == typeof(ModUpgrader))
 					((ModUpgrader)ViewModel.RunningTask).Install();
+				}
+				else
+					if (EmptyQueue != null)
+						EmptyQueue(this, new EventArgs());
 			}
-			else
-				if (EmptyQueue != null)
-					EmptyQueue(this, new EventArgs());
 		}
 		
 		private void lvwActiveTasks_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)

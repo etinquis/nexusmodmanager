@@ -16,7 +16,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		ActivateModsMonitorControl m_amcControl = null;
 		private bool m_booRemovable = false;
 		private string m_strModName = string.Empty;
-				
+						
 		#region Properties
 
 		/// <summary>
@@ -138,25 +138,19 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			bool booSuccess = false;
 			string strPopupErrorMessage = string.Empty;
 
-			IBackgroundTaskSet btsExecutor = (IBackgroundTaskSet)sender;
 			booSuccess = e.Success;
-			if (btsExecutor.GetType() == typeof(ModInstaller))
-			{
-				booComplete = ((ModInstaller)btsExecutor).IsCompleted;
-				strPopupErrorMessage = ((ModInstaller)btsExecutor).strPopupErrorMessage;
-			}
-			else if (btsExecutor.GetType() == typeof(ModUninstaller))
-			{
-				booComplete = ((ModUninstaller)btsExecutor).IsCompleted;
-				if (((ModUninstaller)btsExecutor).strPopupErrorMessage != string.Empty)
-					strPopupErrorMessage = ((ModUninstaller)btsExecutor).strPopupErrorMessage;
-			}
-			else if (btsExecutor.GetType() == typeof(ModUpgrader))
-			{
-				booComplete = ((ModUpgrader)btsExecutor).IsCompleted;
-				strPopupErrorMessage = ((ModUpgrader)btsExecutor).strPopupErrorMessage;
-			}
 
+			ModInstallerBase mibModInstaller;
+
+			try
+			{
+				mibModInstaller = (ModInstallerBase)sender;
+				booComplete = mibModInstaller.IsCompleted;
+				if (mibModInstaller.PopupErrorMessage != string.Empty)
+					strPopupErrorMessage = mibModInstaller.PopupErrorMessage;
+			}
+			catch { }
+			
 			if (booComplete)
 			{
 				if (strPopupErrorMessage != string.Empty)
