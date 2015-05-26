@@ -209,6 +209,34 @@ namespace Nexus.Client.PluginManagement.UI
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets whether to show an error message when the manager tries to activate
+		/// more plugins than allowed by the current game mode.
+		/// </summary>
+		public bool TooManyPluginsWarning
+		{
+			get
+			{
+				return PluginManager.TooManyPluginsWarning;
+			}
+			set
+			{
+				PluginManager.TooManyPluginsWarning = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets the list of critical plugin names, ordered by load order.
+		/// </summary>
+		/// <value>The list of critical plugin names, ordered by load order.</value>
+		public string[] OrderedCriticalPluginNames
+		{
+			get
+			{
+				return CurrentGameMode.OrderedCriticalPluginNames;
+			}
+		}
+
 		#endregion
 
 		#region Constructors

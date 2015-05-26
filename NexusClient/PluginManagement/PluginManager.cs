@@ -129,6 +129,12 @@ namespace Nexus.Client.PluginManagement
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets whether to show an error message when the manager tries to activate
+		/// more plugins than allowed by the current game mode.
+		/// </summary>
+		public bool TooManyPluginsWarning { get; set; }
+
 		#endregion
 
 		#region Constructors

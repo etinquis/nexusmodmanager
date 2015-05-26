@@ -32,6 +32,12 @@ namespace Nexus.Client.PluginManagement
 		/// <value>The max allowed number of active plugins (0 if there's no limit).</value>
 		Int32  MaxAllowedActivePluginsCount { get; }
 
+		/// <summary>
+		/// Gets or sets whether to show an error message when the manager tries to activate
+		/// more plugins than allowed by the current game mode.
+		/// </summary>
+		bool TooManyPluginsWarning { get; set; }
+
 		#endregion
 
 		#region Singleton

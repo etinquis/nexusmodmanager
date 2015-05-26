@@ -29,6 +29,12 @@ namespace Nexus.Client.PluginManagement.UI
 		private Timer m_tmrColumnSizer = new Timer();
 		private bool m_booControlIsLoaded = false;
 
+		#region Events
+
+		public event EventHandler UpdatePluginsCount;
+
+		#endregion
+
 		#region Properties
 
 		/// <summary>
@@ -165,7 +171,7 @@ namespace Nexus.Client.PluginManagement.UI
 			if (MessageBox.Show("Do you really want to disable all active plugins?", "Confirm?", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
 				foreach (ListViewItem items in rlvPlugins.Items)
 				{
-					if ((items.Checked) && (items.Index > 0))
+					if ((items.Checked) && (items.Index >= ViewModel.OrderedCriticalPluginNames.Length))
 						ViewModel.DeactivatePlugin((Plugin)items.Tag);
 				}
 		}
@@ -178,6 +184,9 @@ namespace Nexus.Client.PluginManagement.UI
 			if (MessageBox.Show("Do you really want to enable all inactive plugins?", "Confirm?", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
 				foreach (ListViewItem items in rlvPlugins.Items)
 				{
+					if (items.Index > 254)
+						break;
+					
 					if ((items.Checked == false) && (items.Index > 0))
 						ViewModel.ActivatePlugin((Plugin)items.Tag);
 				}
@@ -515,6 +524,7 @@ namespace Nexus.Client.PluginManagement.UI
 					break;
 			}
 			SetCommandExecutableStatus();
+			UpdatePluginsCount(this, e);
 			RefreshPluginIndices();
 		}
 
@@ -536,7 +546,7 @@ namespace Nexus.Client.PluginManagement.UI
 			if (ViewModel.CanChangeActiveState((Plugin)rlvPlugins.Items[e.Index].Tag))
 			{
 				if (e.NewValue == CheckState.Checked)
-					if ((ViewModel.MaxAllowedActivePluginsCount > 0) && (ViewModel.ActivePlugins.Count >= ViewModel.MaxAllowedActivePluginsCount))
+					if ((!ViewModel.TooManyPluginsWarning) && (ViewModel.MaxAllowedActivePluginsCount > 0) && (ViewModel.ActivePlugins.Count >= ViewModel.MaxAllowedActivePluginsCount))
 					{
 						string strTooManyPlugins = String.Format("The requested change to the active plugins list would result in over {0} plugins being active.", ViewModel.MaxAllowedActivePluginsCount);
 						strTooManyPlugins += Environment.NewLine + String.Format("The current game doesn't support more than {0} active plugins, you need to disable at least one plugin to continue.", ViewModel.MaxAllowedActivePluginsCount);
@@ -549,6 +559,7 @@ namespace Nexus.Client.PluginManagement.UI
 					ViewModel.DeactivatePlugin((Plugin)rlvPlugins.Items[e.Index].Tag);
 			}
 			e.NewValue = ViewModel.ActivePlugins.Contains((Plugin)rlvPlugins.Items[e.Index].Tag) ? CheckState.Checked : CheckState.Unchecked;
+			UpdatePluginsCount(this, e);
 		}
 
 		#endregion
