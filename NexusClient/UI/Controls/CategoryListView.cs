@@ -955,10 +955,14 @@ namespace Nexus.Client.UI.Controls
 		public void RemoveStringFilter()
 		{
 			TextMatchFilter tmfFilter = TextMatchFilter.Contains(this, String.Empty);
-			tmfFilter.Columns = new OLVColumn[] { (OLVColumn)this.Columns[0] };
-			HighlightTextRenderer highlightingRenderer = this.GetColumn(0).Renderer as HighlightTextRenderer;
-			if (highlightingRenderer != null)
-				highlightingRenderer.Filter = tmfFilter;
+			if (this.Columns.Count > 0)
+			{
+				tmfFilter.Columns = new OLVColumn[] { (OLVColumn)this.Columns[0] };
+				HighlightTextRenderer highlightingRenderer = this.GetColumn(0).Renderer as HighlightTextRenderer;
+				if (highlightingRenderer != null)
+					highlightingRenderer.Filter = tmfFilter;
+			}
+
 			m_strLastSearchFilter = String.Empty;
 		}
 
