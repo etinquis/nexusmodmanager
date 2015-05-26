@@ -134,6 +134,14 @@ namespace Nexus.Client
 
 		/// <summary>
 		/// Gets the view model that encapsulates the data
+		/// and operations for diaplying the activate mod monitor.
+		/// </summary>
+		/// <value>The view model that encapsulates the data
+		/// and operations for diaplying the activate mod monitor.</value>
+		protected ActivateModsMonitor ModActivationMonitor { get; private set; }
+
+		/// <summary>
+		/// Gets the view model that encapsulates the data
 		/// and operations for diaplying the settings view.
 		/// </summary>
 		/// <value>The view model that encapsulates the data
@@ -321,6 +329,18 @@ namespace Nexus.Client
 			}
 		}
 
+		/// <summary>
+		/// Gets whether the manager is currently installing/uninstalling a mod.
+		/// </summary>
+		/// <value>Whether  the manager is currently installing/uninstalling a mod.</value>
+		public bool IsInstalling
+		{
+			get
+			{
+				return ModActivationMonitor.IsInstalling;
+			}
+		}
+
 		#endregion
 
 		#region Constructors
@@ -345,10 +365,12 @@ namespace Nexus.Client
 			ModRepository = p_mrpModRepository;
 			UpdateManager = p_umgUpdateManager;
 			ModManagerVM = new ModManagerVM(p_mmgModManager, p_eifEnvironmentInfo.Settings, p_gmdGameMode.ModeTheme);
-			if (GameMode.UsesPlugins)
-				PluginManagerVM = new PluginManagerVM(p_pmgPluginManager, p_eifEnvironmentInfo.Settings, p_gmdGameMode);
 			DownloadMonitorVM = new DownloadMonitorVM(p_dmtMonitor, p_eifEnvironmentInfo.Settings, p_mmgModManager, p_mrpModRepository);
-            ActivateModsMonitorVM = new ActivateModsMonitorVM(p_ammMonitor, p_eifEnvironmentInfo.Settings, p_mmgModManager);
+			ModActivationMonitor = p_ammMonitor;
+			ActivateModsMonitorVM = new ActivateModsMonitorVM(p_ammMonitor, p_eifEnvironmentInfo.Settings, p_mmgModManager);
+			if (GameMode.UsesPlugins)
+				PluginManagerVM = new PluginManagerVM(p_pmgPluginManager, p_eifEnvironmentInfo.Settings, p_gmdGameMode, p_ammMonitor);
+
 			HelpInfo = new HelpInformation(p_eifEnvironmentInfo);
 
 			GeneralSettingsGroup gsgGeneralSettings = new GeneralSettingsGroup(p_eifEnvironmentInfo);

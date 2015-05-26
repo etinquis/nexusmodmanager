@@ -171,10 +171,22 @@ namespace Nexus.Client.Games.Gamebryo
 		protected PluginSorter PluginSorter { get; private set; }
 
 		/// <summary>
-		/// Gets the LoadOrder plugin manager.
+		/// Gets the plugin loadorder manager.
 		/// </summary>
-		/// <value>The LoadOrder plugin manager.</value>
-		protected LoadOrderManager LoadOrderManager { get; private set; }
+		/// <value>The plugin loadorder manager.</value>
+		public override ILoadOrderManager LoadOrderManager 
+		{ 
+			get
+			{
+				return PluginOrderManager;
+			} 
+		}
+
+		/// <summary>
+		/// Gets the plugin loadorder manager.
+		/// </summary>
+		/// <value>The plugin loadorder manager.</value>
+		protected PluginOrderManager PluginOrderManager { get; private set; }
 
 		#endregion
 
@@ -249,7 +261,7 @@ namespace Nexus.Client.Games.Gamebryo
 				PluginSorter = new PluginSorter(EnvironmentInfo, this, p_futFileUtility, strPath);
 			}
 
-			LoadOrderManager = new LoadOrderManager(EnvironmentInfo, this, p_futFileUtility, strPath);
+			PluginOrderManager = new PluginOrderManager(EnvironmentInfo, this, p_futFileUtility);
 		}
 
 		#endregion
@@ -263,7 +275,7 @@ namespace Nexus.Client.Games.Gamebryo
 		public override IPluginFactory GetPluginFactory()
 		{
 			if (m_pgfPluginFactory == null)
-				m_pgfPluginFactory = new GamebryoPluginFactory(PluginDirectory, LoadOrderManager);
+				m_pgfPluginFactory = new GamebryoPluginFactory(PluginDirectory, PluginOrderManager);
 			return m_pgfPluginFactory;
 		}
 
@@ -277,7 +289,7 @@ namespace Nexus.Client.Games.Gamebryo
 		public override IActivePluginLogSerializer GetActivePluginLogSerializer(IPluginOrderLog p_polPluginOrderLog)
 		{
 			if (m_apsActivePluginLogSerializer == null)
-				m_apsActivePluginLogSerializer = new GamebryoActivePluginLogSerializer(this, p_polPluginOrderLog, LoadOrderManager);
+				m_apsActivePluginLogSerializer = new GamebryoActivePluginLogSerializer(this, p_polPluginOrderLog, PluginOrderManager);
 			return m_apsActivePluginLogSerializer;
 		}
 
@@ -301,7 +313,7 @@ namespace Nexus.Client.Games.Gamebryo
 		public override IPluginOrderLogSerializer GetPluginOrderLogSerializer()
 		{
 			if (m_posPluginOrderSerializer == null)
-				m_posPluginOrderSerializer = new GamebryoPluginOrderLogSerializer(LoadOrderManager, PluginSorter);
+				m_posPluginOrderSerializer = new GamebryoPluginOrderLogSerializer(PluginOrderManager, PluginSorter);
 			return m_posPluginOrderSerializer;
 		}
 
@@ -404,8 +416,8 @@ namespace Nexus.Client.Games.Gamebryo
 		/// <param name="p_booDisposing">Whether the method is being called from the <see cref="IDisposable.Dispose()"/> method.</param>
 		protected override void Dispose(bool p_booDisposing)
 		{
-			if (LoadOrderManager != null)
-				LoadOrderManager.Dispose();
+			if (PluginOrderManager != null)
+				PluginOrderManager.Dispose();
 		}
 	}
 }

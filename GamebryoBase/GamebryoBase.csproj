@@ -68,7 +68,7 @@
     <Compile Include="PluginManagement\GamebryoPluginDiscoverer.cs" />
     <Compile Include="PluginManagement\GamebryoPluginFactory.cs" />
     <Compile Include="PluginManagement\InstallationLog\GamebryoActivePluginLogSerializer.cs" />
-    <Compile Include="PluginManagement\LoadOrderManager\ILoadOrderManager.cs" />
+    <Compile Include="PluginManagement\LoadOrderManager\PluginOrderManager.cs" />
     <Compile Include="PluginManagement\LoadOrderManager\LoadOrderManager.cs" />
     <Compile Include="PluginManagement\LoadOrderManager\LoadOrderManagerException.cs" />
     <Compile Include="PluginManagement\LoadOrderManager\StringArrayManualMarshaler.cs" />

@@ -106,6 +106,12 @@ namespace Nexus.Client.Games.Morrowind
 			}
 		}
 
+		/// <summary>
+		/// Gets the LoadOrder plugin manager.
+		/// </summary>
+		/// <value>The LoadOrder plugin manager.</value>
+		protected LoadOrderManager LoadOrderManager { get; private set; }
+
         #endregion
 
         #region Constructors
