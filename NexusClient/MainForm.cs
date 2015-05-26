@@ -666,7 +666,7 @@ namespace Nexus.Client
 			UpgradeBottomBarFeedbackCounter();
 			if (sender != null)
 			{
-				if (amcActivateModsMonitor.IsInstalling)
+				if (ViewModel.IsInstalling)
 				{
 					ActivateModsListViewItem lwiListViewItem = (ActivateModsListViewItem)sender;
 					if (lwiListViewItem.Task != null)
