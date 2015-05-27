@@ -376,8 +376,10 @@ namespace Nexus.Client.UI.Controls
 
 				if (rowObject.GetType() != typeof(ModCategory))
 				{
-					if (!String.IsNullOrEmpty(File.GetLastWriteTime(((IMod)rowObject).Filename).ToString()))
-						Val = File.GetLastWriteTime(((IMod)rowObject).Filename).ToString();
+					string strFilePath = ((IMod)rowObject).Filename;
+					if (!String.IsNullOrWhiteSpace(strFilePath))
+						if (File.Exists(strFilePath))
+							Val = File.GetLastWriteTime(((IMod)rowObject).Filename).ToString();
 					if (CheckDate(Val))
 						return Convert.ToDateTime(Val);
 				}
@@ -385,17 +387,6 @@ namespace Nexus.Client.UI.Controls
 					return ((ModCategory)rowObject).NewMods.ToString();
 
 				return null;
-			};
-
-			tlcDownloadDate.AspectToStringConverter = delegate(object x)
-			{
-				int intCheck;
-				if ((x != null) && (!Int32.TryParse(x.ToString(), out intCheck)))
-				{
-					return x.ToString();
-				}
-				else
-					return String.Empty;
 			};
 
 			tlcEndorsement.AspectGetter = delegate(object rowObject)
@@ -640,16 +631,6 @@ namespace Nexus.Client.UI.Controls
 			};
 
 			tlcInstallDate.ImageGetter = delegate(object rowObject)
-			{
-				if (rowObject.GetType() == typeof(ModCategory))
-				{
-					if (((ModCategory)rowObject).NewMods > 0)
-						return new Bitmap(CreateBitmapImage(((ModCategory)rowObject).NewMods.ToString(), Properties.Resources.AddFile_48x48, 16, 4, 4, -2, -1), 16, 16);
-				}
-				return null;
-			};
-
-			tlcDownloadDate.ImageGetter = delegate(object rowObject)
 			{
 				if (rowObject.GetType() == typeof(ModCategory))
 				{
