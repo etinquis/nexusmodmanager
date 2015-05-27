@@ -22,8 +22,8 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 	public class PluginOrderManager : ILoadOrderManager, IDisposable
 	{
 		private Regex m_rgxPluginFile = new Regex(@"(?i)^\w.+\.es[mp]$");
-		private bool m_booPluginsLock = false;
-		private bool m_booLoadOrderLock = false;
+		private static Int32 m_intRunningLOLock = 0;
+		private static Int32 m_intRunningAPLock = 0;
 		private List<string> m_lstActivePlugins = new List<string>();
 		private DateTime m_dtiMasterDate = DateTime.Now;
 
@@ -261,12 +261,12 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 
 			if (!String.IsNullOrWhiteSpace(strFile))
 			{
-				if (strFile.Equals("plugins.txt", StringComparison.InvariantCultureIgnoreCase) && !m_booPluginsLock)
+				if (strFile.Equals("plugins.txt", StringComparison.InvariantCultureIgnoreCase) && (m_intRunningAPLock == 0))
 				{
 					if (ActivePluginUpdate != null)
 						ActivePluginUpdate(GetActivePlugins(), new EventArgs());
 				}
-				else if (strFile.Equals("loadorder.txt", StringComparison.InvariantCultureIgnoreCase) && !m_booLoadOrderLock && !TimestampOrder)
+				else if (strFile.Equals("loadorder.txt", StringComparison.InvariantCultureIgnoreCase) && (m_intRunningLOLock == 0) && !TimestampOrder)
 				{
 					if (LoadOrderUpdate != null)
 						LoadOrderUpdate(GetLoadOrder(), new EventArgs());
@@ -279,7 +279,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			if ((source == null) || (e == null))
 				return;
 
-			if (TimestampOrder && !m_booLoadOrderLock)
+			if (TimestampOrder && (m_intRunningLOLock == 0))
 			{
 				if (LoadOrderUpdate != null)
 					LoadOrderUpdate(GetLoadOrder(), new EventArgs());
@@ -291,7 +291,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			if ((source == null) || (e == null))
 				return;
 
-			if (!m_booLoadOrderLock && !m_booPluginsLock)
+			if ((m_intRunningLOLock == 0) && (m_intRunningAPLock == 0))
 				if (ExternalPluginAdded != null)
 					ExternalPluginAdded(e.FullPath, new EventArgs());
 		}
@@ -543,9 +543,16 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 
 			if (TimestampOrder)
 			{
-				m_booLoadOrderLock = true;
-				await SetTimestampLoadOrder(p_strPlugins);
-				m_booLoadOrderLock = false;
+				m_intRunningLOLock++;
+				try
+				{
+					await SetTimestampLoadOrder(p_strPlugins);
+				}
+				catch { }
+
+				await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(1));
+				m_intRunningLOLock--;
+
 			}
 			else
 				SetSortedListLoadOrder(strOrderedPluginNames);
@@ -627,8 +634,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		public Int32 GetPluginLoadOrder(string p_strPlugin)
 		{
 			UInt32 uintIndex = 0;
-			//UInt32 uintStatus = m_dlgGetPluginLoadOrder(m_ptrLoadOrderDb, StripPluginDirectory(p_strPlugin), out uintIndex);
-			//HandleStatusCode(uintStatus);
+			//notimplemented
 			return Convert.ToInt32(uintIndex);
 		}
 
@@ -645,8 +651,9 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <param name="p_intIndex">The load index at which to place the specified plugin.</param>
 		public void SetPluginLoadOrder(string p_strPlugin, Int32 p_intIndex)
 		{
-			//UInt32 uintStatus = m_dlgSetPluginLoadOrder(m_ptrLoadOrderDb, StripPluginDirectory(p_strPlugin), Convert.ToUInt32(p_intIndex));
-			//HandleStatusCode(uintStatus);
+			UInt32 uintIndex = 0;
+			//notimplemented
+			Convert.ToInt32(uintIndex);
 		}
 
 		/// <summary>
@@ -656,8 +663,9 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <param name="p_booActive">Whether the specified plugin should be made active or inactive.</param>
 		public void SetPluginActive(string p_strPlugin, bool p_booActive)
 		{
-			//UInt32 uintStatus = m_dlgSetPluginActive(m_ptrLoadOrderDb, StripPluginDirectory(p_strPlugin), p_booActive);
-			//HandleStatusCode(uintStatus);
+			UInt32 uintIndex = 0;
+			//notimplemented
+			Convert.ToInt32(uintIndex);
 		}
 
 		/// <summary>
@@ -667,11 +675,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <returns>The name of the plugin at the specified index.</returns>
 		public string GetIndexedPlugin(Int32 p_intIndex)
 		{
-			///TODO: this method doesn't work with NMM, as NMM is passing an index that doesn't account for ghosted plugins
-			//string strPlugin = null;
-			//UInt32 uintStatus = m_dlgGetIndexedPlugin(m_ptrLoadOrderDb, Convert.ToUInt32(p_intIndex), out strPlugin);
-			//HandleStatusCode(uintStatus);
-			//return AddPluginDirectory(strPlugin);
+			//notimplemented
 			return String.Empty;
 		}
 
@@ -701,16 +705,26 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		private async Task WriteLoadOrder(string p_strFilePath, string[] p_strPlugins, bool p_booActive)
 		{
 			if (p_booActive)
-				m_booPluginsLock = true;
+				m_intRunningAPLock++;
 			else
-				m_booLoadOrderLock = true;
+				m_intRunningLOLock++;
 
-			await WriteLoadOrderFile(p_strFilePath, p_strPlugins);
+			try
+			{
+				await WriteLoadOrderFile(p_strFilePath, p_strPlugins);
+			}
+			catch { }
 
 			if (p_booActive)
-				m_booPluginsLock = false;
+			{
+				await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(1));
+				m_intRunningAPLock--;
+			}
 			else
-				m_booLoadOrderLock = false;
+			{
+				await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(1));
+				m_intRunningLOLock--;
+			}
 		}
 
 		private async Task WriteLoadOrderFile(string p_strFilePath, string[] p_strPlugins)
