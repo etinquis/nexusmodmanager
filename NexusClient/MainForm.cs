@@ -260,18 +260,27 @@ namespace Nexus.Client
 
             amcActivateModsMonitor.DockTo(dmcDownloadMonitor.Pane, DockStyle.Right, 1);
 
-			tlbPluginsCounter.Text = "  Total plugins: " + ViewModel.PluginManagerVM.ManagedPlugins.Count + "   |   Active plugins: ";
-
-			if (ViewModel.PluginManagerVM.ActivePlugins.Count > ViewModel.PluginManagerVM.MaxAllowedActivePluginsCount)
+			if (ViewModel.UsesPlugins)
 			{
-				tlbActivePluginsCounter.ForeColor = Color.Red;
-				tlbActivePluginsCounter.Text = ViewModel.PluginManagerVM.ActivePlugins.Count.ToString();
-				tlbActivePluginsCounter.ToolTipText = "Too Many!";
+				tlbPluginsCounter.Text = "  Total plugins: " + ViewModel.PluginManagerVM.ManagedPlugins.Count + "   |   Active plugins: ";
+
+				if (ViewModel.PluginManagerVM.ActivePlugins.Count > ViewModel.PluginManagerVM.MaxAllowedActivePluginsCount)
+				{
+					tlbActivePluginsCounter.ForeColor = Color.Red;
+					tlbActivePluginsCounter.Text = ViewModel.PluginManagerVM.ActivePlugins.Count.ToString();
+					tlbActivePluginsCounter.ToolTipText = "Too Many!";
+				}
+				else
+				{
+					tlbActivePluginsCounter.ForeColor = Color.Black;
+					tlbActivePluginsCounter.Text = ViewModel.PluginManagerVM.ActivePlugins.Count.ToString();
+				}
+
 			}
 			else
 			{
-				tlbActivePluginsCounter.ForeColor = Color.Black;
-				tlbActivePluginsCounter.Text = ViewModel.PluginManagerVM.ActivePlugins.Count.ToString();
+				tlbPluginSeparator.Visible = false;
+				tlbPluginsCounter.Visible = false;
 			}
 
 			tlbModsCounter.Text = "  Total mods: " + ViewModel.ModManagerVM.ManagedMods.Count + "   |   Active mods: " + ViewModel.ModManager.ActiveMods.Count;

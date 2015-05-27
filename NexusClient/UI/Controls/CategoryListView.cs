@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Nexus.Client.ModManagement;
@@ -189,6 +190,7 @@ namespace Nexus.Client.UI.Controls
 			InitializeComponent();
 			tlcModName.Name = "ModName";
 			tlcInstallDate.Name = "InstallDate";
+			tlcDownloadDate.Name = "DownloadDate";
 			tlcVersion.Name = "HumanReadableVersion";
 			tlcWebVersion.Name = "WebVersion";
 			tlcAuthor.Name = "Author";
@@ -196,6 +198,7 @@ namespace Nexus.Client.UI.Controls
 			tlcCategory.Name = "Category";
 			tlcModName.AspectName = "Text";
 			tlcInstallDate.AspectName = "Text";
+			tlcDownloadDate.AspectName = "Text";
 			tlcVersion.AspectName = "Text";
 			tlcWebVersion.AspectName = "Text";
 			tlcAuthor.AspectName = "Text";
@@ -357,6 +360,34 @@ namespace Nexus.Client.UI.Controls
 			};
 
 			tlcInstallDate.AspectToStringConverter = delegate(object x)
+			{
+				int intCheck;
+				if ((x != null) && (!Int32.TryParse(x.ToString(), out intCheck)))
+				{
+					return x.ToString();
+				}
+				else
+					return String.Empty;
+			};
+
+			tlcDownloadDate.AspectGetter = delegate(object rowObject)
+			{
+				string Val = String.Empty;
+
+				if (rowObject.GetType() != typeof(ModCategory))
+				{
+					if (!String.IsNullOrEmpty(File.GetLastWriteTime(((IMod)rowObject).Filename).ToString()))
+						Val = File.GetLastWriteTime(((IMod)rowObject).Filename).ToString();
+					if (CheckDate(Val))
+						return Convert.ToDateTime(Val);
+				}
+				else
+					return ((ModCategory)rowObject).NewMods.ToString();
+
+				return null;
+			};
+
+			tlcDownloadDate.AspectToStringConverter = delegate(object x)
 			{
 				int intCheck;
 				if ((x != null) && (!Int32.TryParse(x.ToString(), out intCheck)))
@@ -609,6 +640,16 @@ namespace Nexus.Client.UI.Controls
 			};
 
 			tlcInstallDate.ImageGetter = delegate(object rowObject)
+			{
+				if (rowObject.GetType() == typeof(ModCategory))
+				{
+					if (((ModCategory)rowObject).NewMods > 0)
+						return new Bitmap(CreateBitmapImage(((ModCategory)rowObject).NewMods.ToString(), Properties.Resources.AddFile_48x48, 16, 4, 4, -2, -1), 16, 16);
+				}
+				return null;
+			};
+
+			tlcDownloadDate.ImageGetter = delegate(object rowObject)
 			{
 				if (rowObject.GetType() == typeof(ModCategory))
 				{
@@ -974,6 +1015,7 @@ namespace Nexus.Client.UI.Controls
 			tlcModName.Width = 100;
 			tlcCategory.Width = 100;
 			tlcInstallDate.Width = 100;
+			tlcDownloadDate.Width = 100;
 			tlcEndorsement.Width = 100;
 			tlcVersion.Width = 100;
 			tlcWebVersion.Width = 100;
