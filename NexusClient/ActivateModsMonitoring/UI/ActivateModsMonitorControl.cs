@@ -144,6 +144,10 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 
 				FindForm().FormClosing += new FormClosingEventHandler(ActivateModsMonitorControl_FormClosing);
 				m_fltColumnRatio = (float)clmOverallMessage.Width / (clmOverallMessage.Width);
+
+				this.lvwActiveTasks.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(ActivateModsMonitorControl_DrawSubItem);
+				this.lvwActiveTasks.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(ActivateModsMonitorControl_DrawColumnHeader);
+
 				SizeColumnsToFit();
 			}
 		}
@@ -200,11 +204,11 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			}
 		}
 
-        /// <summary>
-        /// During the backup ebables or disables the Activate Mods Monitoring icons
-        /// </summary>
-        /// <param name="p_booCheck">The boolean value.</param>
-        public void SetCommandBackupAMCStatus(bool p_booCheck)
+		/// <summary>
+		/// During the backup ebables or disables the Activate Mods Monitoring icons
+		/// </summary>
+		/// <param name="p_booCheck">The boolean value.</param>
+		public void SetCommandBackupAMCStatus(bool p_booCheck)
 		{
 			Control.CheckForIllegalCrossThreadCalls = false;
 			
@@ -298,16 +302,16 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		/// <param name="p_tskTask">The <see cref="BasicInstallTask"/> to add to the view's list.</param>
 		protected void AddTaskToList(IBackgroundTaskSet p_tskTask)
 		{
-            foreach (ActivateModsListViewItem lviExisitingTask in lvwActiveTasks.Items)
+			foreach (ActivateModsListViewItem lviExisitingTask in lvwActiveTasks.Items)
 				if (lviExisitingTask.Task == p_tskTask)
 					return;
 
 			if (ViewModel.RunningTask != null)
-            {
-                if (p_tskTask.GetType() == typeof(ModInstaller))
-                {
-                    foreach (IBackgroundTaskSet iBk in QueuedTasks)
-                    {
+			{
+				if (p_tskTask.GetType() == typeof(ModInstaller))
+				{
+					foreach (IBackgroundTaskSet iBk in QueuedTasks)
+					{
 						if (iBk.GetType() == typeof(ModInstaller))
 						{
 							if (((ModInstaller)iBk).ModFileName == ((ModInstaller)p_tskTask).ModFileName)
@@ -326,17 +330,17 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 								if (((ModUpgrader)iBk).IsQueued)
 									booQueued = true;
 						}
-                    }
+					}
 
 					if (ViewModel.RunningTask.GetType() == typeof(ModInstaller))
-                    {
+					{
 						if ((((ModInstaller)ViewModel.RunningTask).ModFileName == ((ModInstaller)p_tskTask).ModFileName) || booQueued)
-                        {
-                            booQueued = false;
-                            m_vmlViewModel.RemoveUselessTask(((ModInstaller)p_tskTask));
-                            return;
-                        }
-                    }
+						{
+							booQueued = false;
+							m_vmlViewModel.RemoveUselessTask(((ModInstaller)p_tskTask));
+							return;
+						}
+					}
 					else if (ViewModel.RunningTask.GetType() == typeof(ModUninstaller))
 					{
 						if ((((ModUninstaller)ViewModel.RunningTask).ModFileName == ((ModInstaller)p_tskTask).ModFileName) || booQueued)
@@ -355,7 +359,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 							return;
 						}
 					} 
-                }
+				}
 				else if(p_tskTask.GetType() == typeof(ModUninstaller))
 				{
 					foreach (IBackgroundTaskSet iBk in QueuedTasks)
@@ -460,7 +464,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 						}
 					}
 				}
-            }
+			}
 
 			p_tskTask.TaskSetCompleted += new EventHandler<TaskSetCompletedEventArgs>(TaskSet_TaskSetCompleted);
 			ActivateModsListViewItem lviActivation = new ActivateModsListViewItem(p_tskTask, this);
@@ -470,7 +474,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			lviActivation.EnsureVisible();
 
 			if ((ViewModel.RunningTask == null) || (ViewModel.RunningTask.IsCompleted))
-            {
+			{
 				ViewModel.RunningTask = p_tskTask;
 				if (ViewModel.RunningTask.GetType() == typeof(ModInstaller))
 					((ModInstaller)ViewModel.RunningTask).Install();
@@ -478,11 +482,11 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 					((ModUninstaller)ViewModel.RunningTask).Install();
 				else if (ViewModel.RunningTask.GetType() == typeof(ModUpgrader))
 					((ModUpgrader)ViewModel.RunningTask).Install();
-            }
-            else
-            {
-                QueuedTasks.Add(p_tskTask);
-            }
+			}
+			else
+			{
+				QueuedTasks.Add(p_tskTask);
+			}
 		}
 
 		private void TaskSet_TaskSetCompleted(object sender, TaskSetCompletedEventArgs e)
@@ -497,11 +501,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 				m_strDetailsErrorMessageType = mibModInstaller.DetailsErrorMessage;
 			}
 			catch { }
-
-
-			this.lvwActiveTasks.DrawSubItem += new System.Windows.Forms.DrawListViewSubItemEventHandler(ActivateModsMonitorControl_DrawSubItem);
-			this.lvwActiveTasks.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(ActivateModsMonitorControl_DrawColumnHeader);
-
+			
 			IBackgroundTaskSet btsCompletedTask = null;
 			if (sender != null)
 			{
@@ -541,9 +541,7 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		{
 			if ((e.ColumnIndex == 4) || (e.ColumnIndex == 3))
 			{
-				//Keep the width not changed.
 				e.NewWidth = this.lvwActiveTasks.Columns[e.ColumnIndex].Width;
-				//Cancel the event.
 				e.Cancel = true;
 			}
 		}
@@ -578,13 +576,9 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		/// <param name="e">A <see cref="DrawListViewSubItemEventArgs"/> describing the event arguments.</param>
 		protected void OnDrawSubItem(DrawListViewSubItemEventArgs e)
 		{
-			//if the item is not in a list view, then don't bother trying to draw it,
-			// as it isn't visible anyway
 			if (e.Item.ListView == null)
 				return;
-
-			//base.OnDrawSubItem(e);
-
+			
 			e.DrawBackground();
 
 			Int32 intBoundsX = e.Bounds.X;

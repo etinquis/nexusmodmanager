@@ -62,9 +62,9 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			lsiSubItem.Text = "Queued";
 			p_btsTask.IsQueued = true;
 
-            lsiSubItem = SubItems.Add(new ListViewSubItem());
-            lsiSubItem.Name = "Operation";
-            lsiSubItem.Text = "";		
+			lsiSubItem = SubItems.Add(new ListViewSubItem());
+			lsiSubItem.Name = "Operation";
+			lsiSubItem.Text = "";		
 
 			lsiSubItem = SubItems.Add(new ListViewSubItem());
 			lsiSubItem.Name = "Progress";
