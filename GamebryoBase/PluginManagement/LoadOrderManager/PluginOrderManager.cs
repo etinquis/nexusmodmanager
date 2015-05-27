@@ -567,14 +567,13 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 
 			}
 			else
-				SetSortedListLoadOrder(strOrderedPluginNames);
+				await SetSortedListLoadOrder(strOrderedPluginNames);
 
 			if ((m_lstActivePlugins != null) && (m_lstActivePlugins.Count > 0))
 			{
-				string[] strOrderedActivePluginNames = strOrderedPluginNames.Intersect(m_lstActivePlugins.ToArray()).ToArray();
+				string[] strOrderedActivePluginNames = strOrderedPluginNames.Intersect(StripPluginDirectory(m_lstActivePlugins.ToArray()), StringComparer.InvariantCultureIgnoreCase).ToArray();
 				if ((strOrderedActivePluginNames != null) && (strOrderedActivePluginNames.Length > 0))
 					await SetActivePluginsTask(strOrderedActivePluginNames);
-
 			}
 		}
 
@@ -598,7 +597,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// </summary>
 		/// <remarks>
 		/// <param name="p_strPlugins">The list of plugins in the desired order.</param>
-		private async void SetSortedListLoadOrder(string[] p_strPlugins)
+		private async Task SetSortedListLoadOrder(string[] p_strPlugins)
 		{
 			await WriteLoadOrder(LoadOrderFilePath, p_strPlugins, false);
 		}
