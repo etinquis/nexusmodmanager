@@ -189,7 +189,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 					TimestampOrder = false;
 					break;
 				default:
-					throw new LoadOrderException(String.Format("Unsupported game: {0} ({1})", GameMode.Name, GameMode.ModeId));
+					throw new NotImplementedException(String.Format("Unsupported game: {0} ({1})", GameMode.Name, GameMode.ModeId));
 			}
 
 			string strLocalAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -215,6 +215,9 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 
 		#region FileWatcher
 
+		/// <summary>
+		/// Initializes File Watcher.
+		/// </summary>
 		private void SetupWatcher(string p_strGameModeLocal)
 		{
 			FileWatchers = new List<FileSystemWatcher>();
@@ -252,6 +255,9 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			}
 		}
 
+		/// <summary>
+		/// Handles changes made to text files.
+		/// </summary>
 		private void FileWatcherOnChangedTxt(object source, FileSystemEventArgs e)
 		{
 			if ((source == null) || (e == null))
@@ -274,6 +280,9 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			}
 		}
 
+		/// <summary>
+		/// Handles changes made to files in the plugin installation folder.
+		/// </summary>
 		private void FileWatcherOnChangedLoose(object source, FileSystemEventArgs e)
 		{
 			if ((source == null) || (e == null))
@@ -286,6 +295,9 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			}
 		}
 
+		/// <summary>
+		/// Handles new files added to the plugin installation folder.
+		/// </summary>
 		private void FileWatcherOnCreatedLoose(object source, FileSystemEventArgs e)
 		{
 			if ((source == null) || (e == null))
@@ -702,6 +714,9 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			return false;
 		}
 
+		/// <summary>
+		/// Handles write operations to the load order file.
+		/// </summary>
 		private async Task WriteLoadOrder(string p_strFilePath, string[] p_strPlugins, bool p_booActive)
 		{
 			if (p_booActive)
@@ -727,6 +742,9 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			}
 		}
 
+		/// <summary>
+		/// Writes the plugin load order to the text file.
+		/// </summary>
 		private async Task WriteLoadOrderFile(string p_strFilePath, string[] p_strPlugins)
 		{
 			int intRepeat = 0;
@@ -750,6 +768,9 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 				}
 		}
 
+		/// <summary>
+		/// Checks whether the file to write to is currently free for use.
+		/// </summary>
 		private static bool IsFileReady(String p_strFilePath)
 		{
 			try

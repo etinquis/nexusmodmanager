@@ -69,10 +69,6 @@
     <Compile Include="PluginManagement\GamebryoPluginFactory.cs" />
     <Compile Include="PluginManagement\InstallationLog\GamebryoActivePluginLogSerializer.cs" />
     <Compile Include="PluginManagement\LoadOrderManager\PluginOrderManager.cs" />
-    <Compile Include="PluginManagement\LoadOrderManager\LoadOrderManager.cs" />
-    <Compile Include="PluginManagement\LoadOrderManager\LoadOrderManagerException.cs" />
-    <Compile Include="PluginManagement\LoadOrderManager\StringArrayManualMarshaler.cs" />
-    <Compile Include="PluginManagement\LoadOrderManager\StringMarshaler.cs" />
     <Compile Include="PluginManagement\Sorter\SorterException.cs" />
     <Compile Include="PluginManagement\Sorter\PluginSorter.cs" />
     <Compile Include="PluginManagement\Sorter\IPluginSorter.cs" />
@@ -172,12 +168,6 @@
     <EmbeddedResource Include="Tools\TESsnip\ScriptCompiler\ScriptFunctions.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="data\loadorder32.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="data\loadorder64.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="data\loot32.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -131,11 +131,6 @@ namespace Nexus.Client.Games.Gamebryo
 				else
 					p_imsWarning = null;
 			}
-			catch(LoadOrderException e)
-			{
-				gmdGameMode = null;
-				p_imsWarning = new ViewMessage(String.Format(e.Message), null, "LoadOrderException", MessageBoxIcon.Error);
-			}
 			catch(SorterException e)
 			{
 				gmdGameMode = null;
