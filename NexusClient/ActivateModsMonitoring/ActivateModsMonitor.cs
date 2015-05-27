@@ -189,12 +189,12 @@ namespace Nexus.Client.ActivateModsMonitoring
 		#region RemoveUseless
 
 		/// <summary>
-        /// Removes a useless task (the task is already in queue or running).
-        /// </summary>
-        public void RemoveUselessTask(ModInstaller p_tskTask)
-        {
-            m_oclTasks.Remove(p_tskTask);
-        }
+		/// Removes a useless task (the task is already in queue or running).
+		/// </summary>
+		public void RemoveUselessTask(ModInstaller p_tskTask)
+		{
+			m_oclTasks.Remove(p_tskTask);
+		}
 
 		/// <summary>
 		/// Removes a useless uninstalling task (the task is already in queue or running).
@@ -260,13 +260,13 @@ namespace Nexus.Client.ActivateModsMonitoring
 		#region CanRemoveQueued
 
 		/// <summary>
-        /// Determines if the given <see cref="BasicInstallTask"/> queued can be removed from
-        /// the monitor.
-        /// </summary>
-        /// <param name="p_tskTask">The task for which it is to be determined
-        /// if it can be removed from the monitor.</param>
-        /// <returns><c>true</c> if the p_tskTask can be removed;
-        /// <c>false</c> otherwise.</returns>
+		/// Determines if the given <see cref="BasicInstallTask"/> queued can be removed from
+		/// the monitor.
+		/// </summary>
+		/// <param name="p_tskTask">The task for which it is to be determined
+		/// if it can be removed from the monitor.</param>
+		/// <returns><c>true</c> if the p_tskTask can be removed;
+		/// <c>false</c> otherwise.</returns>
 		public bool CanRemoveQueued(ModInstaller p_tskTask)
 		{
 			return p_tskTask.IsQueued;
@@ -303,13 +303,13 @@ namespace Nexus.Client.ActivateModsMonitoring
 		#region CanRemoveselected
 
 		/// <summary>
-        /// Determines if the given <see cref="BasicInstallTask"/> selected can be removed from
-        /// the monitor.
-        /// </summary>
-        /// <param name="p_tskTask">The task for which it is to be determined
-        /// if it can be removed from the monitor.</param>
-        /// <returns><c>true</c> if the p_tskTask can be removed;
-        /// <c>false</c> otherwise.</returns>
+		/// Determines if the given <see cref="BasicInstallTask"/> selected can be removed from
+		/// the monitor.
+		/// </summary>
+		/// <param name="p_tskTask">The task for which it is to be determined
+		/// if it can be removed from the monitor.</param>
+		/// <returns><c>true</c> if the p_tskTask can be removed;
+		/// <c>false</c> otherwise.</returns>
 		public bool CanRemoveSelected(ModInstaller p_tskTask)
 		{
 			if (p_tskTask.IsQueued || p_tskTask.IsCompleted)
@@ -317,7 +317,7 @@ namespace Nexus.Client.ActivateModsMonitoring
 			else
 				return false;
 		}
-        
+		
 		/// <summary>
 		/// Determines if the given uninstalling <see cref="BasicInstallTask"/> selected can be removed from
 		/// the monitor.

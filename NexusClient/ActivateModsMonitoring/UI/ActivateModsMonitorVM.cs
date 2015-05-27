@@ -281,13 +281,13 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		#region RemoveUseless
 
 		/// <summary>
-        /// Removes the given task (the task is already in queue or running).
-        /// </summary>
-        /// <param name="p_tskTask">BasicInstallTask task to remove.</param>
+		/// Removes the given task (the task is already in queue or running).
+		/// </summary>
+		/// <param name="p_tskTask">BasicInstallTask task to remove.</param>
 		public void RemoveUselessTask(ModInstaller p_tskTask)
-        {
-            ActivateModsMonitor.RemoveUselessTask(p_tskTask);
-        }
+		{
+			ActivateModsMonitor.RemoveUselessTask(p_tskTask);
+		}
 
 		/// <summary>
 		/// Removes the given uninstalling task (the task is already in queue or running).
@@ -316,14 +316,14 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 		{
 			if (p_tskRunning.Count > 0)
 				foreach (IBackgroundTaskSet btRemovable in p_tskRunning)
-                { 
-                    if(btRemovable.GetType() == typeof(ModInstaller))
-                        RemoveTask((ModInstaller)btRemovable);
-                    else if(btRemovable.GetType() == typeof(ModUninstaller))
-                        RemoveTaskUn((ModUninstaller)btRemovable);
+				{
+					if(btRemovable.GetType() == typeof(ModInstaller))
+						RemoveTask((ModInstaller)btRemovable);
+					else if(btRemovable.GetType() == typeof(ModUninstaller))
+						RemoveTaskUn((ModUninstaller)btRemovable);
 					else if(btRemovable.GetType() == typeof(ModUpgrader))
 						RemoveTaskUpg((ModUpgrader)btRemovable);
-                }		
+				}		
 		}
 
 		/// <summary>
@@ -342,11 +342,11 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			{
 				foreach (IBackgroundTaskSet btRemovable in lstTasks)
 				{
-                    if (btRemovable.GetType() == typeof(ModInstaller))
-                    {
-                        if (((ModInstaller)btRemovable).ModName == p_strTask)
-                            RemoveSelectedTask((ModInstaller)btRemovable);
-                    }
+					if (btRemovable.GetType() == typeof(ModInstaller))
+					{
+						if (((ModInstaller)btRemovable).ModName == p_strTask)
+							RemoveSelectedTask((ModInstaller)btRemovable);
+					}
 					else if (btRemovable.GetType() == typeof(ModUninstaller))
 					{
 						if (((ModUninstaller)btRemovable).ModName == p_strTask)
@@ -376,14 +376,14 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 
 			if (lstTasks.Count > 0)
 			{
-                foreach (IBackgroundTaskSet btRemovable in lstTasks)
+				foreach (IBackgroundTaskSet btRemovable in lstTasks)
 				{
-                    if (btRemovable.GetType() == typeof(ModInstaller))
-                    {
-                        if (((ModInstaller)btRemovable).ModName == p_strTask)
-                            if ((((ModInstaller)btRemovable).IsQueued) || (((ModInstaller)btRemovable).IsCompleted))
-                                booStatus = true;
-                    }
+					if (btRemovable.GetType() == typeof(ModInstaller))
+					{
+						if (((ModInstaller)btRemovable).ModName == p_strTask)
+							if ((((ModInstaller)btRemovable).IsQueued) || (((ModInstaller)btRemovable).IsCompleted))
+								booStatus = true;
+					}
 					else if (btRemovable.GetType() == typeof(ModUninstaller))
 					{
 						if (((ModUninstaller)btRemovable).ModName == p_strTask)
@@ -415,15 +415,15 @@ namespace Nexus.Client.ActivateModsMonitoring.UI
 			}
 
 			if (lstTasks.Count > 0)
-                foreach (IBackgroundTaskSet btRemovable in lstTasks)
-                {
-                    if(btRemovable.GetType() == typeof(ModInstaller))
-                        RemoveQueuedTask((ModInstaller)btRemovable);
+				foreach (IBackgroundTaskSet btRemovable in lstTasks)
+				{
+					if(btRemovable.GetType() == typeof(ModInstaller))
+						RemoveQueuedTask((ModInstaller)btRemovable);
 					else if (btRemovable.GetType() == typeof(ModUninstaller))
 						RemoveQueuedTaskUn((ModUninstaller)btRemovable);
 					else if (btRemovable.GetType() == typeof(ModUpgrader))
 						RemoveQueuedTaskUpg((ModUpgrader)btRemovable);
-                }
+				}
 		
 		}
 
