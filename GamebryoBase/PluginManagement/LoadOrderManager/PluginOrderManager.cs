@@ -581,9 +581,8 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 				}
 				catch { }
 
-				await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(1));
-				m_intRunningLOLock--;
-
+				Task tskRelease = Task.Delay(500).ContinueWith(t => m_intRunningLOLock--);
+				tskRelease.Wait();
 			}
 			else
 				await SetSortedListLoadOrder(strOrderedPluginNames);
@@ -745,7 +744,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			}
 			catch { }
 
-			Task tskRelease = Task.Delay(500).ContinueWith(t => m_intRunningLOLock--);
+			Task tskRelease = Task.Delay(100).ContinueWith(t => m_intRunningLOLock--);
 			tskRelease.Wait();
 		}
 
@@ -762,7 +761,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			}
 			catch { }
 
-			Task tskRelease = Task.Delay(500).ContinueWith(t => m_intRunningAPLock--);
+			Task tskRelease = Task.Delay(100).ContinueWith(t => m_intRunningAPLock--);
 			tskRelease.Wait();
 		}
 
