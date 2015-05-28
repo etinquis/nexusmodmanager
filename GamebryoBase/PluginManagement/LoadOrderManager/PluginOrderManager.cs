@@ -225,7 +225,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			FileSystemWatcher FileWatcher = new FileSystemWatcher();
 			FileWatcher.Path = p_strGameModeLocal;
 			FileWatcher.IncludeSubdirectories = false;
-			FileWatcher.NotifyFilter = NotifyFilters.LastWrite;
+			FileWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size;
 			FileWatcher.Filter = "*.txt";
 			FileWatcher.Changed += new FileSystemEventHandler(FileWatcherOnChangedTxt);
 			FileWatcher.EnableRaisingEvents = true;
@@ -466,7 +466,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		private async Task SetActivePluginsTask(string[] p_strActivePlugins)
 		{
 			string[] strActivePluginNames = StripPluginDirectory(p_strActivePlugins);
-			await WriteLoadOrder(PluginsFilePath, strActivePluginNames, true);
+			await WriteActivePlugins(PluginsFilePath, strActivePluginNames);
 			m_lstActivePlugins = strActivePluginNames.ToList<string>();
 		}
 
@@ -618,7 +618,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <param name="p_strPlugins">The list of plugins in the desired order.</param>
 		private async Task SetSortedListLoadOrder(string[] p_strPlugins)
 		{
-			await WriteLoadOrder(LoadOrderFilePath, p_strPlugins, false);
+			await WriteLoadOrder(LoadOrderFilePath, p_strPlugins);
 		}
 
 		/// <summary>
@@ -735,12 +735,9 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <summary>
 		/// Handles write operations to the load order file.
 		/// </summary>
-		private async Task WriteLoadOrder(string p_strFilePath, string[] p_strPlugins, bool p_booActive)
+		private async Task WriteLoadOrder(string p_strFilePath, string[] p_strPlugins)
 		{
-			if (p_booActive)
-				m_intRunningAPLock++;
-			else
-				m_intRunningLOLock++;
+			m_intRunningLOLock++;
 
 			try
 			{
@@ -748,16 +745,25 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			}
 			catch { }
 
-			if (p_booActive)
+			Task tskRelease = Task.Delay(500).ContinueWith(t => m_intRunningLOLock--);
+			tskRelease.Wait();
+		}
+
+		/// <summary>
+		/// Handles write operations to the load order file.
+		/// </summary>
+		private async Task WriteActivePlugins(string p_strFilePath, string[] p_strPlugins)
+		{
+			m_intRunningAPLock++;
+
+			try
 			{
-				await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(1));
-				m_intRunningAPLock--;
+				await WriteLoadOrderFile(p_strFilePath, p_strPlugins);
 			}
-			else
-			{
-				await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(1));
-				m_intRunningLOLock--;
-			}
+			catch { }
+
+			Task tskRelease = Task.Delay(500).ContinueWith(t => m_intRunningAPLock--);
+			tskRelease.Wait();
 		}
 
 		/// <summary>
