@@ -203,7 +203,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 				LoadOrderFilePath = Path.Combine(strGameModeLocalAppData, "loadorder.txt");
 			else
 			{
-				string strMasterPlugin = AddPluginDirectory(GameMode.OrderedCriticalPluginNames[0]);
+				string strMasterPlugin = GameMode.OrderedCriticalPluginNames[0];
 				if (File.Exists(strMasterPlugin))
 					m_dtiMasterDate = File.GetLastWriteTime(strMasterPlugin);
 			}
@@ -231,28 +231,27 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			FileWatcher.EnableRaisingEvents = true;
 			FileWatchers.Add(FileWatcher);
 
+			FileWatcher = new FileSystemWatcher();
+			FileWatcher.Path = GameMode.PluginDirectory;
+			FileWatcher.IncludeSubdirectories = false;
+			FileWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size | NotifyFilters.CreationTime;
+			FileWatcher.Filter = "*.esp";
 			if (TimestampOrder)
-			{
-				FileWatcher = new FileSystemWatcher();
-				FileWatcher.Path = GameMode.PluginDirectory;
-				FileWatcher.IncludeSubdirectories = false;
-				FileWatcher.NotifyFilter = NotifyFilters.LastWrite;
-				FileWatcher.Filter = "*.esp";
 				FileWatcher.Changed += new FileSystemEventHandler(FileWatcherOnChangedLoose);
-				FileWatcher.Created += new FileSystemEventHandler(FileWatcherOnCreatedLoose);
-				FileWatcher.EnableRaisingEvents = true;
-				FileWatchers.Add(FileWatcher);
+			FileWatcher.Created += new FileSystemEventHandler(FileWatcherOnCreatedLoose);
+			FileWatcher.EnableRaisingEvents = true;
+			FileWatchers.Add(FileWatcher);
 
-				FileWatcher = new FileSystemWatcher();
-				FileWatcher.Path = GameMode.PluginDirectory;
-				FileWatcher.IncludeSubdirectories = false;
-				FileWatcher.NotifyFilter = NotifyFilters.LastWrite;
-				FileWatcher.Filter = "*.esm";
+			FileWatcher = new FileSystemWatcher();
+			FileWatcher.Path = GameMode.PluginDirectory;
+			FileWatcher.IncludeSubdirectories = false;
+			FileWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size | NotifyFilters.CreationTime;
+			FileWatcher.Filter = "*.esm";
+			if (TimestampOrder)
 				FileWatcher.Changed += new FileSystemEventHandler(FileWatcherOnChangedLoose);
-				FileWatcher.Created += new FileSystemEventHandler(FileWatcherOnCreatedLoose);
-				FileWatcher.EnableRaisingEvents = true;
-				FileWatchers.Add(FileWatcher);
-			}
+			FileWatcher.Created += new FileSystemEventHandler(FileWatcherOnCreatedLoose);
+			FileWatcher.EnableRaisingEvents = true;
+			FileWatchers.Add(FileWatcher);
 		}
 
 		/// <summary>
@@ -303,7 +302,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			if ((source == null) || (e == null))
 				return;
 
-			if ((m_intRunningLOLock == 0) && (m_intRunningAPLock == 0))
+			if (m_intRunningLOLock == 0)
 				if (ExternalPluginAdded != null)
 					ExternalPluginAdded(e.FullPath, new EventArgs());
 		}
@@ -443,7 +442,9 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			{
 				List<string> lstActivePlugins = new List<string>();
 				foreach (string plugin in GameMode.OrderedCriticalPluginNames)
-					lstActivePlugins.Add(AddPluginDirectory(plugin));
+					lstActivePlugins.Add(plugin);
+				foreach (string plugin in GameMode.OrderedOfficialPluginNames)
+					lstActivePlugins.Add(plugin);
 				return RemoveNonExistentPlugins(lstActivePlugins.ToArray());
 			}
 		}
@@ -487,7 +488,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <returns>The list of plugins, sorted by load order.</returns>
 		private string[] GetTimestampLoadOrder()
 		{
-			string[] strOrderedPlugins = GameMode.OrderedCriticalPluginNames;
+			string[] strOrderedPlugins = GameMode.OrderedCriticalPluginNames.Concat(GameMode.OrderedOfficialPluginNames).ToArray();
 			DirectoryInfo diPluginFolder = new DirectoryInfo(GameMode.PluginDirectory);
 
 			try
@@ -558,7 +559,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			if (LastValidLoadOrder.Count > 0)
 				return RemoveNonExistentPlugins(LastValidLoadOrder.ToArray());
 			else
-				return RemoveNonExistentPlugins(GameMode.OrderedCriticalPluginNames);
+				return RemoveNonExistentPlugins(GameMode.OrderedCriticalPluginNames.Concat(GameMode.OrderedOfficialPluginNames).ToArray());
 		}
 
 		/// <summary>

@@ -341,6 +341,18 @@ namespace Nexus.Client.Games
 		}
 
 		/// <summary>
+		/// Gets the list of official plugin names, ordered by load order.
+		/// </summary>
+		/// <value>The list of official plugin names, ordered by load order.</value>
+		public string[] OrderedOfficialPluginNames
+		{
+			get
+			{
+				return m_gmdGameModeInfo.OrderedOfficialPluginNames;
+			}
+		}
+
+		/// <summary>
 		/// Gets the name of the required tool (if any) for the current game mode.
 		/// </summary>
 		/// <value>The name of the required tool (if any) for the current game mode.</value>

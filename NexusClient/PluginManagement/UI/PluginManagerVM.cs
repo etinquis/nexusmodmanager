@@ -280,6 +280,7 @@ namespace Nexus.Client.PluginManagement.UI
 
 			List<string> lstNewActiveList;
 			List<string> lstActivatedPlugins = new List<string>();
+			List<string> lstDisabledPlugins = new List<string>();
 			List<string> lstActivePlugins;
 
 			if (sender != null)
@@ -292,6 +293,10 @@ namespace Nexus.Client.PluginManagement.UI
 					var ActivatedPlugins = lstNewActiveList.Except(lstActivePlugins, StringComparer.InvariantCultureIgnoreCase);
 					if (ActivatedPlugins != null)
 						lstActivatedPlugins = ActivatedPlugins.ToList();
+
+					var DisabledPlugins = lstActivePlugins.Except(lstNewActiveList, StringComparer.InvariantCultureIgnoreCase);
+					if (DisabledPlugins != null)
+						lstDisabledPlugins = DisabledPlugins.ToList();
 				}
 				else
 					lstActivatedPlugins = lstNewActiveList;
@@ -300,7 +305,10 @@ namespace Nexus.Client.PluginManagement.UI
 				{
 					PluginManager.ActivatePlugin(plugin);
 				}
-
+				foreach (string plugin in lstDisabledPlugins)
+				{
+					PluginManager.DeactivatePlugin(plugin);
+				}
 			}
 		}
 
