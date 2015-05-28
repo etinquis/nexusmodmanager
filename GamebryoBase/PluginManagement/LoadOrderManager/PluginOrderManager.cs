@@ -581,7 +581,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 				}
 				catch { }
 
-				Task tskRelease = Task.Delay(500).ContinueWith(t => m_intRunningLOLock--);
+				Task tskRelease = Task.Delay(100).ContinueWith(t => m_intRunningLOLock--);
 				tskRelease.Wait();
 			}
 			else
