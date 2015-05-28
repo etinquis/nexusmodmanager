@@ -16,6 +16,7 @@ namespace Nexus.Client.PluginManagement
 		event EventHandler LoadOrderUpdate;
 		event EventHandler ActivePluginUpdate;
 		event EventHandler ExternalPluginAdded;
+		event EventHandler ExternalPluginRemoved;
 
 		#endregion
 

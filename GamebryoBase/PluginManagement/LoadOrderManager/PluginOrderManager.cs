@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,8 +9,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Nexus.Client.BackgroundTasks;
 using Nexus.Client.PluginManagement;
 using Nexus.Client.Util;
+using Nexus.Client.Util.Collections;
 
 namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 {
@@ -22,16 +25,17 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 	public class PluginOrderManager : ILoadOrderManager, IDisposable
 	{
 		private Regex m_rgxPluginFile = new Regex(@"(?i)^\w.+\.es[mp]$");
-		private static Int32 m_intRunningLOLock = 0;
-		private static Int32 m_intRunningAPLock = 0;
 		private List<string> m_lstActivePlugins = new List<string>();
 		private DateTime m_dtiMasterDate = DateTime.Now;
+		private ThreadSafeObservableList<WriteLoadOrderTask> TaskList = new ThreadSafeObservableList<WriteLoadOrderTask>();
+		private IBackgroundTask RunningTask = null;
 
 		#region Events
 
 		public event EventHandler LoadOrderUpdate;
 		public event EventHandler ActivePluginUpdate;
 		public event EventHandler ExternalPluginAdded;
+		public event EventHandler ExternalPluginRemoved;
 
 		#endregion
 
@@ -115,6 +119,14 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <value>The last valid active plugins list.</value>
 		protected List<string> LastValidActiveList { get; private set; }
 
+		protected bool IsExternalInput
+		{
+			get
+			{
+				return (((RunningTask == null) || ((RunningTask != null) && RunningTask.Status == BackgroundTasks.TaskStatus.Complete)) && (TaskList.Count == 0));
+			}
+		}
+
 		#endregion
 
 		#region Constructors
@@ -196,6 +208,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			string strGameModeLocalAppData = Path.Combine(strLocalAppData, GameMode.ModeId);
 			LastValidActiveList = GameMode.OrderedCriticalPluginNames.ToList();
 			LastValidLoadOrder = GameMode.OrderedCriticalPluginNames.ToList();
+			TaskList.CollectionChanged += new NotifyCollectionChangedEventHandler(TaskList_CollectionChanged);
 
 			Backup(strGameModeLocalAppData);
 
@@ -238,6 +251,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			FileWatcher.Filter = "*.esp";
 			if (TimestampOrder)
 				FileWatcher.Changed += new FileSystemEventHandler(FileWatcherOnChangedLoose);
+			FileWatcher.Deleted += new FileSystemEventHandler(FileWatcherOnDeletedLoose);
 			FileWatcher.Created += new FileSystemEventHandler(FileWatcherOnCreatedLoose);
 			FileWatcher.EnableRaisingEvents = true;
 			FileWatchers.Add(FileWatcher);
@@ -249,6 +263,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			FileWatcher.Filter = "*.esm";
 			if (TimestampOrder)
 				FileWatcher.Changed += new FileSystemEventHandler(FileWatcherOnChangedLoose);
+			FileWatcher.Deleted += new FileSystemEventHandler(FileWatcherOnDeletedLoose);
 			FileWatcher.Created += new FileSystemEventHandler(FileWatcherOnCreatedLoose);
 			FileWatcher.EnableRaisingEvents = true;
 			FileWatchers.Add(FileWatcher);
@@ -266,12 +281,12 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 
 			if (!String.IsNullOrWhiteSpace(strFile))
 			{
-				if (strFile.Equals("plugins.txt", StringComparison.InvariantCultureIgnoreCase) && (m_intRunningAPLock == 0))
+				if (strFile.Equals("plugins.txt", StringComparison.InvariantCultureIgnoreCase) && IsExternalInput)
 				{
 					if (ActivePluginUpdate != null)
 						ActivePluginUpdate(GetActivePlugins(), new EventArgs());
 				}
-				else if (strFile.Equals("loadorder.txt", StringComparison.InvariantCultureIgnoreCase) && (m_intRunningLOLock == 0) && !TimestampOrder)
+				else if (strFile.Equals("loadorder.txt", StringComparison.InvariantCultureIgnoreCase) && IsExternalInput)
 				{
 					if (LoadOrderUpdate != null)
 						LoadOrderUpdate(GetLoadOrder(), new EventArgs());
@@ -287,7 +302,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			if ((source == null) || (e == null))
 				return;
 
-			if (TimestampOrder && (m_intRunningLOLock == 0))
+			if (TimestampOrder && IsExternalInput)
 			{
 				if (LoadOrderUpdate != null)
 					LoadOrderUpdate(GetLoadOrder(), new EventArgs());
@@ -302,9 +317,22 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			if ((source == null) || (e == null))
 				return;
 
-			if (m_intRunningLOLock == 0)
+			if (IsExternalInput)
 				if (ExternalPluginAdded != null)
 					ExternalPluginAdded(e.FullPath, new EventArgs());
+		}
+
+		/// <summary>
+		/// Handles files removed from the plugin installation folder.
+		/// </summary>
+		private void FileWatcherOnDeletedLoose(object source, FileSystemEventArgs e)
+		{
+			if ((source == null) || (e == null))
+				return;
+
+			if (IsExternalInput)
+				if (ExternalPluginRemoved != null)
+					ExternalPluginRemoved(e.FullPath, new EventArgs());
 		}
 
 		#endregion
@@ -453,20 +481,20 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// Sets the list of active plugins.
 		/// </summary>
 		/// <param name="p_strActivePlugins">The list of plugins to set as active.</param>
-		public async void SetActivePlugins(string[] p_strActivePlugins)
+		public void SetActivePlugins(string[] p_strActivePlugins)
 		{
 			LastValidActiveList = p_strActivePlugins.ToList();
-			await SetActivePluginsTask(p_strActivePlugins);
+			SetActivePluginsTask(p_strActivePlugins);
 		}
 
 		/// <summary>
 		/// Sets the list of active plugins.
 		/// </summary>
 		/// <param name="p_strActivePlugins">The list of plugins to set as active.</param>
-		private async Task SetActivePluginsTask(string[] p_strActivePlugins)
+		private void SetActivePluginsTask(string[] p_strActivePlugins)
 		{
 			string[] strActivePluginNames = StripPluginDirectory(p_strActivePlugins);
-			await WriteActivePlugins(PluginsFilePath, strActivePluginNames);
+			WriteLoadOrder(PluginsFilePath, strActivePluginNames);
 			m_lstActivePlugins = strActivePluginNames.ToList<string>();
 		}
 
@@ -567,31 +595,28 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// </summary>
 		/// <remarks>
 		/// <param name="p_strPlugins">The list of plugins in the desired order.</param>
-		public async void SetLoadOrder(string[] p_strPlugins)
+		public void SetLoadOrder(string[] p_strPlugins)
 		{
 			LastValidLoadOrder = p_strPlugins.ToList();
 			string[] strOrderedPluginNames = StripPluginDirectory(p_strPlugins);
 
 			if (TimestampOrder)
 			{
-				m_intRunningLOLock++;
 				try
 				{
-					await SetTimestampLoadOrder(p_strPlugins);
+					WriteLoadOrderTask wltTask = new WriteLoadOrderTask(String.Empty, p_strPlugins, TimestampOrder, m_dtiMasterDate);
+					TaskList.Add(wltTask);
 				}
 				catch { }
-
-				Task tskRelease = Task.Delay(100).ContinueWith(t => m_intRunningLOLock--);
-				tskRelease.Wait();
 			}
 			else
-				await SetSortedListLoadOrder(strOrderedPluginNames);
+				SetSortedListLoadOrder(strOrderedPluginNames);
 
 			if ((m_lstActivePlugins != null) && (m_lstActivePlugins.Count > 0))
 			{
 				string[] strOrderedActivePluginNames = strOrderedPluginNames.Intersect(StripPluginDirectory(m_lstActivePlugins.ToArray()), StringComparer.InvariantCultureIgnoreCase).ToArray();
 				if ((strOrderedActivePluginNames != null) && (strOrderedActivePluginNames.Length > 0))
-					await SetActivePluginsTask(strOrderedActivePluginNames);
+					SetActivePluginsTask(strOrderedActivePluginNames);
 			}
 		}
 
@@ -600,7 +625,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// </summary>
 		/// <remarks>
 		/// <param name="p_strPlugins">The list of plugins in the desired order.</param>
-		private async Task SetTimestampLoadOrder(string[] p_strPlugins)
+		private void SetTimestampLoadOrder(string[] p_strPlugins)
 		{
 			for (int i = 0; i < p_strPlugins.Length; i++)
 			{
@@ -615,9 +640,9 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// </summary>
 		/// <remarks>
 		/// <param name="p_strPlugins">The list of plugins in the desired order.</param>
-		private async Task SetSortedListLoadOrder(string[] p_strPlugins)
+		private void SetSortedListLoadOrder(string[] p_strPlugins)
 		{
-			await WriteLoadOrder(LoadOrderFilePath, p_strPlugins);
+			WriteLoadOrder(LoadOrderFilePath, p_strPlugins);
 		}
 
 		/// <summary>
@@ -662,6 +687,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <returns>The load index of the specified plugin.</returns>
 		public Int32 GetPluginLoadOrder(string p_strPlugin)
 		{
+			throw new NotImplementedException();
 			UInt32 uintIndex = 0;
 			//notimplemented
 			return Convert.ToInt32(uintIndex);
@@ -680,6 +706,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <param name="p_intIndex">The load index at which to place the specified plugin.</param>
 		public void SetPluginLoadOrder(string p_strPlugin, Int32 p_intIndex)
 		{
+			throw new NotImplementedException();
 			UInt32 uintIndex = 0;
 			//notimplemented
 			Convert.ToInt32(uintIndex);
@@ -692,6 +719,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <param name="p_booActive">Whether the specified plugin should be made active or inactive.</param>
 		public void SetPluginActive(string p_strPlugin, bool p_booActive)
 		{
+			throw new NotImplementedException();
 			UInt32 uintIndex = 0;
 			//notimplemented
 			Convert.ToInt32(uintIndex);
@@ -704,8 +732,66 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <returns>The name of the plugin at the specified index.</returns>
 		public string GetIndexedPlugin(Int32 p_intIndex)
 		{
+			throw new NotImplementedException();
 			//notimplemented
 			return String.Empty;
+		}
+
+		#endregion
+
+		#region Task Management
+
+		/// <summary>
+		/// Handles the <see cref="INotifyCollectionChanged.CollectionChanged"/> event of the view model's
+		/// installed mod list.
+		/// </summary>
+		/// <remarks>
+		/// This updates the list of mods to refelct changes to the installed mod list.
+		/// </remarks>
+		/// <param name="sender">The object that raised the event.</param>
+		/// <param name="e">A <see cref="NotifyCollectionChangedEventArgs"/> describing the event arguments.</param>
+		private void TaskList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			switch (e.Action)
+			{
+				case NotifyCollectionChangedAction.Add:
+				case NotifyCollectionChangedAction.Remove:
+					if ((RunningTask == null) || (RunningTask.Status == BackgroundTasks.TaskStatus.Complete))
+					{
+						if (TaskList.Count > 0)
+						{
+							lock (TaskList)
+							{
+								WriteLoadOrderTask NextTask = TaskList.FirstOrDefault();
+								RunningTask = NextTask;
+								RunningTask.TaskEnded += new EventHandler<TaskEndedEventArgs>(RunningTask_TaskEnded);
+								NextTask.Update();
+							}
+						}
+					}
+					break;
+			}
+		}
+
+		/// <summary>
+		/// Handles the <see cref="IBackgroundTask.TaskEnded"/> event of a task set.
+		/// </summary>
+		/// <remarks>
+		/// This displays the confirmation message.
+		/// </remarks>
+		/// <param name="sender">The object that raised the event.</param>
+		/// <param name="e">A <see cref="TaskSetCompletedEventArgs"/> describing the event arguments.</param>
+		private void RunningTask_TaskEnded(object sender, TaskEndedEventArgs e)
+		{
+			lock (RunningTask)
+			{
+				if (RunningTask != null)
+				{
+					RunningTask.TaskEnded -= RunningTask_TaskEnded;
+					TaskList.Remove((WriteLoadOrderTask)RunningTask);
+					RunningTask = null;
+				}
+			}
 		}
 
 		#endregion
@@ -734,61 +820,10 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <summary>
 		/// Handles write operations to the load order file.
 		/// </summary>
-		private async Task WriteLoadOrder(string p_strFilePath, string[] p_strPlugins)
+		private void WriteLoadOrder(string p_strFilePath, string[] p_strPlugins)
 		{
-			m_intRunningLOLock++;
-
-			try
-			{
-				await WriteLoadOrderFile(p_strFilePath, p_strPlugins);
-			}
-			catch { }
-
-			Task tskRelease = Task.Delay(100).ContinueWith(t => m_intRunningLOLock--);
-			tskRelease.Wait();
-		}
-
-		/// <summary>
-		/// Handles write operations to the load order file.
-		/// </summary>
-		private async Task WriteActivePlugins(string p_strFilePath, string[] p_strPlugins)
-		{
-			m_intRunningAPLock++;
-
-			try
-			{
-				await WriteLoadOrderFile(p_strFilePath, p_strPlugins);
-			}
-			catch { }
-
-			Task tskRelease = Task.Delay(100).ContinueWith(t => m_intRunningAPLock--);
-			tskRelease.Wait();
-		}
-
-		/// <summary>
-		/// Writes the plugin load order to the text file.
-		/// </summary>
-		private async Task WriteLoadOrderFile(string p_strFilePath, string[] p_strPlugins)
-		{
-			int intRepeat = 0;
-			bool booLocked = false;
-
-			while (!IsFileReady(p_strFilePath))
-			{
-				Thread.Sleep(500);
-				if (intRepeat++ > 20)
-				{
-					booLocked = true;
-					break;
-				}
-			}
-
-			if (!booLocked)
-				using (StreamWriter swFile = new StreamWriter(p_strFilePath))
-				{
-					foreach(string plugin in p_strPlugins)
-						swFile.WriteLine(plugin);
-				}
+			WriteLoadOrderTask wltTask = new WriteLoadOrderTask(p_strFilePath, p_strPlugins, false, m_dtiMasterDate);
+			TaskList.Add(wltTask);
 		}
 
 		/// <summary>

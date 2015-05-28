@@ -67,6 +67,7 @@ namespace Nexus.Client.PluginManagement.UI
 				m_vmlViewModel.ImportPartiallySucceeded += new EventHandler<ImportSucceededEventArgs>(ViewModel_ImportPartiallySucceeded);
 				m_vmlViewModel.ImportSucceeded += new EventHandler<ImportSucceededEventArgs>(ViewModel_ImportSucceeded);
 				m_vmlViewModel.SortingPlugins += new EventHandler<EventArgs<IBackgroundTask>>(ViewModel_SortingPlugins);
+				m_vmlViewModel.ManagingMultiplePlugins += new EventHandler<EventArgs<IBackgroundTask>>(ViewModel_ManagingMultiplePlugins);
 				
 				new ToolStripItemCommandBinding<IEnumerable<Plugin>>(tsbMoveUp, m_vmlViewModel.MoveUpCommand, GetSelectedPlugins);
 				new ToolStripItemCommandBinding<IList<Plugin>>(tsbMoveDown, m_vmlViewModel.MoveDownCommand, GetSelectedPlugins);
@@ -169,11 +170,7 @@ namespace Nexus.Client.PluginManagement.UI
 		protected void DisableAllPlugins()
 		{
 			if (MessageBox.Show("Do you really want to disable all active plugins?", "Confirm?", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-				foreach (ListViewItem items in rlvPlugins.Items)
-				{
-					if ((items.Checked) && (items.Index >= ViewModel.OrderedCriticalPluginNames.Length))
-						ViewModel.DeactivatePlugin((Plugin)items.Tag);
-				}
+				ViewModel.PluginsDisableAll();
 		}
 
 		/// <summary>
@@ -182,14 +179,7 @@ namespace Nexus.Client.PluginManagement.UI
 		protected void EnableAllPlugins()
 		{
 			if (MessageBox.Show("Do you really want to enable all inactive plugins?", "Confirm?", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-				foreach (ListViewItem items in rlvPlugins.Items)
-				{
-					if (items.Index > 254)
-						break;
-					
-					if ((items.Checked == false) && (items.Index > 0))
-						ViewModel.ActivatePlugin((Plugin)items.Tag);
-				}
+				ViewModel.PluginsEnableAll();
 		}
 
 		#region Binding
@@ -495,6 +485,24 @@ namespace Nexus.Client.PluginManagement.UI
 			}
 		}
 
+		/// <summary>
+		/// Handles the <see cref="PluginManagerVM.ManagingMultiplePlugins"/> event of the view model.
+		/// </summary>
+		/// <remarks>
+		/// This displays the progress dialog.
+		/// </remarks>
+		/// <param name="sender">The object that raised the event.</param>
+		/// <param name="e">An <see cref="EventArgs{IBackgroundTask}"/> describing the event arguments.</param>
+		private void ViewModel_ManagingMultiplePlugins(object sender, EventArgs<IBackgroundTask> e)
+		{
+			if (InvokeRequired)
+			{
+				Invoke((Action<object, EventArgs<IBackgroundTask>>)ViewModel_ManagingMultiplePlugins, sender, e);
+				return;
+			}
+			ProgressDialog.ShowDialog(this, e.Argument);
+		}
+		
 		/// <summary>
 		/// Handles the <see cref="INotifyCollectionChanged.CollectionChanged"/> event of the view model's
 		/// active plugin list.

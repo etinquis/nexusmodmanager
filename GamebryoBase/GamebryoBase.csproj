@@ -69,6 +69,7 @@
     <Compile Include="PluginManagement\GamebryoPluginFactory.cs" />
     <Compile Include="PluginManagement\InstallationLog\GamebryoActivePluginLogSerializer.cs" />
     <Compile Include="PluginManagement\LoadOrderManager\PluginOrderManager.cs" />
+    <Compile Include="PluginManagement\LoadOrderManager\WriteLoadOrderTask.cs" />
     <Compile Include="PluginManagement\Sorter\SorterException.cs" />
     <Compile Include="PluginManagement\Sorter\PluginSorter.cs" />
     <Compile Include="PluginManagement\Sorter\IPluginSorter.cs" />

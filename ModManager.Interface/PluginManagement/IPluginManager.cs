@@ -137,6 +137,15 @@ namespace Nexus.Client.PluginManagement
 		/// <c>false</c> otherwise.</returns>
 		bool CanChangeActiveState(Plugin p_plgPlugin);
 
+		/// <summary>
+		/// Runs the managed updaters.
+		/// </summary>
+		/// <param name="p_hashMods">The hash of mods.</param>
+		/// <param name="p_booEnable">Enable/Disable/Toggle.</param>
+		/// <param name="p_camConfirm">The delegate to call to confirm an action.</param>
+		/// <returns>The background task that will run the updaters.</returns>
+		IBackgroundTask ManageMultiplePluginsTask(List<Plugin> p_lstPlugins, bool p_booEnable, ConfirmActionMethod p_camConfirm);
+
 		#endregion
 
 		#region Plugin Ordering

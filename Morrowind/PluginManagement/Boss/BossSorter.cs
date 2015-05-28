@@ -19,11 +19,12 @@ namespace Nexus.Client.Games.Morrowind.PluginManagement.Boss
 	public class BossSorter : ILoadOrderManager, IDisposable
 	{
 
-		#region Events
+		#region Events (Not Implemented)
 
 		public event EventHandler LoadOrderUpdate;
 		public event EventHandler ActivePluginUpdate;
 		public event EventHandler ExternalPluginAdded;
+		public event EventHandler ExternalPluginRemoved;
 
 		#endregion
 

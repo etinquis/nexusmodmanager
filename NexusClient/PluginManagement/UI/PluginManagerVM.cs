@@ -56,6 +56,11 @@ namespace Nexus.Client.PluginManagement.UI
 		/// </summary>
 		public event EventHandler<EventArgs<IBackgroundTask>> SortingPlugins = delegate { };
 
+		/// <summary>
+		/// Managing multiple plugins.
+		/// </summary>
+		public event EventHandler<EventArgs<IBackgroundTask>> ManagingMultiplePlugins = delegate { };
+
 		#endregion
 
 		#region Delegates
@@ -257,6 +262,7 @@ namespace Nexus.Client.PluginManagement.UI
 			CurrentGameMode.LoadOrderManager.ActivePluginUpdate += new EventHandler(LoadOrderManager_ActivePluginUpdate);
 			CurrentGameMode.LoadOrderManager.LoadOrderUpdate += new EventHandler(LoadOrderManager_LoadOrderUpdate);
 			CurrentGameMode.LoadOrderManager.ExternalPluginAdded +=	new EventHandler(LoadOrderManager_ExternalPluginAdded);
+			CurrentGameMode.LoadOrderManager.ExternalPluginRemoved += new EventHandler(LoadOrderManager_ExternalPluginRemoved);
 
 			ActivatePluginCommand = new Command<Plugin>("Activate Plugin", "Activates the selected plugin.", ActivatePlugin);
 			DeactivatePluginCommand = new Command<Plugin>("Deactivate Plugin", "Deactivates the selected plugin.", DeactivatePlugin);
@@ -273,6 +279,9 @@ namespace Nexus.Client.PluginManagement.UI
 
 		#region External Plugin Update
 
+		/// <summary>
+		/// Handles changes to the plugin activation state made by external programs (or manually)
+		/// </summary>
 		private void LoadOrderManager_ActivePluginUpdate(object sender, EventArgs e)
 		{
 			if (ModActivationMonitor.IsInstalling)
@@ -303,15 +312,23 @@ namespace Nexus.Client.PluginManagement.UI
 				
 				foreach (string plugin in lstActivatedPlugins)
 				{
-					PluginManager.ActivatePlugin(plugin);
+					if (!PluginManager.IsPluginRegistered(plugin))
+						PluginManager.AddPlugin(plugin);
+
+					if (PluginManager.IsPluginRegistered(plugin))
+						PluginManager.ActivatePlugin(plugin);
 				}
 				foreach (string plugin in lstDisabledPlugins)
 				{
-					PluginManager.DeactivatePlugin(plugin);
+					if (PluginManager.IsPluginRegistered(plugin))
+						PluginManager.DeactivatePlugin(plugin);
 				}
 			}
 		}
 
+		/// <summary>
+		/// Handles changes to the plugin load order made by external programs (or manually)
+		/// </summary>
 		private void LoadOrderManager_LoadOrderUpdate(object sender, EventArgs e)
 		{
 			if (ModActivationMonitor.IsInstalling)
@@ -321,6 +338,9 @@ namespace Nexus.Client.PluginManagement.UI
 				RefreshPluginSorting((string[])sender);
 		}
 
+		/// <summary>
+		/// Handles new plugins added by external programs (or manually)
+		/// </summary>
 		private void LoadOrderManager_ExternalPluginAdded(object sender, EventArgs e)
 		{
 			if (ModActivationMonitor.IsInstalling)
@@ -329,6 +349,25 @@ namespace Nexus.Client.PluginManagement.UI
 			if (sender != null)
 			{
 				PluginManager.AddPlugin(sender.ToString());
+			}
+		}
+
+		/// <summary>
+		/// Handles plugins removed by external programs (or manually)
+		/// </summary>
+		private void LoadOrderManager_ExternalPluginRemoved(object sender, EventArgs e)
+		{
+			if (ModActivationMonitor.IsInstalling)
+				return;
+
+			if (sender != null)
+			{
+				if (PluginManager.IsPluginRegistered(sender.ToString()))
+				{
+					if (PluginManager.IsPluginActive(sender.ToString()))
+						PluginManager.DeactivatePlugin(sender.ToString());
+					PluginManager.RemovePlugin(sender.ToString());
+				}
 			}
 		}
 
@@ -352,6 +391,27 @@ namespace Nexus.Client.PluginManagement.UI
 		public void DeactivatePlugin(Plugin p_plgPlugin)
 		{
 			PluginManager.DeactivatePlugin(p_plgPlugin);
+		}
+
+		/// <summary>
+		/// Deactivates all the enabled plugins.
+		/// </summary>
+		public void PluginsDisableAll()
+		{
+			List<Plugin> lstActivePlugins = ActivePlugins.ToList();
+
+			ManagingMultiplePlugins(this, new EventArgs<IBackgroundTask>(PluginManager.ManageMultiplePluginsTask(lstActivePlugins, false, ConfirmUpdaterAction)));
+		}
+
+		/// <summary>
+		/// Activates all the plugins.
+		/// </summary>
+		public void PluginsEnableAll()
+		{
+			List<Plugin> lstNotActive = new List<Plugin>();
+			lstNotActive = ManagedPlugins.Except(ActivePlugins).ToList();
+
+			ManagingMultiplePlugins(this, new EventArgs<IBackgroundTask>(PluginManager.ManageMultiplePluginsTask(lstNotActive, true, ConfirmUpdaterAction)));
 		}
 
 		/// <summary>
