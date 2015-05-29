@@ -72,7 +72,6 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <returns>Always <c>null</c>.</returns>
 		protected override object DoWork(object[] p_objArgs)
 		{
-			OverallMessage = "Deactivating all the active mods...";
 			OverallProgress = 0;
 			OverallProgressStepSize = 1;
 			OverallProgressMaximum = Plugins.Count();

@@ -210,8 +210,6 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			LastValidLoadOrder = GameMode.OrderedCriticalPluginNames.ToList();
 			TaskList.CollectionChanged += new NotifyCollectionChangedEventHandler(TaskList_CollectionChanged);
 
-			Backup(strGameModeLocalAppData);
-
 			if (!TimestampOrder)
 				LoadOrderFilePath = Path.Combine(strGameModeLocalAppData, "loadorder.txt");
 			else
@@ -222,6 +220,8 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			}
 
 			PluginsFilePath = Path.Combine(strGameModeLocalAppData, "plugins.txt");
+
+			Backup(strGameModeLocalAppData);
 
 			SetupWatcher(strGameModeLocalAppData);
 		}
@@ -612,7 +612,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			else
 				SetSortedListLoadOrder(strOrderedPluginNames);
 
-			if ((m_lstActivePlugins != null) && (m_lstActivePlugins.Count > 0))
+			if (!TimestampOrder && ((m_lstActivePlugins != null) && (m_lstActivePlugins.Count > 0)))
 			{
 				string[] strOrderedActivePluginNames = strOrderedPluginNames.Intersect(StripPluginDirectory(m_lstActivePlugins.ToArray()), StringComparer.InvariantCultureIgnoreCase).ToArray();
 				if ((strOrderedActivePluginNames != null) && (strOrderedActivePluginNames.Length > 0))
@@ -756,9 +756,9 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			{
 				case NotifyCollectionChangedAction.Add:
 				case NotifyCollectionChangedAction.Remove:
-					if ((RunningTask == null) || (RunningTask.Status == BackgroundTasks.TaskStatus.Complete))
+					if ((RunningTask == null) || ((RunningTask.Status != BackgroundTasks.TaskStatus.Queued) && (RunningTask.Status != BackgroundTasks.TaskStatus.Running) && (RunningTask.Status != BackgroundTasks.TaskStatus.Retrying)))
 					{
-						if (TaskList.Count > 0)
+						if ((TaskList != null) && (TaskList.Count > 0))
 						{
 							lock (TaskList)
 							{
@@ -783,9 +783,9 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <param name="e">A <see cref="TaskSetCompletedEventArgs"/> describing the event arguments.</param>
 		private void RunningTask_TaskEnded(object sender, TaskEndedEventArgs e)
 		{
-			lock (RunningTask)
+			if (RunningTask != null)
 			{
-				if (RunningTask != null)
+				lock (RunningTask)
 				{
 					RunningTask.TaskEnded -= RunningTask_TaskEnded;
 					TaskList.Remove((WriteLoadOrderTask)RunningTask);
