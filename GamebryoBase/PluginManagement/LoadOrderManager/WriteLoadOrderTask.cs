@@ -119,11 +119,38 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			}
 
 			if (!booLocked)
-				using (StreamWriter swFile = new StreamWriter(p_strFilePath))
+			{
+				int intRetries = 0;
+
+				while (intRetries < 100)
 				{
-					foreach (string plugin in p_strPlugins)
-						swFile.WriteLine(plugin);
+					try
+					{
+						using (StreamWriter swFile = new StreamWriter(p_strFilePath))
+						{
+							foreach (string plugin in p_strPlugins)
+								swFile.WriteLine(plugin);
+						}
+						break;
+					}
+					catch (IOException e)
+					{
+						var errorCode = System.Runtime.InteropServices.Marshal.GetHRForException(e) & ((1 << 16) - 1);
+
+						if (errorCode == 32 || errorCode == 33)
+						{
+							if (intRetries >= 100)
+								return;
+							else
+								intRetries++;
+
+							Thread.Sleep(100);
+						}
+						else
+							throw e;
+					}
 				}
+			}
 		}
 
 		/// <summary>
@@ -133,7 +160,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		{
 			try
 			{
-				using (FileStream inputStream = File.Open(p_strFilePath, FileMode.Open, FileAccess.Read, FileShare.None))
+				using (FileStream inputStream = File.Open(p_strFilePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
 				{
 					return (inputStream.Length > 0);
 				}
