@@ -681,7 +681,8 @@ namespace Nexus.Client
 					if (lwiListViewItem.Task != null)
 					{
 						tsbLoader.Visible = true;
-						
+						tlbBottomBarFeedbackCounter.Visible = true;
+
 						if (!lwiListViewItem.Task.IsQueued)
 						{
 							if (lwiListViewItem.Task.GetType() == typeof(ModInstaller))
@@ -701,6 +702,7 @@ namespace Nexus.Client
 				else
 				{
 					tsbLoader.Visible = false;
+					tlbBottomBarFeedbackCounter.Visible = false;
 					tlbBottomBarFeedback.Text = "Idle";
 				}
 			}
