@@ -400,6 +400,13 @@ namespace Nexus.Client.PluginManagement.UI
 		{
 			List<Plugin> lstActivePlugins = ActivePlugins.ToList();
 
+			foreach (string criticalPlugin in OrderedCriticalPluginNames)
+			{
+				Plugin plgCritical = PluginManager.GetRegisteredPlugin(criticalPlugin);
+				if (plgCritical != null)
+					lstActivePlugins.Remove(plgCritical);
+			}
+
 			ManagingMultiplePlugins(this, new EventArgs<IBackgroundTask>(PluginManager.ManageMultiplePluginsTask(lstActivePlugins, false, ConfirmUpdaterAction)));
 		}
 
