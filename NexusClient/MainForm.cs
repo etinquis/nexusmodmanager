@@ -106,7 +106,7 @@ namespace Nexus.Client
 					spbHelp.DropDownItems.Add(tmiHelp);
 				}
 
-				bmBalloon = new BalloonManager();
+				bmBalloon = new BalloonManager(ViewModel.UsesPlugins);
 				bmBalloon.ShowNextClick += bmBalloon_ShowNextClick;
 				bmBalloon.ShowPreviousClick += bmBalloon_ShowPreviousClick;
 				bmBalloon.CloseClick += bmBalloon_CloseClick;
@@ -1272,8 +1272,11 @@ namespace Nexus.Client
 				case "tssDownload":
 					root = this.Controls.Find(p_section, true)[0];
 					rootItem = ((StatusStrip)root).Items.Find(p_object, true)[0];
-					pCoords.X = rootItem.AccessibilityObject.Bounds.Location.X - 10;
-					pCoords.Y = rootItem.AccessibilityObject.Bounds.Location.Y - 60;
+					if (rootItem.Visible)
+					{
+						pCoords.X = rootItem.AccessibilityObject.Bounds.Location.X - 10;
+						pCoords.Y = rootItem.AccessibilityObject.Bounds.Location.Y - 60;
+					}
 					break;
 
 				case "ModManager.toolStrip1":

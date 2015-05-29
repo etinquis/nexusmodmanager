@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <tipsManager>
 	<tipsList>
-	<tips section="PluginManagerControl" object="" ID="1" version="0.55.0">
-		<text>The plugin list will now automatically synchronize with external changes (manual or made by other tools).</text>
-	</tips>
-	<tips section="ModManagerControl" object="" ID="2" version="0.55.0">
+	<tips section="ModManagerControl" object="" ID="1" version="0.55.0">
 		<text>Added new "Download Date" column to the Mods tab.</text>
 	</tips>
-	<tips section="tssDownload" object="tlbPluginsCounter" ID="3" version="0.55.0">
+	<tips section="PluginManagerControl" object="" ID="2" version="0.55.0" pluginsonly="true">
+		<text>The plugin list will now automatically synchronize with external changes (manual or made by other tools).</text>
+	</tips>
+	<tips section="tssDownload" object="tlbPluginsCounter" ID="3" version="0.55.0" pluginsonly="true">
 		<text>Added Plugins Counter feedback to the bottom bar.</text>
 	</tips>
 	<tips section="toolStrip1" object="spbTools" ID="1" version="0.54.0">
