@@ -622,8 +622,6 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 
 			uintStatus = m_dlgSortPlugins(m_ptrSorterDb, out ptrPlugins, out numPlugins);
 
-			HandleStatusCode(uintStatus);
-
 			if (uintStatus == 0)
 			{
 				UInt32 uintListLength = numPlugins;
