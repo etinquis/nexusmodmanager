@@ -108,10 +108,10 @@
   <ItemGroup />
   <ItemGroup>
     <Content Include="data\boss32.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="data\boss64.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -126,7 +126,9 @@
   <Target Name="AfterBuild">
     <ItemGroup>
       <FilesToCopy Include="$(TargetDir)$(TargetName)*.dll" />
+	  <DataFilesToCopy Include="$(TargetDir)data\*.*" />
     </ItemGroup>
     <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(SolutionDir)$(OutDir)GameModes\" SkipUnchangedFiles="true" />
+	<Copy SourceFiles="@(DataFilesToCopy)" DestinationFolder="$(SolutionDir)$(OutDir)GameModes\data\" SkipUnchangedFiles="true" />
   </Target>
 </Project>

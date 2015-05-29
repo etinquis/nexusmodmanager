@@ -26,6 +26,7 @@ namespace Nexus.Client.Games.Morrowind
 		private MorrowindGameModeDescriptor m_gmdGameModeInfo = null;
 		private MorrowindLauncher m_glnGameLauncher = null;
 		private MorrowindToolLauncher m_gtlToolLauncher = null;
+		private GamebryoActivePluginLogSerializer m_apsActivePluginLogSerializer = null;
 		private GamebryoPluginOrderLogSerializer m_posPluginOrderSerializer = null;
 
         #region Properties
@@ -136,6 +137,9 @@ namespace Nexus.Client.Games.Morrowind
         public MorrowindGameMode(IEnvironmentInfo p_eifEnvironmentInfo, FileUtil p_futFileUtility)
             : base(p_eifEnvironmentInfo, p_futFileUtility)
         {
+			string strPath = p_eifEnvironmentInfo.ApplicationPersonalDataFolderPath;
+			strPath = Path.Combine(Path.Combine(strPath, "boss"), "masterlist.txt");
+			BossSorter = new BossSorter(p_eifEnvironmentInfo, this, p_futFileUtility, strPath);
         }
 
         #endregion
@@ -164,6 +168,20 @@ namespace Nexus.Client.Games.Morrowind
 			return m_posPluginOrderSerializer;
 		}
 
+		/// <summary>
+		/// Gets the serailizer that serializes and deserializes the list of active plugins
+		/// for this game mode.
+		/// </summary>
+		/// <param name="p_polPluginOrderLog">The <see cref="IPluginOrderLog"/> tracking plugin order for the current game mode.</param>
+		/// <returns>The serailizer that serializes and deserializes the list of active plugins
+		/// for this game mode.</returns>
+		public override IActivePluginLogSerializer GetActivePluginLogSerializer(IPluginOrderLog p_polPluginOrderLog)
+		{
+			if (m_apsActivePluginLogSerializer == null)
+				m_apsActivePluginLogSerializer = new GamebryoActivePluginLogSerializer(this, p_polPluginOrderLog, BossSorter);
+			return m_apsActivePluginLogSerializer;
+		}
+
         /// <summary>
         /// Adds the settings files to the game mode's list.
         /// </summary>
@@ -172,6 +190,13 @@ namespace Nexus.Client.Games.Morrowind
             base.SetupSettingsFiles();
             SettingsFiles.IniPath = Path.Combine(UserGameDataPath, "Morrowind.ini");
         }
+
+		/// <summary>
+		/// Setup for the plugin management libraries.
+		/// </summary>
+		protected override void SetupPluginManagement(FileUtil p_futFileUtility)
+		{
+		}
 
         #endregion
 
