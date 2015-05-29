@@ -472,17 +472,6 @@ namespace Nexus.Client.PluginManagement.UI
 				return;
 			}
 			ProgressDialog.ShowDialog(this, e.Argument);
-
-			if (e.Argument.ReturnValue != null)
-			{
-				try
-				{
-					string[] strSortedPlugins = Array.ConvertAll((object[])e.Argument.ReturnValue, s => (string)s);
-					if ((strSortedPlugins != null) && (strSortedPlugins.Length > 0))
-					ViewModel.RefreshPluginSorting(strSortedPlugins);
-				}
-				catch { }
-			}
 		}
 
 		/// <summary>
