@@ -550,6 +550,14 @@ namespace Nexus.Client.ModRepositories.Nexus
 					Trace.WriteLine("Login inner exception: " + e.InnerException.Message);
 				throw new RepositoryUnavailableException(String.Format("Unexpected response! Cannot reach the {0} login server.", Name), e);
 			}
+			catch (Exception e)
+			{
+				Trace.WriteLine("Login error: " + e.Message);
+				if (e.InnerException != null)
+					Trace.WriteLine("Login inner exception: " + e.InnerException.Message);
+				throw new RepositoryUnavailableException(String.Format("Unable to perform token authentication, retry using your credentials.", Name), e);
+			}
+
 			if (String.IsNullOrEmpty(strCookie))
 				m_dicAuthenticationTokens = null;
 
