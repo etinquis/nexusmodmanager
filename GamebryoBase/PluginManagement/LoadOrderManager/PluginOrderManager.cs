@@ -24,6 +24,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 	/// </remarks>
 	public class PluginOrderManager : ILoadOrderManager, IDisposable
 	{
+		private static readonly Object m_objLock = new Object();
 		private Regex m_rgxPluginFile = new Regex(@"(?i)^\w.+\.es[mp]$");
 		private List<string> m_lstActivePlugins = new List<string>();
 		private DateTime m_dtiMasterDate = DateTime.Now;
@@ -756,16 +757,19 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			{
 				case NotifyCollectionChangedAction.Add:
 				case NotifyCollectionChangedAction.Remove:
-					if ((RunningTask == null) || ((RunningTask.Status != BackgroundTasks.TaskStatus.Queued) && (RunningTask.Status != BackgroundTasks.TaskStatus.Running) && (RunningTask.Status != BackgroundTasks.TaskStatus.Retrying)))
+					lock (m_objLock)
 					{
-						if ((TaskList != null) && (TaskList.Count > 0))
+						if ((RunningTask == null) || ((RunningTask.Status != BackgroundTasks.TaskStatus.Queued) && (RunningTask.Status != BackgroundTasks.TaskStatus.Running) && (RunningTask.Status != BackgroundTasks.TaskStatus.Retrying)))
 						{
-							lock (TaskList)
+							if ((TaskList != null) && (TaskList.Count > 0))
 							{
-								WriteLoadOrderTask NextTask = TaskList.FirstOrDefault();
-								RunningTask = NextTask;
-								RunningTask.TaskEnded += new EventHandler<TaskEndedEventArgs>(RunningTask_TaskEnded);
-								NextTask.Update();
+								lock (TaskList)
+								{
+									WriteLoadOrderTask NextTask = TaskList.FirstOrDefault();
+									RunningTask = NextTask;
+									RunningTask.TaskEnded += new EventHandler<TaskEndedEventArgs>(RunningTask_TaskEnded);
+									NextTask.Update();
+								}
 							}
 						}
 					}
@@ -785,11 +789,14 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		{
 			if (RunningTask != null)
 			{
-				lock (RunningTask)
+				lock (m_objLock)
 				{
-					RunningTask.TaskEnded -= RunningTask_TaskEnded;
-					TaskList.Remove((WriteLoadOrderTask)RunningTask);
-					RunningTask = null;
+					if (RunningTask != null)
+					{
+						RunningTask.TaskEnded -= RunningTask_TaskEnded;
+						TaskList.Remove((WriteLoadOrderTask)RunningTask);
+						RunningTask = null;
+					}
 				}
 			}
 		}
