@@ -207,8 +207,8 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 
 			string strLocalAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 			string strGameModeLocalAppData = Path.Combine(strLocalAppData, GameMode.ModeId);
-			LastValidActiveList = GameMode.OrderedCriticalPluginNames.ToList();
-			LastValidLoadOrder = GameMode.OrderedCriticalPluginNames.ToList();
+			LastValidActiveList = RemoveNonExistentPlugins(GameMode.OrderedCriticalPluginNames.Concat(GameMode.OrderedOfficialPluginNames).ToArray()).ToList();
+			LastValidLoadOrder = RemoveNonExistentPlugins(GameMode.OrderedCriticalPluginNames.Concat(GameMode.OrderedOfficialPluginNames).ToArray()).ToList();
 			TaskList.CollectionChanged += new NotifyCollectionChangedEventHandler(TaskList_CollectionChanged);
 
 			if (!TimestampOrder)
@@ -468,14 +468,53 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			if (LastValidActiveList.Count > 0)
 				return RemoveNonExistentPlugins(LastValidActiveList.ToArray());
 			else
+				return RemoveNonExistentPlugins(GameMode.OrderedCriticalPluginNames.Concat(GameMode.OrderedOfficialPluginNames).ToArray());
+		}
+
+		/// <summary>
+		/// Gets the list of active plugins.
+		/// </summary>
+		/// <returns>The list of active plugins.</returns>
+		private List<string> GetActiveList()
+		{
+			int intRepeat = 0;
+			bool booLocked = false;
+
+			while (!IsFileReady(PluginsFilePath))
+			{
+				Thread.Sleep(500);
+				if (intRepeat++ > 20)
+				{
+					booLocked = true;
+					break;
+				}
+			}
+
+			if (!booLocked)
 			{
 				List<string> lstActivePlugins = new List<string>();
-				foreach (string plugin in GameMode.OrderedCriticalPluginNames)
-					lstActivePlugins.Add(plugin);
-				foreach (string plugin in GameMode.OrderedOfficialPluginNames)
-					lstActivePlugins.Add(plugin);
-				return RemoveNonExistentPlugins(lstActivePlugins.ToArray());
+
+				try
+				{
+					if (File.Exists(PluginsFilePath))
+					{
+						foreach (string line in File.ReadLines(PluginsFilePath))
+						{
+							if (!string.IsNullOrWhiteSpace(line))
+								if (m_rgxPluginFile.IsMatch(line))
+									lstActivePlugins.Add(AddPluginDirectory(line));
+						}
+					}
+
+					return lstActivePlugins;
+				}
+				catch { }
 			}
+
+			if (LastValidActiveList.Count > 0)
+				return LastValidActiveList;
+			else
+				return RemoveNonExistentPlugins(GameMode.OrderedCriticalPluginNames.Concat(GameMode.OrderedOfficialPluginNames).ToArray()).ToList();
 		}
 
 		/// <summary>
@@ -578,6 +617,8 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 						}
 					}
 
+					AddMissingElements(lstOrderedPlugins);
+
 					LastValidLoadOrder = lstOrderedPlugins;
 
 					return RemoveNonExistentPlugins(lstOrderedPlugins.ToArray());
@@ -589,6 +630,75 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 				return RemoveNonExistentPlugins(LastValidLoadOrder.ToArray());
 			else
 				return RemoveNonExistentPlugins(GameMode.OrderedCriticalPluginNames.Concat(GameMode.OrderedOfficialPluginNames).ToArray());
+		}
+
+		/// <summary>
+		/// Adds plugins missing from the loadorder file to the ordered list.
+		/// </summary>
+		private void AddMissingElements(IList<string> p_lstOrdered)
+		{
+			List<string> lstActivePlugins = GetActiveList();
+
+			if (lstActivePlugins.Count > 0)
+			{
+				List<string> lstMissing = lstActivePlugins.Except(p_lstOrdered, StringComparer.InvariantCultureIgnoreCase).ToList();
+
+				if ((lstMissing != null) && (lstMissing.Count > 0))
+				{
+					foreach (string missingPlugin in lstMissing)
+					{
+						int intIndex = lstActivePlugins.IndexOf(missingPlugin);
+
+						if (intIndex > 0)
+						{
+							bool booFound = false;
+							int intPrevious = intIndex - 1;
+							while (!booFound)
+							{
+								string strPrevious = lstActivePlugins[intPrevious];
+								int intOrdered = p_lstOrdered.IndexOf(strPrevious);
+
+								if (intOrdered >= 0)
+								{
+									booFound = true;
+									p_lstOrdered.Insert(intOrdered + 1, missingPlugin);
+								}
+
+								if (--intPrevious < 0)
+									break;
+							}
+
+							if (!booFound)
+								p_lstOrdered.Add(missingPlugin);
+						}
+					}
+				}
+			}
+
+			List<string> lstLoosePlugins = new List<string>();
+			DirectoryInfo diPluginFolder = new DirectoryInfo(GameMode.PluginDirectory);
+			
+			try
+			{
+				if (diPluginFolder.Exists)
+				{
+					lstLoosePlugins = diPluginFolder
+										.EnumerateFiles()
+										.OrderBy(file => file.LastWriteTime)
+										.Where(file => file.Extension.Equals(".esp", StringComparison.InvariantCultureIgnoreCase) || file.Extension.Equals(".esm", StringComparison.InvariantCultureIgnoreCase))
+										.Select(file => file.FullName)
+										.ToList();
+
+					if ((lstLoosePlugins != null) && (lstLoosePlugins.Count > 0))
+					{
+						List<string> lstMissing = lstLoosePlugins.Except(p_lstOrdered, StringComparer.InvariantCultureIgnoreCase).ToList();
+
+						foreach (string plugin in lstMissing)
+							p_lstOrdered.Add((plugin));
+					}
+				}
+			}
+			catch{}
 		}
 
 		/// <summary>
