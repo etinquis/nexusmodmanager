@@ -25,7 +25,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 	public class PluginOrderManager : ILoadOrderManager, IDisposable
 	{
 		private static readonly Object m_objLock = new Object();
-		private Regex m_rgxPluginFile = new Regex(@"(?i)^\w.+\.es[mp]$");
+		private Regex m_rgxPluginFile = new Regex(@"(?i)^.+\.es[mp]$");
 		private List<string> m_lstActivePlugins = new List<string>();
 		private DateTime m_dtiMasterDate = DateTime.Now;
 		private ThreadSafeObservableList<WriteLoadOrderTask> TaskList = new ThreadSafeObservableList<WriteLoadOrderTask>();
