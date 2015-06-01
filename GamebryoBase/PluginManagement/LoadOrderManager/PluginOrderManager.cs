@@ -904,8 +904,9 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 					if (RunningTask != null)
 					{
 						RunningTask.TaskEnded -= RunningTask_TaskEnded;
-						TaskList.Remove((WriteLoadOrderTask)RunningTask);
+						int intPosition = TaskList.IndexOf((WriteLoadOrderTask)RunningTask);
 						RunningTask = null;
+						TaskList.RemoveAt(intPosition);
 					}
 				}
 			}

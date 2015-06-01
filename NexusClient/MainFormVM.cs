@@ -341,6 +341,18 @@ namespace Nexus.Client
 			}
 		}
 
+		/// <summary>
+		/// Whether the plugin sorter is properly initialized.
+		/// </summary>
+		public bool PluginSorterInitialized
+		{
+			get
+			{
+				return GameMode.PluginSorterInitialized;
+			}
+		}
+
+
 		#endregion
 
 		#region Constructors

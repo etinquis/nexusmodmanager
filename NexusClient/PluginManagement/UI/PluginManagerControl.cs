@@ -472,6 +472,13 @@ namespace Nexus.Client.PluginManagement.UI
 				return;
 			}
 			ProgressDialog.ShowDialog(this, e.Argument);
+
+			if (e.Argument.ReturnValue == null)
+			{
+				MessageBox.Show("Nexus Mod Manager was unable to perform the automatic plugin sorting." +
+					Environment.NewLine + Environment.NewLine + "Restart the mod manager and retry.",
+					"Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			}
 		}
 
 		/// <summary>

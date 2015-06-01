@@ -122,6 +122,11 @@ namespace Nexus.Client.Games
 		/// </summary>
 		bool HasSecondaryInstallPath { get; }
 
+		/// <summary>
+		/// Whether the plugin sorter is properly initialized.
+		/// </summary>
+		bool PluginSorterInitialized { get; }
+
 		#endregion
 
 		#region Plugin Management

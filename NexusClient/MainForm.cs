@@ -491,7 +491,13 @@ namespace Nexus.Client
 		/// </summary>
 		protected void SortPlugins()
 		{
-			ViewModel.SortPlugins();	
+			if (ViewModel.PluginSorterInitialized)
+				ViewModel.SortPlugins();
+			else
+				MessageBox.Show("Nexus Mod Manager was unable to properly initialize the Automatic Sorting functionality." +
+					Environment.NewLine + Environment.NewLine + "Something is wrong with your loadorder.txt or plugins.txt files," +
+					Environment.NewLine + "or one or more plugins are corrupt/broken.",
+					"Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 		}
 
 		/// <summary>

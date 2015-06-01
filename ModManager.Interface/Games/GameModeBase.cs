@@ -575,6 +575,17 @@ namespace Nexus.Client.Games
 			}
 		}
 
+		/// <summary>
+		/// Whether the plugin sorter is properly initialized.
+		/// </summary>
+		public virtual bool PluginSorterInitialized 
+		{ 
+			get
+			{
+				return false;
+			} 
+		}
+
 		#region Constructors
 
 		/// <summary>

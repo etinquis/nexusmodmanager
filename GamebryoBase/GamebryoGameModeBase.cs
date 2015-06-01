@@ -188,6 +188,17 @@ namespace Nexus.Client.Games.Gamebryo
 		/// <value>The plugin loadorder manager.</value>
 		protected PluginOrderManager PluginOrderManager { get; private set; }
 
+		/// <summary>
+		/// Whether the plugin sorter is properly initialized.
+		/// </summary>
+		public override bool PluginSorterInitialized
+		{
+			get
+			{
+				return PluginSorter.Initialized;
+			}
+		}
+
 		#endregion
 
 		#region Constructors

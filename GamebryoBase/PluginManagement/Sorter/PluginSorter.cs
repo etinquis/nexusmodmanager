@@ -124,6 +124,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 		private const Int32 SORTER_API_OK_NO_UPDATE_NECESSARY = 31;
 		private IntPtr m_ptrSorterApi = IntPtr.Zero;
 		private IntPtr m_ptrSorterDb = IntPtr.Zero;
+		private bool m_booInitialized = false;
 
 		#region Properties
 		
@@ -157,6 +158,18 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 		/// <value>The file utility class.</value>
 		protected FileUtil FileUtility { get; private set; }
 
+		/// <summary>
+		/// Gets whether the sorting library successfully initialized.
+		/// </summary>
+		/// <value>Whether the sorting library successfully initialized.</value>
+		public bool Initialized 
+		{
+			get
+			{
+				return m_booInitialized;
+			} 
+		}
+
 		#endregion
 
 		#region Constructors
@@ -187,15 +200,22 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 
 			m_ptrSorterDb = CreateSorterDb();
 
-			MasterlistPath = p_strMasterlistPath;
-			string strUserList = Path.Combine(Path.GetDirectoryName(p_strMasterlistPath), "userlist.yaml");
-			if (File.Exists(strUserList))
-				UserlistPath = strUserList;
+			if (m_ptrSorterDb == IntPtr.Zero)
+				m_booInitialized = false;
 			else
-				UserlistPath = null;
+			{
+				MasterlistPath = p_strMasterlistPath;
+				string strUserList = Path.Combine(Path.GetDirectoryName(p_strMasterlistPath), "userlist.yaml");
+				if (File.Exists(strUserList))
+					UserlistPath = strUserList;
+				else
+					UserlistPath = null;
 
-			if (!String.IsNullOrEmpty(MasterlistPath) && File.Exists(MasterlistPath))
-				Load(MasterlistPath, UserlistPath);
+				if (!String.IsNullOrEmpty(MasterlistPath) && File.Exists(MasterlistPath))
+					Load(MasterlistPath, UserlistPath);
+
+				m_booInitialized = true;
+			}
 		}
 
 		/// <summary>
@@ -437,28 +457,28 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 
 			UInt32 uintStatus = m_dlgCreateDb(ref ptrSorterDb, uintClientGameId, GameMode.InstallationPath, null);
 
-			if ((uintStatus == 1) && (ptrSorterDb == IntPtr.Zero))
-			{
-				string strGameModeLocalAppData = Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), GameMode.ModeId);
-				string strLoadOrderFilePath = Path.Combine(strGameModeLocalAppData, "loadorder.txt");
+			//if ((uintStatus == 1) && (ptrSorterDb == IntPtr.Zero))
+			//{
+			//	string strGameModeLocalAppData = Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), GameMode.ModeId);
+			//	string strLoadOrderFilePath = Path.Combine(strGameModeLocalAppData, "loadorder.txt");
 
-				if (File.Exists(strLoadOrderFilePath))
-				{
-					string strBakFilePath = Path.Combine(strGameModeLocalAppData, "loadorder.nmmbak");
-					if (File.Exists(strBakFilePath))
-					{
-						FileUtil.Move(strBakFilePath, Path.Combine(strGameModeLocalAppData, Path.GetRandomFileName() + ".loadorder.bak"), true);
-					}
+			//	if (File.Exists(strLoadOrderFilePath))
+			//	{
+			//		string strBakFilePath = Path.Combine(strGameModeLocalAppData, "loadorder.nmmbak");
+			//		if (File.Exists(strBakFilePath))
+			//		{
+			//			FileUtil.Move(strBakFilePath, Path.Combine(strGameModeLocalAppData, Path.GetRandomFileName() + ".loadorder.bak"), true);
+			//		}
 
-					FileUtil.Move(strLoadOrderFilePath, strBakFilePath, true);
+			//		FileUtil.Move(strLoadOrderFilePath, strBakFilePath, true);
 
-					uintStatus = m_dlgCreateDb(ref ptrSorterDb, uintClientGameId, GameMode.InstallationPath, null);
-				}
-			}
+			//		uintStatus = m_dlgCreateDb(ref ptrSorterDb, uintClientGameId, GameMode.InstallationPath, null);
+			//	}
+			//}
 
-			HandleStatusCode(uintStatus);
-			if (ptrSorterDb == IntPtr.Zero)
-				throw new SorterException("Could not create LOOT DB.");
+			//HandleStatusCode(uintStatus);
+			//if (ptrSorterDb == IntPtr.Zero)
+			//	throw new SorterException("Could not create LOOT DB.");
 			return ptrSorterDb;
 		}
 

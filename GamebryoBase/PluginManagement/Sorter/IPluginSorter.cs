@@ -24,6 +24,11 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 		/// <value>The path to the userlist.</value>
 		string UserlistPath { get; }
 
+		/// <summary>
+		/// Gets whether the sorting library successfully initialized.
+		/// </summary>
+		/// <value>Whether the sorting library successfully initialized.</value>
+		bool Initialized { get; }
 
 		#endregion
 
