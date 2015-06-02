@@ -648,8 +648,6 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 				using (StringArrayManualMarshaler ammMarshaler = new StringArrayManualMarshaler("UTF8"))
 					uintStatus = m_dlgApplyLoadOrder(m_ptrSorterDb, ammMarshaler.MarshalManagedToNative(MarshalPluginArray(ptrPlugins, uintListLength, true)), uintListLength);
 
-				HandleStatusCode(uintStatus);
-
 				if (uintStatus == 0)
 					return RemoveNonExistentPlugins(MarshalPluginArray(ptrPlugins, uintListLength, false));
 			}
