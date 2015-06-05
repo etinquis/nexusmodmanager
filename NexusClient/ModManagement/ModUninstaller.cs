@@ -144,7 +144,8 @@ namespace Nexus.Client.ModManagement
 			bool booSuccess = false;
 			string strErrorMessage = String.Empty;
 
-			PluginManager.TooManyPluginsWarning = true;
+			if (GameMode.UsesPlugins)
+				PluginManager.TooManyPluginsWarning = true;
 
 			lock (objUninstallLock)
 			{
@@ -168,7 +169,8 @@ namespace Nexus.Client.ModManagement
 			else
 				OnTaskSetCompleted(false, "The mod was not deactivated." + Environment.NewLine + strErrorMessage, Mod);
 
-			PluginManager.TooManyPluginsWarning = false;
+			if (GameMode.UsesPlugins)
+				PluginManager.TooManyPluginsWarning = false;
 		}
 
 		/// <summary>
