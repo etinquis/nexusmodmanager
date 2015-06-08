@@ -124,7 +124,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		{
 			get
 			{
-				return (((RunningTask == null) || ((RunningTask != null) && RunningTask.Status == BackgroundTasks.TaskStatus.Complete)) && (TaskList.Count == 0));
+				return (((RunningTask == null) || ((RunningTask != null) && (RunningTask.Status == BackgroundTasks.TaskStatus.Complete))) && (TaskList.Count == 0));
 			}
 		}
 
@@ -212,7 +212,17 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			TaskList.CollectionChanged += new NotifyCollectionChangedEventHandler(TaskList_CollectionChanged);
 
 			if (!TimestampOrder)
+			{
 				LoadOrderFilePath = Path.Combine(strGameModeLocalAppData, "loadorder.txt");
+				if (!File.Exists(LoadOrderFilePath))
+				{
+					try
+					{
+						File.Create(LoadOrderFilePath).Dispose();
+					}
+					catch { }
+				}
+			}
 			else
 			{
 				string strMasterPlugin = GameMode.OrderedCriticalPluginNames[0];
@@ -603,10 +613,10 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 
 			if (!booLocked)
 			{
+				List<string> lstOrderedPlugins = new List<string>();
+
 				try
 				{
-					List<string> lstOrderedPlugins = new List<string>();
-
 					if (File.Exists(LoadOrderFilePath))
 					{
 						foreach (string line in File.ReadLines(LoadOrderFilePath))
@@ -616,14 +626,17 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 									lstOrderedPlugins.Add(AddPluginDirectory(line));
 						}
 					}
-
+				}
+				catch { }
+				finally
+				{
 					AddMissingElements(lstOrderedPlugins);
 
 					LastValidLoadOrder = lstOrderedPlugins;
-
-					return RemoveNonExistentPlugins(lstOrderedPlugins.ToArray());
 				}
-				catch { }
+
+				if (lstOrderedPlugins.Count > 0)
+					return RemoveNonExistentPlugins(lstOrderedPlugins.ToArray());
 			}
 
 			if (LastValidLoadOrder.Count > 0)
