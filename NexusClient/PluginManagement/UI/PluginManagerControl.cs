@@ -319,12 +319,19 @@ namespace Nexus.Client.PluginManagement.UI
 						//if the item at the new index equals the moved item,
 						// then the item has already been moved in the UI,
 						// so do nothing...
+						if (intOldIndex >= rlvPlugins.Items.Count)
+							break;
+
 						if (!pcpComparer.Equals(plgMoved, (Plugin)rlvPlugins.Items[intNewIndex].Tag))
 						{
 							//...otherwise, move the item
 							ListViewItem lviMoved = rlvPlugins.Items[intOldIndex];
 							rlvPlugins.Items.RemoveAt(intOldIndex);
-							rlvPlugins.Items.Insert(intNewIndex, lviMoved);
+
+							if (intNewIndex >= rlvPlugins.Items.Count)
+								rlvPlugins.Items.Add(lviMoved);
+							else
+								rlvPlugins.Items.Insert(intNewIndex, lviMoved);
 						}
 						intNewIndex++;
 						intOldIndex++;
