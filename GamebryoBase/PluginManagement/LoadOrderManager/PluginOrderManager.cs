@@ -566,30 +566,34 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <returns>The list of plugins, sorted by load order.</returns>
 		private string[] GetTimestampLoadOrder()
 		{
-			string[] strOrderedPlugins = GameMode.OrderedCriticalPluginNames.Concat(GameMode.OrderedOfficialPluginNames).ToArray();
+			List<string> lstOrderedPlugins = new List<string>();
 			DirectoryInfo diPluginFolder = new DirectoryInfo(GameMode.PluginDirectory);
 
 			try
 			{
 				if (diPluginFolder.Exists)
 				{
-					strOrderedPlugins = diPluginFolder
+					lstOrderedPlugins = diPluginFolder
 										.EnumerateFiles()
 										.OrderBy(file => file.LastWriteTime)
 										.Where(file => file.Extension.Equals(".esp", StringComparison.InvariantCultureIgnoreCase) || file.Extension.Equals(".esm", StringComparison.InvariantCultureIgnoreCase))
 										.Select(file => file.FullName)
-										.ToArray();
-
-					LastValidLoadOrder = strOrderedPlugins.ToList();
+										.ToList();
 				}
 			}
-			catch
+			catch { }
+			finally
 			{
-				if (LastValidLoadOrder.Count > 0)
-					return RemoveNonExistentPlugins(LastValidLoadOrder.ToArray());
+				AddMissingElements(lstOrderedPlugins, true);
+				LastValidLoadOrder = lstOrderedPlugins;
 			}
 
-			return RemoveNonExistentPlugins(strOrderedPlugins);
+			if (lstOrderedPlugins.Count > 0)
+				return RemoveNonExistentPlugins(lstOrderedPlugins.ToArray());
+			else if (LastValidLoadOrder.Count > 0)
+				return RemoveNonExistentPlugins(LastValidLoadOrder.ToArray());
+			else
+				return RemoveNonExistentPlugins(GameMode.OrderedCriticalPluginNames.Concat(GameMode.OrderedOfficialPluginNames).ToArray());
 		}
 
 		/// <summary>
@@ -630,8 +634,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 				catch { }
 				finally
 				{
-					AddMissingElements(lstOrderedPlugins);
-
+					AddMissingElements(lstOrderedPlugins, false);
 					LastValidLoadOrder = lstOrderedPlugins;
 				}
 
@@ -648,7 +651,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <summary>
 		/// Adds plugins missing from the loadorder file to the ordered list.
 		/// </summary>
-		private void AddMissingElements(IList<string> p_lstOrdered)
+		private void AddMissingElements(IList<string> p_lstOrdered, bool p_booPluginFileOnly)
 		{
 			List<string> lstActivePlugins = GetActiveList();
 
@@ -693,7 +696,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			
 			try
 			{
-				if (diPluginFolder.Exists)
+				if ((diPluginFolder.Exists) && !p_booPluginFileOnly)
 				{
 					lstLoosePlugins = diPluginFolder
 										.EnumerateFiles()
