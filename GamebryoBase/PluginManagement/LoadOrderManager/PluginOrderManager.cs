@@ -439,19 +439,17 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		public string[] GetActivePlugins()
 		{
 			int intRepeat = 0;
-			bool booLocked = false;
+			bool? booReady = IsFileReady(PluginsFilePath);
 
-			while (!IsFileReady(PluginsFilePath))
+			while (booReady == false)
 			{
 				Thread.Sleep(500);
-				if (intRepeat++ > 20)
-				{
-					booLocked = true;
-					break;
-				}
+				if (intRepeat++ >= 20)
+						break;
+				booReady = IsFileReady(PluginsFilePath);
 			}
 
-			if (!booLocked)
+			if (booReady == true)
 			{
 				List<string> lstActivePlugins = new List<string>();
 
@@ -474,11 +472,26 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 				}
 				catch { }
 			}
-
-			if (LastValidActiveList.Count > 0)
-				return RemoveNonExistentPlugins(LastValidActiveList.ToArray());
 			else
-				return RemoveNonExistentPlugins(GameMode.OrderedCriticalPluginNames.Concat(GameMode.OrderedOfficialPluginNames).ToArray());
+			{
+				string[] strActivePlugins;
+				if (LastValidActiveList.Count > 0)
+				{
+					strActivePlugins = RemoveNonExistentPlugins(LastValidActiveList.ToArray());
+					if (booReady == null)
+						SetActivePlugins(strActivePlugins);
+				}
+				else
+				{
+					strActivePlugins = RemoveNonExistentPlugins(GameMode.OrderedCriticalPluginNames.Concat(GameMode.OrderedOfficialPluginNames).ToArray());
+					if (booReady == null)
+						SetActivePlugins(strActivePlugins);
+				}
+
+				return strActivePlugins;
+			}
+
+			return null;
 		}
 
 		/// <summary>
@@ -488,19 +501,17 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		private List<string> GetActiveList()
 		{
 			int intRepeat = 0;
-			bool booLocked = false;
+			bool? booReady = IsFileReady(PluginsFilePath);
 
-			while (!IsFileReady(PluginsFilePath))
+			while (booReady == false)
 			{
 				Thread.Sleep(500);
-				if (intRepeat++ > 20)
-				{
-					booLocked = true;
+				if (intRepeat++ >= 20)
 					break;
-				}
+				booReady = IsFileReady(PluginsFilePath);
 			}
 
-			if (!booLocked)
+			if (booReady == true)
 			{
 				List<string> lstActivePlugins = new List<string>();
 
@@ -543,7 +554,13 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <param name="p_strActivePlugins">The list of plugins to set as active.</param>
 		private void SetActivePluginsTask(string[] p_strActivePlugins)
 		{
-			string[] strActivePluginNames = StripPluginDirectory(p_strActivePlugins);
+			string[] strActivePluginNames;
+
+			if ((p_strActivePlugins == null) || (p_strActivePlugins.Length == 0))
+				return;
+			else
+				strActivePluginNames = StripPluginDirectory(p_strActivePlugins);
+
 			WriteLoadOrder(PluginsFilePath, strActivePluginNames);
 			m_lstActivePlugins = strActivePluginNames.ToList<string>();
 		}
@@ -603,19 +620,17 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		private string[] GetSortedListLoadOrder()
 		{
 			int intRepeat = 0;
-			bool booLocked = false;
+			bool? booReady = IsFileReady(PluginsFilePath);
 
-			while (!IsFileReady(LoadOrderFilePath))
+			while (booReady == false)
 			{
 				Thread.Sleep(500);
-				if (intRepeat++ > 20)
-				{
-					booLocked = true;
+				if (intRepeat++ >= 20)
 					break;
-				}
+				booReady = IsFileReady(PluginsFilePath);
 			}
 
-			if (!booLocked)
+			if (booReady != false)
 			{
 				List<string> lstOrderedPlugins = new List<string>();
 
@@ -639,7 +654,11 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 				}
 
 				if (lstOrderedPlugins.Count > 0)
+				{
+					if (booReady == null)
+						SetSortedListLoadOrder(RemoveNonExistentPlugins(lstOrderedPlugins.ToArray()));
 					return RemoveNonExistentPlugins(lstOrderedPlugins.ToArray());
+				}
 			}
 
 			if (LastValidLoadOrder.Count > 0)
@@ -724,20 +743,30 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <param name="p_strPlugins">The list of plugins in the desired order.</param>
 		public void SetLoadOrder(string[] p_strPlugins)
 		{
-			LastValidLoadOrder = p_strPlugins.ToList();
-			string[] strOrderedPluginNames = StripPluginDirectory(p_strPlugins);
+			string[] strOrderedPluginNames;
+
+			if ((p_strPlugins == null) || (p_strPlugins.Length == 0))
+				return;
+			else
+			{
+				LastValidLoadOrder = p_strPlugins.ToList();
+				strOrderedPluginNames = p_strPlugins;
+			}
 
 			if (TimestampOrder)
 			{
 				try
 				{
-					WriteLoadOrderTask wltTask = new WriteLoadOrderTask(String.Empty, p_strPlugins, TimestampOrder, m_dtiMasterDate);
+					WriteLoadOrderTask wltTask = new WriteLoadOrderTask(String.Empty, strOrderedPluginNames, TimestampOrder, m_dtiMasterDate);
 					TaskList.Add(wltTask);
 				}
 				catch { }
 			}
 			else
+			{
+				strOrderedPluginNames = StripPluginDirectory(strOrderedPluginNames);
 				SetSortedListLoadOrder(strOrderedPluginNames);
+			}
 
 			if (!TimestampOrder && ((m_lstActivePlugins != null) && (m_lstActivePlugins.Count > 0)))
 			{
@@ -963,19 +992,21 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <summary>
 		/// Checks whether the file to write to is currently free for use.
 		/// </summary>
-		private static bool IsFileReady(String p_strFilePath)
+		private static bool? IsFileReady(String p_strFilePath)
 		{
 			try
 			{
 				using (FileStream inputStream = File.Open(p_strFilePath, FileMode.Open, FileAccess.Read, FileShare.None))
 				{
-					return (inputStream.Length > 0);
+					if (inputStream.Length > 0)
+						return true;
+					else if (inputStream.Length == 0)
+						return null;
 				}
 			}
-			catch (Exception)
-			{
-				return false;
-			}
+			catch { }
+
+			return false;
 		}
 
 		/// <summary>

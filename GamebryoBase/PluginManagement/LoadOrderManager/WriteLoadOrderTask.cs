@@ -14,6 +14,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 	{
 		#region Fields
 
+		private static readonly Object m_objLock = new Object();
 		protected string FilePath { get; private set; }
 		protected string[] Plugins { get; private set; }
 		protected bool TimestampLoadOrder { get; private set; }
@@ -92,11 +93,14 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		/// <param name="p_strPlugins">The list of plugins in the desired order.</param>
 		private void SetTimestampLoadOrder(string[] p_strPlugins)
 		{
-			for (int i = 0; i < p_strPlugins.Length; i++)
+			lock (m_objLock)
 			{
-				string strPluginFile = p_strPlugins[i];
-				if (!String.IsNullOrWhiteSpace(strPluginFile) && (File.Exists(strPluginFile)))
-					File.SetLastWriteTime(strPluginFile, MasterDate.AddMinutes(i));
+				for (int i = 0; i < p_strPlugins.Length; i++)
+				{
+					string strPluginFile = p_strPlugins[i];
+					if (!String.IsNullOrWhiteSpace(strPluginFile) && (File.Exists(strPluginFile)))
+						File.SetLastWriteTime(strPluginFile, MasterDate.AddMinutes(i));
+				}
 			}
 		}
 
@@ -122,14 +126,17 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			{
 				int intRetries = 0;
 
-				while (intRetries < 100)
+				while (intRetries++ < 100)
 				{
 					try
 					{
-						using (StreamWriter swFile = new StreamWriter(p_strFilePath))
+						lock (m_objLock)
 						{
-							foreach (string plugin in p_strPlugins)
-								swFile.WriteLine(plugin);
+							using (StreamWriter swFile = new StreamWriter(p_strFilePath))
+							{
+								foreach (string plugin in p_strPlugins)
+									swFile.WriteLine(plugin);
+							}
 						}
 						break;
 					}
@@ -140,9 +147,14 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 						if (errorCode == 32 || errorCode == 33)
 						{
 							if (intRetries >= 100)
-								return;
-							else
-								intRetries++;
+							{
+								using (StreamWriter swFile = new StreamWriter(p_strFilePath + ".failed"))
+								{
+									foreach (string plugin in p_strPlugins)
+										swFile.WriteLine(plugin);
+								}
+								throw e;
+							}
 
 							Thread.Sleep(100);
 						}
@@ -160,9 +172,9 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		{
 			try
 			{
-				using (FileStream inputStream = File.Open(p_strFilePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+				using (FileStream inputStream = File.Open(p_strFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
 				{
-					return (inputStream.Length > 0);
+					return (inputStream.Length >= 0);
 				}
 			}
 			catch (Exception)
