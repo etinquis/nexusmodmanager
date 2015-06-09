@@ -292,6 +292,17 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 
 			if (!String.IsNullOrWhiteSpace(strFile))
 			{
+				int intRepeat = 0;
+				bool? booReady = IsFileReady(strFile);
+
+				while (booReady == false)
+				{
+					Thread.Sleep(100);
+					if (intRepeat++ >= 20)
+						break;
+					booReady = IsFileReady(strFile);
+				}
+
 				if (strFile.Equals("plugins.txt", StringComparison.InvariantCultureIgnoreCase) && IsExternalInput)
 				{
 					if (ActivePluginUpdate != null)
@@ -315,6 +326,17 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 
 			if (TimestampOrder && IsExternalInput)
 			{
+				int intRepeat = 0;
+				bool? booReady = IsFileReady(e.FullPath);
+
+				while (booReady == false)
+				{
+					Thread.Sleep(100);
+					if (intRepeat++ >= 20)
+						break;
+					booReady = IsFileReady(e.FullPath);
+				}
+
 				if (LoadOrderUpdate != null)
 					LoadOrderUpdate(GetLoadOrder(), new EventArgs());
 			}
@@ -329,8 +351,21 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 				return;
 
 			if (IsExternalInput)
+			{
+				int intRepeat = 0;
+				bool? booReady = IsFileReady(e.FullPath);
+
+				while (booReady == false)
+				{
+					Thread.Sleep(100);
+					if (intRepeat++ >= 20)
+						break;
+					booReady = IsFileReady(e.FullPath);
+				}
+
 				if (ExternalPluginAdded != null)
 					ExternalPluginAdded(e.FullPath, new EventArgs());
+			}
 		}
 
 		/// <summary>
@@ -996,7 +1031,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 		{
 			try
 			{
-				using (FileStream inputStream = File.Open(p_strFilePath, FileMode.Open, FileAccess.Read, FileShare.None))
+				using (FileStream inputStream = File.Open(p_strFilePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
 				{
 					if (inputStream.Length > 0)
 						return true;
