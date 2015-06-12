@@ -290,7 +290,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 
 			string strFile = e.Name ?? String.Empty;
 
-			if (!String.IsNullOrWhiteSpace(strFile))
+			if (IsExternalInput && !String.IsNullOrWhiteSpace(strFile))
 			{
 				int intRepeat = 0;
 				bool? booReady = IsFileReady(strFile);
@@ -303,12 +303,12 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 					booReady = IsFileReady(strFile);
 				}
 
-				if (strFile.Equals("plugins.txt", StringComparison.InvariantCultureIgnoreCase) && IsExternalInput)
+				if (strFile.Equals("plugins.txt", StringComparison.InvariantCultureIgnoreCase))
 				{
 					if (ActivePluginUpdate != null)
 						ActivePluginUpdate(GetActivePlugins(), new EventArgs());
 				}
-				else if (strFile.Equals("loadorder.txt", StringComparison.InvariantCultureIgnoreCase) && IsExternalInput)
+				else if (strFile.Equals("loadorder.txt", StringComparison.InvariantCultureIgnoreCase))
 				{
 					if (LoadOrderUpdate != null)
 						LoadOrderUpdate(GetLoadOrder(), new EventArgs());
