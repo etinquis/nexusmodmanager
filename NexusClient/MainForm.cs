@@ -266,13 +266,18 @@ namespace Nexus.Client
 
 				if (ViewModel.PluginManagerVM.ActivePlugins.Count > ViewModel.PluginManagerVM.MaxAllowedActivePluginsCount)
 				{
+					Icon icoIcon = new Icon(SystemIcons.Warning, 16, 16);
+					tlbActivePluginsCounter.Image = icoIcon.ToBitmap();
 					tlbActivePluginsCounter.ForeColor = Color.Red;
+					tlbActivePluginsCounter.Font = new Font(tlbActivePluginsCounter.Font, FontStyle.Bold);
 					tlbActivePluginsCounter.Text = ViewModel.PluginManagerVM.ActivePlugins.Count.ToString();
-					tlbActivePluginsCounter.ToolTipText = "Too Many!";
+					tlbActivePluginsCounter.ToolTipText = String.Format("Too many active plugins! {0} won't start!", ViewModel.CurrentGameModeName);
 				}
 				else
 				{
+					tlbActivePluginsCounter.Image = null;
 					tlbActivePluginsCounter.ForeColor = Color.Black;
+					tlbActivePluginsCounter.Font = new Font(tlbActivePluginsCounter.Font, FontStyle.Regular);
 					tlbActivePluginsCounter.Text = ViewModel.PluginManagerVM.ActivePlugins.Count.ToString();
 				}
 
@@ -662,12 +667,17 @@ namespace Nexus.Client
 			
 			if (ViewModel.PluginManagerVM.ActivePlugins.Count > ViewModel.PluginManagerVM.MaxAllowedActivePluginsCount)
 			{
+				Icon icoIcon = new Icon(SystemIcons.Warning, 16, 16);
+				tlbActivePluginsCounter.Image = icoIcon.ToBitmap();
 				tlbActivePluginsCounter.ForeColor = Color.Red;
+				tlbActivePluginsCounter.Font = new Font(tlbActivePluginsCounter.Font, FontStyle.Bold);
 				tlbActivePluginsCounter.Text = ViewModel.PluginManagerVM.ActivePlugins.Count.ToString();
-				tlbActivePluginsCounter.ToolTipText = "Too Many!";
+				tlbActivePluginsCounter.ToolTipText = String.Format("Too many active plugins! {0} won't start!", ViewModel.CurrentGameModeName); ;
 			}
 			else
 			{
+				tlbActivePluginsCounter.Image = null;
+				tlbActivePluginsCounter.Font = new Font(tlbActivePluginsCounter.Font, FontStyle.Regular);
 				tlbActivePluginsCounter.ForeColor = Color.Black;
 				tlbActivePluginsCounter.Text = ViewModel.PluginManagerVM.ActivePlugins.Count.ToString();
 			}

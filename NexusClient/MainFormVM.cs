@@ -181,6 +181,18 @@ namespace Nexus.Client
 		protected IGameMode GameMode { get; private set; }
 
 		/// <summary>
+		/// Gets the name of the currently managed game mode.
+		/// </summary>
+		/// <value>The name of the currently managed game mode.</value>
+		public string CurrentGameModeName 
+		{ 
+			get
+			{
+				return GameMode.Name;
+			}
+		}
+
+		/// <summary>
 		/// Gets the help information.
 		/// </summary>
 		/// <value>The help information.</value>
