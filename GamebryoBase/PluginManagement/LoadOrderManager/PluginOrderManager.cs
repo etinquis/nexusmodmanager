@@ -503,7 +503,8 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 					m_lstActivePlugins = lstActivePlugins;
 					LastValidActiveList = lstActivePlugins;
 
-					return RemoveNonExistentPlugins(lstActivePlugins.ToArray());
+					if (LastValidActiveList.Count > 0)
+						return RemoveNonExistentPlugins(lstActivePlugins.ToArray());
 				}
 				catch { }
 			}
@@ -523,10 +524,11 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 						SetActivePlugins(strActivePlugins);
 				}
 
-				return strActivePlugins;
+				if (strActivePlugins.Count() > 0)
+					return strActivePlugins;
 			}
 
-			return null;
+			return GameMode.OrderedCriticalPluginNames;
 		}
 
 		/// <summary>
