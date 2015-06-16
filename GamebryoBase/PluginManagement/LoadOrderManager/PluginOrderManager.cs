@@ -377,8 +377,20 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 				return;
 
 			if (IsExternalInput)
+			{
+				int intRepeat = 0;
+				bool? booReady = IsFileReady(e.FullPath);
+
+				while (intRepeat++ < 10)
+				{
+					Thread.Sleep(100);
+					if (File.Exists(e.FullPath))
+						return;
+				}
+
 				if (ExternalPluginRemoved != null)
 					ExternalPluginRemoved(e.FullPath, new EventArgs());
+			}
 		}
 
 		#endregion
