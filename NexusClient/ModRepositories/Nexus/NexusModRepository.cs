@@ -470,7 +470,7 @@ namespace Nexus.Client.ModRepositories.Nexus
 				if (e.Message == "Internal Server Error")
 					throw new RepositoryUnavailableException(String.Format("{0} server error! This is a server issue, try again after a few minutes.", Name), e);
 				else
-					throw new RepositoryUnavailableException(String.Format("Error communicating with the server! Cannot reach the {0} login server.", Name), e);
+					throw new RepositoryUnavailableException(String.Format("Cannot reach the {0} login server. Either your firewall is blocking NMM or the login server is down.", Name), e);
 			}
 			catch (SerializationException e)
 			{
@@ -541,7 +541,7 @@ namespace Nexus.Client.ModRepositories.Nexus
 					}
 
 				}
-				throw new RepositoryUnavailableException(String.Format("Error communicating with the server! Cannot reach the {0} login server.", Name), e);
+				throw new RepositoryUnavailableException(String.Format("Cannot reach the {0} login server. Either your firewall is blocking NMM or the login server is down.", Name), e);
 			}
 			catch (SerializationException e)
 			{
