@@ -278,7 +278,14 @@ namespace Nexus.Client.PluginManagement.UI
 
 			if (sender != null)
 			{
-				lstNewActiveList = ((string[])sender).ToList();
+				try
+				{
+					lstNewActiveList = ((string[])sender).ToList();
+				}
+				catch
+				{
+					return;
+				}
 
 				if (ActivePlugins.Count > 0)
 				{
