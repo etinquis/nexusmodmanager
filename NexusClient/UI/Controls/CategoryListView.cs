@@ -389,6 +389,17 @@ namespace Nexus.Client.UI.Controls
 				return null;
 			};
 
+			tlcDownloadDate.AspectToStringConverter = delegate(object x)
+			{
+				int intCheck;
+				if ((x != null) && (!Int32.TryParse(x.ToString(), out intCheck)))
+				{
+					return x.ToString();
+				}
+				else
+					return String.Empty;
+			};
+
 			tlcEndorsement.AspectGetter = delegate(object rowObject)
 			{
 				string Value = String.Empty;
