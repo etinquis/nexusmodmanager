@@ -52,8 +52,6 @@ namespace Nexus.Client
 		private System.Windows.Forms.Label anchor;
 		private System.Windows.Forms.Button showForm;
 
-		private int pointX = 0;
-		private int pointY = 0;
 		FormWindowState LastWindowState = FormWindowState.Minimized;
 		private bool m_booShowLastBaloon = false;
 		private BalloonManager bmBalloon = null;

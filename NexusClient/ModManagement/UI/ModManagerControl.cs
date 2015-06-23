@@ -1471,12 +1471,16 @@ namespace Nexus.Client.ModManagement.UI
 			}
 			if ((!clwCategoryView.CategoryModeEnabled) && (!String.Equals(e.PropertyName, "InstallDate")))
 			{
-				//clwCategoryView.RefreshObject((IMod)sender);
 				clwCategoryView.ReloadList(true);
 			}
 
 			if (clwCategoryView.CategoryModeEnabled)
-				clwCategoryView.RefreshObject((IMod)sender);
+			{
+				if (String.Equals(e.PropertyName, "CustomCategoryId"))
+					clwCategoryView.Refresh();
+				else
+					clwCategoryView.RefreshObject((IMod)sender);
+			}
 
 			if (!m_booDisableSummary && ViewModel.Settings.ShowSidePanel)
 				UpdateSummary((IMod)sender);
