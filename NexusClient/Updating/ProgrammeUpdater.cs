@@ -254,6 +254,10 @@ namespace Nexus.Client.Updating
 			{
 				Trace.TraceError(String.Format("Could not connect to update server: {0}", e.Message));
 			}
+			catch (ArgumentException e)
+			{
+				Trace.TraceError(String.Format("Unexpected response from the server: {0}", e.Message));
+			}
 
 			return verNew;
 		}
