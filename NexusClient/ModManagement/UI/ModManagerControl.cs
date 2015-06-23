@@ -1476,7 +1476,7 @@ namespace Nexus.Client.ModManagement.UI
 
 			if (clwCategoryView.CategoryModeEnabled)
 			{
-				if (String.Equals(e.PropertyName, "CustomCategoryId"))
+				if (String.Equals(e.PropertyName, "CustomCategoryId") || String.Equals(e.PropertyName, "ModName"))
 					clwCategoryView.Refresh();
 				else
 					clwCategoryView.RefreshObject((IMod)sender);
