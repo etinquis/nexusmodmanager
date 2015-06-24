@@ -241,18 +241,35 @@ namespace Nexus.Client.Updating
 			WebClient wclNewVersion = new WebClient();
 			Version verNew = new Version("69.69.69.69");
 			p_strDownloadUri = String.Empty;
+
 			try
 			{
-				string strNewVersion = wclNewVersion.DownloadString("http://dev.nexusmods.com/client/4.5/latestversion.php");
+				string strNewVersion = wclNewVersion.DownloadString("http://nmm.nexusmods.com/NMM?GetLatestVersion");
 				if (!String.IsNullOrEmpty(strNewVersion))
 				{
 					verNew = new Version(strNewVersion.Split('|')[0]);
 					p_strDownloadUri = strNewVersion.Split('|')[1];
 				}
 			}
-			catch (WebException e)
+			catch (WebException)
 			{
-				Trace.TraceError(String.Format("Could not connect to update server: {0}", e.Message));
+				try
+				{
+					string strNewVersion = wclNewVersion.DownloadString("http://dev.nexusmods.com/client/4.5/latestversion.php");
+					if (!String.IsNullOrEmpty(strNewVersion))
+					{
+						verNew = new Version(strNewVersion.Split('|')[0]);
+						p_strDownloadUri = strNewVersion.Split('|')[1];
+					}
+				}
+				catch (WebException e)
+				{
+					Trace.TraceError(String.Format("Could not connect to update server: {0}", e.Message));
+				}
+				catch (ArgumentException e)
+				{
+					Trace.TraceError(String.Format("Unexpected response from the server: {0}", e.Message));
+				}
 			}
 			catch (ArgumentException e)
 			{

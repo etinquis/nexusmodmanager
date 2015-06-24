@@ -432,7 +432,11 @@ namespace Nexus.Client.ModRepositories.Nexus
                 //'NexusLoginErrorCode: 4' - 'Invalid login data.'
 
                 string strNexusLoginErrorCode = e.Message.Split('#')[0].Trim();
-                string strNexusLoginErrorMessage = e.Message.Split('#')[1].Trim();
+				string strNexusLoginErrorMessage = String.Empty;
+				if (strNexusLoginErrorCode.Equals("4"))
+					strNexusLoginErrorMessage = "Wrong username or password.";
+				else
+	                strNexusLoginErrorMessage = e.Message.Split('#')[1].Trim();
                 throw new RepositoryUnavailableException(String.Format("{0}", strNexusLoginErrorMessage), e);
             }
 			catch (TimeoutException e)
@@ -477,9 +481,13 @@ namespace Nexus.Client.ModRepositories.Nexus
 				Trace.WriteLine("Login error: " + e.Message);
 				if (e.InnerException != null)
 					Trace.WriteLine("Login inner exception: " + e.InnerException.Message);
-				throw new RepositoryUnavailableException(String.Format("Unexpected response! Cannot reach the {0} login server.", Name), e);
+				throw new RepositoryUnavailableException(String.Format("Unexpected response from the {0} login server. Please try again later.", Name), e);
 			}
 			m_dicAuthenticationTokens = new Dictionary<string, string>();
+
+			if (String.IsNullOrEmpty(strCookie))
+				throw new RepositoryUnavailableException(String.Format("{0} server error! Either your firewall is blocking NMM or the login server is down.", Name));
+
 			if (!String.IsNullOrEmpty(strCookie))
 				m_dicAuthenticationTokens["sid"] = strCookie;
 			p_dicTokens = m_dicAuthenticationTokens;
