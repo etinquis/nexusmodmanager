@@ -956,7 +956,7 @@ namespace Nexus.Client.ModManagement
 		/// <param name="p_lstAddedMods">The mods that have been added and need to be registered with the manager.</param>
 		protected void RegisterModFiles(IList<string> p_lstAddedMods)
 		{
-			OverallMessage = "Adding mods to manager...";
+			OverallMessage = "Adding mod to manager...";
 			ItemMessage = "Registering Mods...";
 			if (p_lstAddedMods != null)
 			{
@@ -965,6 +965,8 @@ namespace Nexus.Client.ModManagement
 
 				foreach (string strMod in p_lstAddedMods)
 				{
+					OverallMessage = String.Format("Adding mod: {0}", strMod);
+
 					try
 					{
 						if (m_mrgModRegistry.RegisteredMods.SingleOrDefault(x => x.Filename == strMod) == null)
@@ -985,7 +987,7 @@ namespace Nexus.Client.ModManagement
 					}
 					catch (Exception ex)
 					{
-						OverallMessage = String.Format("There was an error registering this mod: {1}" + Environment.NewLine + "Error: {0} ", ex.Message, GetModDisplayName());
+						OverallMessage = String.Format("Error registering this mod: {1}" + Environment.NewLine + "Error: {0} ", ex.Message, GetModDisplayName());
 						ItemMessage = "Error registering mod.";
 						Status = TaskStatus.Error;
 						OnTaskEnded(null, null);
