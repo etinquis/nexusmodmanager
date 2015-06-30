@@ -15,6 +15,38 @@ namespace Nexus.Client.Updating
 	/// </summary>
 	public class ProgrammeUpdater : UpdaterBase
 	{
+
+		private class ExtendedWebClient : WebClient
+		{
+			private int m_intDefaultTimeout = 30000;
+
+			public Int32 CustomTimeout 
+			{ 
+				get
+				{
+					return m_intDefaultTimeout;
+				}
+				set
+				{
+					m_intDefaultTimeout = value;
+				}
+			}
+
+			public ExtendedWebClient() : this(30000) { }
+
+			public ExtendedWebClient(int p_intTimeout)
+			{
+				this.m_intDefaultTimeout = p_intTimeout;
+			}
+
+			protected override WebRequest GetWebRequest(Uri uri)
+			{
+				WebRequest w = base.GetWebRequest(uri);
+				w.Timeout = m_intDefaultTimeout;
+				return w;
+			}
+		}
+
 		private bool m_booIsAutoCheck = false;
 
 		#region Properties
@@ -238,7 +270,7 @@ namespace Nexus.Client.Updating
 		/// or 69.69.69.69 if now information could be retrieved.</returns>
 		private Version GetNewProgrammeVersion(out string p_strDownloadUri)
 		{
-			WebClient wclNewVersion = new WebClient();
+			ExtendedWebClient wclNewVersion = new ExtendedWebClient(15000);
 			Version verNew = new Version("69.69.69.69");
 			p_strDownloadUri = String.Empty;
 

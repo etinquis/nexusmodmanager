@@ -691,9 +691,5 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 		}
 
 		#endregion
-
-		#region Utility Methods
-		
-		#endregion
 	}
 }
