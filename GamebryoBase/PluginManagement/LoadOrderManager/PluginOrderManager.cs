@@ -293,7 +293,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			if (IsExternalInput && !String.IsNullOrWhiteSpace(strFile))
 			{
 				int intRepeat = 0;
-				bool? booReady = IsFileReady(strFile);
+				bool? booReady = false;
 
 				while (booReady == false)
 				{
@@ -327,7 +327,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 			if (TimestampOrder && IsExternalInput)
 			{
 				int intRepeat = 0;
-				bool? booReady = IsFileReady(e.FullPath);
+				bool? booReady = false;
 
 				while (booReady == false)
 				{
