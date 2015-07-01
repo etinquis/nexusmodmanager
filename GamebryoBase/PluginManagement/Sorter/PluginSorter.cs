@@ -191,10 +191,7 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.Sorter
 
 			m_ptrSorterApi = LoadLibrary(strSorterAPIPath);
 			if (m_ptrSorterApi == IntPtr.Zero)
-			{
-				int a = Marshal.GetLastWin32Error();
 				throw new SorterException(String.Format("Could not load BAPI library: {0}", strSorterAPIPath));
-			}
 
 			LoadMethods();
 
