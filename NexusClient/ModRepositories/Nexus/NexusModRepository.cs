@@ -262,6 +262,11 @@ namespace Nexus.Client.ModRepositories.Nexus
 					m_strEndpoint = "W2NexusREST";
 					m_intRemoteGameId = 153;
 					break;
+				case "Witcher3":
+					m_strWebsite = "witcher3.nexusmods.com";
+					m_strEndpoint = "W3NexusREST";
+					m_intRemoteGameId = 952;
+					break;
 				case "XRebirth":
 					m_strWebsite = "xrebirth.nexusmods.com";
 					m_strEndpoint = "XRNexusREST";
