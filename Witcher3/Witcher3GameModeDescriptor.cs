@@ -40,7 +40,7 @@ namespace Nexus.Client.Games.Witcher3
 		{
 			get
 			{
-                return "Witcher3";
+                return "The Witcher 3";
 			}
 		}
 
