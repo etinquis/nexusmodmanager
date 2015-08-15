@@ -76,7 +76,7 @@ namespace Nexus.Client.Games.Witcher3
 
                 // convert path to windows path. (steam uses C:/x/y we want C:\\x\\y
                 steamPath = Path.GetFullPath(steamPath);
-                var appPath = Path.Combine(steamPath, @"steamapps\common\Witcher3");
+                var appPath = Path.Combine(steamPath, @"steamapps\common\The Witcher 3");
 
                 // check if game is installed in the default directory
                 if (!Directory.Exists(appPath))
@@ -94,7 +94,7 @@ namespace Nexus.Client.Games.Witcher3
                     if (node != null)
                     {
                         appPath = node.Children.Single(x => x.Name == "installdir").Value;
-                        if (Directory.Exists(appPath) && File.Exists(Path.Combine(appPath, "Witcher3.exe")))
+                        if (Directory.Exists(appPath) && File.Exists(Path.Combine(appPath, @"bin\x64\Witcher3.exe")))
                             strValue = appPath;
                     }
                 }
