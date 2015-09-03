@@ -125,6 +125,17 @@ namespace Nexus.Client.Games.Morrowind
 		/// <value>The BossSorter plugin manager.</value>
 		protected BossSorter BossSorter { get; private set; }
 
+		/// <summary>
+		/// Whether the plugin sorter is properly initialized.
+		/// </summary>
+		public override bool PluginSorterInitialized
+		{
+			get
+			{
+				return false;
+			}
+		}
+
         #endregion
 
         #region Constructors
