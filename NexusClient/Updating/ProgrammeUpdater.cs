@@ -148,7 +148,47 @@ namespace Nexus.Client.Updating
 				}
 
 				SetMessage(String.Format("Downloading new {0} version...", EnvironmentInfo.Settings.ModManagerName));
-				string strNewInstaller = DownloadFile(new Uri(String.Format(strDownloadUri)));
+				
+				string strNewInstaller = string.Empty;
+				try
+				{
+					strNewInstaller = DownloadFile(new Uri(String.Format(strDownloadUri)));
+				}
+				catch (FileNotFoundException)
+				{
+					StringBuilder stbAVMessage = new StringBuilder();
+					stbAVMessage.AppendLine("Unable to find the installer to download:");
+					stbAVMessage.AppendLine("this could be caused by a network issue or by your Firewall.");
+					stbAVMessage.AppendLine("As a result you won't be able to automatically update the program.");
+					stbAVMessage.AppendLine();
+					stbAVMessage.AppendFormat("You can download the update manually from:");
+					stbAVMessage.AppendLine("http://skyrim.nexusmods.com/mods/modmanager/");
+					try
+					{
+						//the extended message box contains an activex control wich must be run in an STA thread,
+						// we can't control what thread this gets called on, so create one if we need to
+						ThreadStart actShowMessage = () => drResult = ExtendedMessageBox.Show(null, stbAVMessage.ToString(), "Unable to update", MessageBoxButtons.OK, MessageBoxIcon.Information);
+						ApartmentState astState = ApartmentState.Unknown;
+						Thread.CurrentThread.TrySetApartmentState(astState);
+						if (astState == ApartmentState.STA)
+							actShowMessage();
+						else
+						{
+							Thread thdMessage = new Thread(actShowMessage);
+							thdMessage.SetApartmentState(ApartmentState.STA);
+							thdMessage.Start();
+							thdMessage.Join();
+						}
+
+					}
+					catch
+					{
+					}
+
+					Trace.Unindent();
+					return CancelUpdate();
+				}
+
 				SetProgress(2);
 
 				if (CancelRequested)
