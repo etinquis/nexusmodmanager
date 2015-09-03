@@ -263,17 +263,20 @@ namespace Nexus.Client.PluginManagement.UI
 		protected void RefreshPluginIndices()
 		{
 			Int32 intIndex = 0;
-			foreach (ListViewItem lviPlugin in rlvPlugins.Items)
+			lock (rlvPlugins.Items)
 			{
-				if (ViewModel.ActivePlugins.Contains((Plugin)lviPlugin.Tag))
+				foreach (ListViewItem lviPlugin in rlvPlugins.Items)
 				{
-					lviPlugin.SubItems[clmIndexHex.Name].Text = String.Format("{0:x2}", intIndex++).ToUpper();
-					lviPlugin.SubItems[clmIndex.Name].Text = intIndex.ToString();
-				}
-				else
-				{
-					lviPlugin.SubItems[clmIndexHex.Name].Text = null;
-					lviPlugin.SubItems[clmIndex.Name].Text = null;
+					if (ViewModel.ActivePlugins.Contains((Plugin)lviPlugin.Tag))
+					{
+						lviPlugin.SubItems[clmIndexHex.Name].Text = String.Format("{0:x2}", intIndex++).ToUpper();
+						lviPlugin.SubItems[clmIndex.Name].Text = intIndex.ToString();
+					}
+					else
+					{
+						lviPlugin.SubItems[clmIndexHex.Name].Text = null;
+						lviPlugin.SubItems[clmIndex.Name].Text = null;
+					}
 				}
 			}
 		}
@@ -307,7 +310,8 @@ namespace Nexus.Client.PluginManagement.UI
 				case NotifyCollectionChangedAction.Remove:
 				case NotifyCollectionChangedAction.Reset:
 					foreach (Plugin plgRemoved in e.OldItems)
-						rlvPlugins.Items.RemoveByKey(plgRemoved.Filename.ToLowerInvariant());
+						lock(rlvPlugins.Items)
+							rlvPlugins.Items.RemoveByKey(plgRemoved.Filename.ToLowerInvariant());
 					RefreshPluginIndices();
 					break;
 				case NotifyCollectionChangedAction.Move:
@@ -326,7 +330,8 @@ namespace Nexus.Client.PluginManagement.UI
 						{
 							//...otherwise, move the item
 							ListViewItem lviMoved = rlvPlugins.Items[intOldIndex];
-							rlvPlugins.Items.RemoveAt(intOldIndex);
+							lock (rlvPlugins.Items)
+								rlvPlugins.Items.RemoveAt(intOldIndex);
 
 							if (intNewIndex >= rlvPlugins.Items.Count)
 								rlvPlugins.Items.Add(lviMoved);
@@ -375,7 +380,8 @@ namespace Nexus.Client.PluginManagement.UI
 					if (lviPlugin.Index != p_intIndex)
 					{
 						intLineTracker = 4;
-						rlvPlugins.Items.Remove(lviPlugin);
+						lock (rlvPlugins.Items)
+							rlvPlugins.Items.Remove(lviPlugin);
 						intLineTracker = 5;
 						rlvPlugins.Items.Insert(p_intIndex, lviPlugin);
 						intLineTracker = 6;
