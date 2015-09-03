@@ -262,12 +262,19 @@ namespace Nexus.Client
 			{
 				tlbPluginsCounter.Text = "  Total plugins: " + ViewModel.PluginManagerVM.ManagedPlugins.Count + "   |   Active plugins: ";
 
+				FontFamily myFontFamily = new FontFamily(tlbActivePluginsCounter.Font.Name);
+
 				if (ViewModel.PluginManagerVM.ActivePlugins.Count > ViewModel.PluginManagerVM.MaxAllowedActivePluginsCount)
 				{
 					Icon icoIcon = new Icon(SystemIcons.Warning, 16, 16);
 					tlbActivePluginsCounter.Image = icoIcon.ToBitmap();
 					tlbActivePluginsCounter.ForeColor = Color.Red;
-					tlbActivePluginsCounter.Font = new Font(tlbActivePluginsCounter.Font, FontStyle.Bold);
+
+					if (myFontFamily.IsStyleAvailable(FontStyle.Bold))
+						tlbActivePluginsCounter.Font = new Font(tlbActivePluginsCounter.Font, FontStyle.Bold);
+					else if (myFontFamily.IsStyleAvailable(FontStyle.Regular))
+						tlbActivePluginsCounter.Font = new Font(tlbActivePluginsCounter.Font, FontStyle.Regular);
+
 					tlbActivePluginsCounter.Text = ViewModel.PluginManagerVM.ActivePlugins.Count.ToString();
 					tlbActivePluginsCounter.ToolTipText = String.Format("Too many active plugins! {0} won't start!", ViewModel.CurrentGameModeName);
 				}
@@ -275,7 +282,11 @@ namespace Nexus.Client
 				{
 					tlbActivePluginsCounter.Image = null;
 					tlbActivePluginsCounter.ForeColor = Color.Black;
-					tlbActivePluginsCounter.Font = new Font(tlbActivePluginsCounter.Font, FontStyle.Regular);
+					if (myFontFamily.IsStyleAvailable(FontStyle.Regular))
+						tlbActivePluginsCounter.Font = new Font(tlbActivePluginsCounter.Font, FontStyle.Regular);
+					else if (myFontFamily.IsStyleAvailable(FontStyle.Bold))
+						tlbActivePluginsCounter.Font = new Font(tlbActivePluginsCounter.Font, FontStyle.Bold);
+
 					tlbActivePluginsCounter.Text = ViewModel.PluginManagerVM.ActivePlugins.Count.ToString();
 				}
 
@@ -498,7 +509,7 @@ namespace Nexus.Client
 				ViewModel.SortPlugins();
 			else
 				MessageBox.Show("Nexus Mod Manager was unable to properly initialize the Automatic Sorting functionality." +
-					Environment.NewLine + Environment.NewLine + "Something is wrong with your loadorder.txt or plugins.txt files," +
+					Environment.NewLine + Environment.NewLine + "This game is not supported or something is wrong with your loadorder.txt or plugins.txt files," +
 					Environment.NewLine + "or one or more plugins are corrupt/broken.",
 					"Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 		}
@@ -1116,12 +1127,14 @@ namespace Nexus.Client
 			new ToolStripItemCommandBinding(tmiLoadBackupTool, cmdLoadBackup);
 			spbTools.DropDownItems.Add(tmiLoadBackupTool);
 
-			Command cmdSortPlugins = new Command("Automatic Plugin Sorting", "Automatically sorts the plugin list.", SortPlugins);
-			ToolStripMenuItem tmicmdSortPluginsTool = new ToolStripMenuItem();
-			tmicmdSortPluginsTool.ImageScaling = ToolStripItemImageScaling.None;
-			new ToolStripItemCommandBinding(tmicmdSortPluginsTool, cmdSortPlugins);
-			spbTools.DropDownItems.Add(tmicmdSortPluginsTool);
-
+			if (ViewModel.UsesPlugins)
+			{
+				Command cmdSortPlugins = new Command("Automatic Plugin Sorting", "Automatically sorts the plugin list.", SortPlugins);
+				ToolStripMenuItem tmicmdSortPluginsTool = new ToolStripMenuItem();
+				tmicmdSortPluginsTool.ImageScaling = ToolStripItemImageScaling.None;
+				new ToolStripItemCommandBinding(tmicmdSortPluginsTool, cmdSortPlugins);
+				spbTools.DropDownItems.Add(tmicmdSortPluginsTool);
+			}
 
 			IEnumerable<string> enuVersions = bmBalloon.GetVersionList();
 			if (enuVersions != null)
