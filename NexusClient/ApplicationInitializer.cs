@@ -382,7 +382,10 @@ namespace Nexus.Client
 			ServiceManager svmServices = InitializeServices(gmdGameMode, mrpModRepository, nfuFileUtility, p_scxUIContext, out p_vwmErrorMessage);
 			if (svmServices == null)
 			{
-				p_vwmErrorMessage = p_vwmErrorMessage ?? new ViewMessage("Unable to initialize services.", null, "Error", MessageBoxIcon.Error);
+				ShowMessage(p_vwmErrorMessage);
+				EnvironmentInfo.Settings.CompletedSetup[p_gmfGameModeFactory.GameModeDescriptor.ModeId] = false;
+				EnvironmentInfo.Settings.Save();
+				Status = TaskStatus.Retrying;
 				return false;
 			}
 			StepOverallProgress();
@@ -786,7 +789,19 @@ namespace Nexus.Client
 			Trace.Indent();
 			Trace.TraceInformation("Checking if upgrade is required...");
 			InstallLogUpgrader iluUgrader = new InstallLogUpgrader();
-			string strLogPath = Path.Combine(p_gmdGameMode.GameModeEnvironmentInfo.InstallInfoDirectory, "InstallLog.xml");
+
+			string strLogPath = string.Empty;
+
+			try
+			{
+				strLogPath = Path.Combine(p_gmdGameMode.GameModeEnvironmentInfo.InstallInfoDirectory, "InstallLog.xml");
+			}
+			catch (ArgumentNullException)
+			{
+				p_vwmErrorMessage = new ViewMessage("Unable to retrieve critical paths from the config file." + Environment.NewLine + "Select this game again to fix the folders setup.", null, "Config error", MessageBoxIcon.Warning);
+				return null;
+			}
+
 			if (!InstallLog.IsLogValid(strLogPath))
 				InstallLog.Restore(strLogPath);
 			if (iluUgrader.NeedsUpgrade(strLogPath))
