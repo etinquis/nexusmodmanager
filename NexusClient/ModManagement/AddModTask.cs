@@ -850,7 +850,21 @@ namespace Nexus.Client.ModManagement
 			string strPath = String.IsNullOrEmpty(Descriptor.SourcePath) ? Descriptor.DefaultSourcePath : Descriptor.SourcePath;
 			string strDestinationHD = String.Empty;
 			m_booFinishedDownloads = true;
-			FileAttributes faAttributes = File.GetAttributes(strPath);
+
+			FileAttributes faAttributes = new FileAttributes();
+
+			try
+			{
+				faAttributes = File.GetAttributes(strPath);
+			}
+			catch (DirectoryNotFoundException)
+			{
+				OverallMessage = String.Format("Could not find a part of the path: {0}", strPath);
+				ItemMessage = "Path error";
+				Status = TaskStatus.Error;
+				OnTaskEnded(OverallMessage, null);
+			}
+
 			FileInfo fiArchive = new FileInfo(strPath);
 			long lngDestinationFreeSpace = fiArchive.Length;
 
