@@ -99,7 +99,23 @@ namespace Nexus.Client.Games.Gamebryo.PluginManagement.LoadOrder
 				{
 					string strPluginFile = p_strPlugins[i];
 					if (!String.IsNullOrWhiteSpace(strPluginFile) && (File.Exists(strPluginFile)))
-						File.SetLastWriteTime(strPluginFile, MasterDate.AddMinutes(i));
+					{
+						int intRepeat = 0;
+						bool booLocked = true;
+
+						while (!IsFileReady(strPluginFile))
+						{
+							Thread.Sleep(100);
+							if (intRepeat++ > 10)
+							{
+								booLocked = true;
+								break;
+							}
+						}
+
+						if(!booLocked)
+							File.SetLastWriteTime(strPluginFile, MasterDate.AddMinutes(i));
+					}
 				}
 			}
 		}
